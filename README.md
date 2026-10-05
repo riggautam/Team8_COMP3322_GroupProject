@@ -21,25 +21,6 @@ To stop the services, press `Ctrl+C` in the terminal and run:
 docker compose down
 ```
 
-If you need to load an image archive (`.tar`) instead, open Docker Desktop and run
-this in PowerShell from the folder containing the archive:
-
-```powershell
-docker load --input .\image-name.tar
-```
-
-The loaded image will then appear under **Images** in Docker Desktop.
-
-If port 8080 is already in use, set a different frontend port for the session before
-starting Compose, for example:
-
-```powershell
-$env:FRONTEND_PORT = "8081"
-docker compose up --build
-```
-
-Then open <http://localhost:8081>.
-
 ## Run locally for development
 
 Install the dependencies in the project root and in both apps, then start them:
