@@ -102,6 +102,23 @@ function TransferCredit() {
             }}
             invalid={hasAttemptedTransfer && !exchangeUniversity}
           />
+          <div className="exchange-course-picker">
+            <label className="exchange-course-label" htmlFor="exchange-course">
+              Exchange course
+            </label>
+            <select
+              className="exchange-course-select"
+              defaultValue=""
+              id="exchange-course"
+            >
+              <option disabled value="">
+                Select a course
+              </option>
+              <option disabled value="pending">
+                Saved courses will appear here
+              </option>
+            </select>
+          </div>
         </div>
         <CourseUrlSection
           id="exchange-course-url"
