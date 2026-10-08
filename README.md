@@ -11,7 +11,7 @@
    ```
 
 4. Open <http://localhost:8080> for the frontend. The API is available at
-   <http://localhost:5000/api/hello>; the frontend's `/api/` requests are proxied to it.
+   <http://localhost:8080/api/hello>; the frontend's `/api/` requests are proxied to it.
 
 The build creates `west-frontend:latest` and `west-backend:latest`. They will appear
 under **Images** in Docker Desktop; the running services appear under **Containers**.
