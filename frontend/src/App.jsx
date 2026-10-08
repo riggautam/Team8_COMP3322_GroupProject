@@ -1,14 +1,15 @@
-import Footer from './global/Footer.jsx'
-import Navbar from './global/Navbar.jsx'
-import Home from './home/Home.jsx'
+import Footer from './components/Footer.jsx'
+import Navbar from './components/Navbar.jsx'
+import Home from './pages/home/Home.jsx'
 import MapPage from './map/MapPage.jsx'
-import TransferCredit from './transfer_credit/TransferCredit.jsx'
+import TransferCredit from './pages/transfer_credit/TransferCredit.jsx'
+import Blog from './pages/Blog.jsx'
 
 function currentPage() {
-  // The other pages already do this with plain links, so /map follows that.
   const path = window.location.pathname.replace(/\/+$/, '')
   if (path === '/map') return 'map'
   if (path === '/transfer-credits') return 'transfer'
+  if (path === '/blog') return 'blog'
   return 'home'
 }
 
@@ -18,8 +19,17 @@ function App() {
   return (
     <div className="app-shell">
       <Navbar />
-      <main className={page === 'map' ? 'page-content map-layout' : 'page-content'}>
+      <main
+        className={
+          page === 'map'
+            ? 'page-content map-layout'
+            : page === 'transfer'
+              ? 'page-content page-content--transfer-credit'
+              : 'page-content'
+        }
+      >
         {page === 'map' && <MapPage />}
+        {page === 'blog' && <Blog />}
         {page === 'transfer' && <TransferCredit />}
         {page === 'home' && <Home />}
       </main>

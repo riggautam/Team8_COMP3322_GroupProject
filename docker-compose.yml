@@ -20,29 +20,45 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
-    command: npm run dev -- --legacy-watch
+      context: .
+      dockerfile: Dockerfile
+      target: backend-dev
+    env_file:
+      - ./backend/.env
     environment:
       NODE_ENV: development
-      PORT: 5000
+      PORT: 3001
+      TRUST_PROXY_HOPS: 1
       DB_HOST: db
       DB_USER: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
       DB_NAME: ${MYSQL_DATABASE}
       GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     depends_on:
       db:
         condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app
+          ignore:
+            - node_modules/
+            - .env
+            - package.json
+            - package-lock.json
+        - action: rebuild
+          path: ./backend/package.json
+        - action: rebuild
+          path: ./backend/package-lock.json
+        - action: rebuild
+          path: ./Dockerfile
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    command: npm run dev -- --host 0.0.0.0
+      context: .
+      dockerfile: Dockerfile
+      target: frontend-dev
     depends_on:
       - backend
     ports:
@@ -50,6 +66,23 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules/
+            - dist/
+            - .env
+            - package.json
+            - package-lock.json
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: rebuild
+          path: ./frontend/package-lock.json
+        - action: rebuild
+          path: ./Dockerfile
 
 volumes:
   db-data:
