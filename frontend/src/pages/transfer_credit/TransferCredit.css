@@ -19,6 +19,34 @@
   flex-direction: column;
 }
 
+.exchange-course-picker {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.exchange-course-label {
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.exchange-course-select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.exchange-course-select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .university-select-label {
   margin: 0 0 0.5rem;
   color: var(--color-text);
@@ -141,6 +169,102 @@
   color: var(--color-text);
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+.course-match-empty,
+.course-match-source,
+.course-match-disclaimer {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.course-match-source {
+  margin-bottom: 1rem;
+}
+
+.course-match-source strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.course-match-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.course-match-item {
+  min-width: 0;
+}
+
+.course-match-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.course-match-heading h4 {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.course-match-percentage {
+  flex: 0 0 auto;
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.course-match-track {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.course-match-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-accent);
+}
+
+.course-match-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.125rem;
+  color: var(--color-muted);
+  font-size: 0.625rem;
+}
+
+.course-match-rationale {
+  margin: 0.375rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.course-match-link {
+  display: inline-block;
+  margin-top: 0.25rem;
+  color: var(--color-accent);
+  font-size: 0.75rem;
+}
+
+.course-match-disclaimer {
+  margin-top: 1rem;
+  font-size: 0.75rem;
 }
 
 .comparison-middle {
