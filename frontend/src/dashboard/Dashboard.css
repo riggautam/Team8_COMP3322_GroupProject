@@ -145,3 +145,133 @@
     font-size: 1.5rem;
   }
 }
+
+.dash-welcome {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  overflow: hidden;
+  padding: 1.5rem 1.5rem 0;
+  border-radius: 0.75rem;
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.dash-welcome h1 {
+  color: #fff;
+}
+
+.dash-welcome p {
+  margin: 0.25rem 0 1.5rem;
+  opacity: 0.85;
+  font-size: 0.875rem;
+}
+
+.dash-skyline {
+  flex: none;
+  width: 12.5rem;
+  fill: var(--color-accent-soft);
+  opacity: 0.35;
+}
+
+.dash-skyline-wave {
+  opacity: 1;
+  fill: var(--color-accent-soft);
+}
+
+.dash-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.dash-heading-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.dash-event {
+  display: flex;
+  gap: 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 0.25rem solid var(--event-color, var(--color-accent));
+}
+
+.dash-event[data-category='Academic'] { --event-color: var(--color-accent); }
+.dash-event[data-category='Social'] { --event-color: #2b6cb0; }
+.dash-event[data-category='Food'] { --event-color: var(--color-warning); }
+.dash-event[data-category='Culture'] { --event-color: #7b3f98; }
+.dash-event[data-category='Sports'] { --event-color: var(--color-danger); }
+
+.dash-event-time {
+  flex: none;
+  min-width: 4.5rem;
+  color: var(--event-color);
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.dash-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.dash-card a.dash-tile {
+  color: var(--color-text);
+}
+
+.dash-tile:hover,
+.dash-tile:focus-visible {
+  background: var(--color-accent-soft);
+}
+
+.dash-tile .dash-meta {
+  display: block;
+}
+
+.dash-ring-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dash-ring-wrap circle {
+  fill: none;
+  stroke-width: 3.5;
+}
+
+.dash-ring-track {
+  stroke: var(--color-accent-soft);
+}
+
+.dash-ring-value {
+  stroke: var(--color-accent);
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.dash-ring-wrap text {
+  fill: var(--color-text);
+  font-size: 0.5rem;
+  font-weight: bold;
+}
+
+@media (max-width: 40rem) {
+  .dash-skyline {
+    display: none;
+  }
+}
