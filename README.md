@@ -4,23 +4,36 @@
 
 1. Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Open a terminal in the project root (the folder containing `docker-compose.yml`).
-3. Build the development images and start both services:
+3. Build the development images, start both services, and enable automatic
+   synchronization/rebuilds:
 
    ```powershell
-   docker compose up --build
+   docker compose up --build --watch
    ```
 
 4. Open <http://localhost:8080> for the frontend. The API is available at
    <http://localhost:8080/api/hello>; the frontend's `/api/` requests are proxied to it.
 
-The Compose setup bind-mounts the frontend and backend source into their containers.
-Changes are picked up automatically by Vite and nodemon, including on Docker Desktop
-for macOS. Rebuild only when dependencies or the development Dockerfiles change.
-To stop the services, press `Ctrl+C` in the terminal and run:
+The single root `Dockerfile` contains development and production targets for both
+services. Compose uses the development targets: frontend changes sync to Vite, while
+backend changes sync to nodemon. Dependency changes and edits to the root Dockerfile
+automatically rebuild the affected service.
+
+The backend listens on port 3001 inside Docker and is not published on a host port;
+the frontend proxies API requests to it. Only the frontend is exposed on host port
+8080, avoiding a macOS host-port conflict with AirPlay.
+Leave this command running during development; press `Ctrl+C` to stop its services.
+Use `docker compose down` only when you want to stop and remove the services:
 
 ```powershell
 docker compose down
 ```
+
+The API allows up to 100 requests per client IP every 15 minutes. If you deploy behind
+a reverse proxy, set `TRUST_PROXY_HOPS` to the number of trusted proxy hops before the
+backend so rate limiting uses the client IP. The default is `0` (no proxy trusted).
+The default limiter store is in-memory and is suitable for a single backend instance;
+multiple instances need a shared rate-limit store.
 
 ## Run locally for development
 
