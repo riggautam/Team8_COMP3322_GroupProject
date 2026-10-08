@@ -1,0 +1,24 @@
+.global-button {
+  min-height: 2.75rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.25rem;
+  background: var(--color-accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.global-button:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.global-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.global-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}

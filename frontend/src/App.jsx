@@ -10,7 +10,9 @@ function App() {
   return (
     <div className="app-shell">
       <Navbar />
-      <main className="page-content">
+      <main
+        className={`page-content${isTransferCreditPage ? ' page-content--transfer-credit' : ''}`}
+      >
         {isTransferCreditPage ? <TransferCredit /> : <Home />}
       </main>
       <Footer />

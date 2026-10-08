@@ -41,3 +41,8 @@ body {
   justify-content: center;
   padding: 3rem 1.5rem;
 }
+
+.page-content--transfer-credit {
+  justify-content: flex-start;
+  padding-top: 1.5rem;
+}
