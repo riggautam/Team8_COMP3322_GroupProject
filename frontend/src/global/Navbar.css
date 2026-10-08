@@ -31,6 +31,14 @@
   text-decoration: none;
 }
 
+.navbar-links a[aria-current='page'] {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
 .navbar-links a:hover,
 .navbar-brand:hover {
   color: var(--color-accent);

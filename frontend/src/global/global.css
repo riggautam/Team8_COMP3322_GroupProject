@@ -11,6 +11,9 @@
   --color-muted: #5f6368;
   --color-border: #e5e7eb;
   --color-accent: #024638;
+  --color-accent-soft: #e3efe9;
+  --color-warning: #8a6100;
+  --color-danger: #b3261e;
 }
 
 * {
