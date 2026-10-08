@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import CardHeading from './CardHeading.jsx'
 
 function FoodSpots({ spots }) {
@@ -18,7 +19,7 @@ function FoodSpots({ spots }) {
           ))}
         </ul>
       )}
-      <a href="/map">Open the map</a>
+      <Link to="/map">Open the map</Link>
     </section>
   )
 }

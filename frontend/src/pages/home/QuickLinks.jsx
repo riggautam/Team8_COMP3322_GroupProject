@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import CardHeading from './CardHeading.jsx'
 import Icon from './Icon.jsx'
 
@@ -14,7 +15,7 @@ function QuickLinks() {
       <ul className="dash-list">
         {LINKS.map((link) => (
           <li key={link.href}>
-            <a className="dash-tile" href={link.href}>
+            <Link className="dash-tile" to={link.href}>
               <span className="dash-heading-icon">
                 <Icon name={link.icon} />
               </span>
@@ -22,7 +23,7 @@ function QuickLinks() {
                 <strong>{link.title}</strong>
                 <span className="dash-meta">{link.text}</span>
               </span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
