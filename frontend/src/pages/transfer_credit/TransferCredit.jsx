@@ -12,7 +12,7 @@ function TransferCredit() {
   const [exchangeUniversity, setExchangeUniversity] = useState('')
   const [homeUniversity, setHomeUniversity] = useState('')
   const [exchangeCourseDetails, setExchangeCourseDetails] = useState('')
-  const [courseCandidates, setCourseCandidates] = useState('')
+  const [matchingData, setMatchingData] = useState(null)
   const [hasAttemptedTransfer, setHasAttemptedTransfer] = useState(false)
   const [transferFeedback, setTransferFeedback] = useState(null)
   const feedbackTimer = useRef(null)
@@ -36,7 +36,7 @@ function TransferCredit() {
 
   function clearCandidateResults() {
     transferRequestId.current += 1
-    setCourseCandidates('')
+    setMatchingData(null)
     setTransferFeedback(null)
     window.clearTimeout(feedbackTimer.current)
   }
@@ -74,7 +74,7 @@ function TransferCredit() {
     if (requestId !== transferRequestId.current) return
 
     if (result.data && Array.isArray(result.data.candidates)) {
-      setCourseCandidates(JSON.stringify(result.data, null, 2))
+      setMatchingData(result.data)
       showTransferFeedback('AI generated potential course matches.', true)
       return
     }
@@ -161,7 +161,7 @@ function TransferCredit() {
             invalid={hasAttemptedTransfer && !homeUniversity}
           />
         </div>
-        <CourseCandidatesSection value={courseCandidates} />
+        <CourseCandidatesSection matchingData={matchingData} />
         <div className="university-secondary-space" />
       </section>
     </section>

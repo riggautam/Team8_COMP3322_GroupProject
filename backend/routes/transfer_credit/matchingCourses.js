@@ -1,7 +1,7 @@
 const MAX_COURSE_DESCRIPTION_LENGTH = 40_000;
 const MAX_COURSE_CANDIDATES = 3;
 const OPENROUTER_TIMEOUT_MS = 120_000;
-const OPENROUTER_MODEL = 'nvidia/nemotron-3-ultra-550b-a55b:free';
+const OPENROUTER_MODEL = 'google/gemma-4-31b-it:free';
 const universityNames = {
   queens: "Queen's University (Canada)",
   sfu: 'Simon Fraser University',
@@ -26,6 +26,8 @@ function safeErrorMessage(error, apiKey) {
 function validateCandidates(result) {
   if (
     !result ||
+    typeof result.exchangeCourseCode !== 'string' ||
+    typeof result.exchangeCourseName !== 'string' ||
     !Array.isArray(result.candidates) ||
     result.candidates.length > MAX_COURSE_CANDIDATES
   ) {
@@ -96,7 +98,8 @@ async function findMatchingCourses({
   const prompt = [
     'Return the top three potential home-university courses related or equivalent in subject coverage to the exchange course, ordered from best to weakest match. Return fewer only if there are fewer reasonable candidates.',
     'Return only a valid JSON object, with no Markdown fences or surrounding explanation, using this shape:',
-    '{"candidates":[{"courseCode":"string","courseName":"string","courseUrl":"string","matchRationale":"string","matchPercentage":75}]}',
+    '{"exchangeCourseCode":"string","exchangeCourseName":"string","candidates":[{"courseCode":"string","courseName":"string","courseUrl":"string","matchRationale":"string","matchPercentage":75}]}',
+    'Extract the exchangeCourseCode and exchangeCourseName from the provided course details. If either is not present or cannot be identified confidently, return an empty string for that field.',
     'Every candidate must include all four string fields and a numeric matchPercentage from 0 to 100. Use an empty courseUrl if you are not confident of the official course page URL.',
     'Estimate matchPercentage as a rough comparison of apparent subject and topic overlap based only on the provided information; it is not a probability, official equivalency decision, or verified measure. Do not overstate certainty. Suggestions, percentages, and course links are unverified.',
     'You do not have live web search for this request. Do not invent course codes or URLs.',
