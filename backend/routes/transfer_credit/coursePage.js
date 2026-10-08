@@ -6,6 +6,62 @@ const net = require('node:net');
 const MAX_PAGE_BYTES = 1_000_000;
 const MAX_REDIRECTS = 3;
 const REQUEST_TIMEOUT_MS = 10_000;
+const OMITTED_ELEMENTS = new Set([
+  'canvas',
+  'footer',
+  'form',
+  'iframe',
+  'nav',
+  'noscript',
+  'script',
+  'style',
+  'svg',
+  'template',
+]);
+const VOID_ELEMENTS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]);
+const BLOCK_ELEMENTS = new Set([
+  'article',
+  'aside',
+  'blockquote',
+  'dd',
+  'div',
+  'dl',
+  'dt',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'header',
+  'li',
+  'ol',
+  'p',
+  'section',
+  'table',
+  'tbody',
+  'tfoot',
+  'thead',
+  'tr',
+  'ul',
+]);
+const BOILERPLATE_CLASS_OR_ID =
+  /(?:^|[-_\s])(?:site[-_ ]?(?:nav|menu|header|footer)|primary[-_ ]?(?:nav|menu)|main[-_ ]?menu|mega[-_ ]?menu|breadcrumb|cookie|consent|login|sign[-_ ]?in|modal|popup|pagination|social|share|advert|ad[-_ ]?banner|search[-_ ]?(?:form|bar|box))(?:$|[-_\s])/i;
 
 function isPublicAddress(address) {
   const version = net.isIP(address);
@@ -169,38 +225,111 @@ function makeRequest(url, addresses) {
   });
 }
 
-function extractPageText(body, contentType) {
-  if (!/html|text\/plain|application\/json/i.test(contentType)) {
-    const error = new Error('The linked page is not HTML, plain text, or JSON.');
-    error.statusCode = 415;
-    throw error;
+function decodeHtmlEntities(text) {
+  return text
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&#(\d+);/g, (entity, code) => {
+      const value = Number(code);
+      return value <= 0x10ffff ? String.fromCodePoint(value) : entity;
+    })
+    .replace(/&#x([\da-f]+);/gi, (entity, code) => {
+      const value = Number.parseInt(code, 16);
+      return value <= 0x10ffff ? String.fromCodePoint(value) : entity;
+    });
+}
+
+function shouldOmitElement(tagName, attributes, inheritedOmission) {
+  if (inheritedOmission || OMITTED_ELEMENTS.has(tagName)) return true;
+
+  const getAttribute = (name) => {
+    const match = attributes.match(
+      new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i'),
+    );
+    return match?.[1] ?? match?.[2] ?? match?.[3];
+  };
+  const role = getAttribute('role');
+  if (
+    ['banner', 'contentinfo', 'dialog', 'menu', 'navigation', 'search'].includes(
+      role?.toLowerCase(),
+    )
+  ) {
+    return true;
   }
 
-  let text = body;
-  if (/html/i.test(contentType)) {
-    text = text
-      .replace(/<(script|style|noscript)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
-      .replace(/<br\b[^>]*>/gi, '\n')
-      .replace(/<\/(td|th)\s*>/gi, '\t')
-      .replace(
-        /<\/(p|div|li|h[1-6]|tr|table|section|article|header|footer|blockquote)\s*>/gi,
-        '\n',
-      )
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&nbsp;|&#160;/gi, ' ')
-      .replace(/&amp;/gi, '&')
-      .replace(/&lt;/gi, '<')
-      .replace(/&gt;/gi, '>')
-      .replace(/&quot;/gi, '"')
-      .replace(/&#39;|&apos;/gi, "'")
-      .replace(/&#(\d+);/g, (_, code) =>
-        String.fromCodePoint(Number(code)),
-      )
-      .replace(/&#x([\da-f]+);/gi, (_, code) =>
-        String.fromCodePoint(Number.parseInt(code, 16)),
-      );
+  if (
+    /\bhidden\b/i.test(attributes) ||
+    /\baria-hidden\s*=\s*["']?true\b/i.test(attributes) ||
+    /\bstyle\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden)/i.test(
+      attributes,
+    )
+  ) {
+    return true;
   }
 
+  const identifyingAttributes = [getAttribute('class'), getAttribute('id')];
+  return identifyingAttributes.some((value) =>
+    value ? BOILERPLATE_CLASS_OR_ID.test(value) : false,
+  );
+}
+
+function extractHtmlText(body) {
+  const output = [];
+  const stack = [];
+  const tokens =
+    body.match(/<!--[\s\S]*?-->|<![^>]*>|<\/?[a-z][^>]*>|[^<]+|</gi) || [];
+
+  for (const token of tokens) {
+    if (token.startsWith('<!--') || /^<!/i.test(token)) continue;
+
+    const tag = token.match(/^<\/?\s*([a-z][\w:-]*)\b([^>]*)>/i);
+    if (!tag) {
+      if (!stack.some((entry) => entry.omit)) output.push(token);
+      continue;
+    }
+
+    const tagName = tag[1].toLowerCase();
+    const isClosing = /^<\//.test(token);
+    if (isClosing) {
+      let stackIndex = stack.length - 1;
+      while (stackIndex >= 0 && stack[stackIndex].tagName !== tagName) {
+        stackIndex -= 1;
+      }
+      if (stackIndex < 0) continue;
+
+      const wasOmitted = stack
+        .slice(0, stackIndex + 1)
+        .some((entry) => entry.omit);
+      stack.length = stackIndex;
+      if (wasOmitted) continue;
+
+      if (tagName === 'td' || tagName === 'th') output.push('\t');
+      else if (BLOCK_ELEMENTS.has(tagName)) output.push('\n');
+      continue;
+    }
+
+    const attributes = tag[2];
+    const omitted = shouldOmitElement(
+      tagName,
+      attributes,
+      stack.some((entry) => entry.omit),
+    );
+    if (!omitted && tagName === 'br') output.push('\n');
+    if (!omitted && BLOCK_ELEMENTS.has(tagName)) output.push('\n');
+
+    if (!VOID_ELEMENTS.has(tagName) && !/\/\s*>$/.test(token)) {
+      stack.push({ tagName, omit: omitted });
+    }
+  }
+
+  return output.join('');
+}
+
+function normalizeExtractedText(text) {
   return text
     .replace(/\r\n?/g, '\n')
     .split('\n')
@@ -215,6 +344,18 @@ function extractPageText(body, contentType) {
     .join('\n')
     .replace(/\n{2,}/g, '\n\n')
     .trim();
+}
+
+function extractPageText(body, contentType) {
+  if (!/html|text\/plain|application\/json/i.test(contentType)) {
+    const error = new Error('The linked page is not HTML, plain text, or JSON.');
+    error.statusCode = 415;
+    throw error;
+  }
+
+  const isHtml = /html/i.test(contentType);
+  const text = isHtml ? decodeHtmlEntities(extractHtmlText(body)) : body;
+  return normalizeExtractedText(text);
 }
 
 async function fetchCoursePage(inputUrl, redirects = 0) {
@@ -249,4 +390,4 @@ async function fetchCoursePage(inputUrl, redirects = 0) {
   return text;
 }
 
-module.exports = { fetchCoursePage };
+module.exports = { extractPageText, fetchCoursePage };
