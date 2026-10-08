@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors'); // Essential to allow your React app to talk to this API
 const eventsRouter = require('./routes/events');
+const dashboardRouter = require('./routes/dashboard');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -11,6 +12,7 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: "Hello backend!" });
 });
 
+app.use('/api/dashboard', dashboardRouter);
 app.use('/api/events', eventsRouter);
 
 app.use((err, req, res, next) => {
