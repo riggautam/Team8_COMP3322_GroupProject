@@ -9,6 +9,7 @@ function Navbar() {
         </a>
         <nav className="navbar-links" aria-label="Main navigation">
           <a href="/">Home</a>
+          <a href="/map">Map</a>
           <a href="/transfer-credits">Transfer Credits</a>
         </nav>
         <div className="navbar-right" aria-hidden="true" />
