@@ -1,9 +1,11 @@
+import CardHeading from './CardHeading.jsx'
+
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
 
 function LatestPosts({ posts }) {
   return (
     <section className="dash-card" aria-labelledby="posts-title">
-      <h2 id="posts-title">Latest blog posts</h2>
+      <CardHeading id="posts-title" icon="pen">Latest blog posts</CardHeading>
       {posts.length === 0 ? (
         <p>No posts yet. Be the first to write one!</p>
       ) : (

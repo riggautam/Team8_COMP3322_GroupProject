@@ -1,7 +1,9 @@
+import CardHeading from './CardHeading.jsx'
+
 function FoodSpots({ spots }) {
   return (
     <section className="dash-card" aria-labelledby="food-title">
-      <h2 id="food-title">Food near campus</h2>
+      <CardHeading id="food-title" icon="utensils">Food near campus</CardHeading>
       {spots.length === 0 ? (
         <p>No food spots to show yet.</p>
       ) : (
