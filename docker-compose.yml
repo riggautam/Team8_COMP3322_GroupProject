@@ -1,19 +1,25 @@
 services:
   backend:
-    image: west-backend:latest
     build:
       context: ./backend
+      dockerfile: Dockerfile.dev
+    command: npm run dev -- --legacy-watch
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 5000
-    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
   frontend:
-    image: west-frontend:latest
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev
+    command: npm run dev -- --host 0.0.0.0
     depends_on:
       - backend
     ports:
-      - "${FRONTEND_PORT:-8080}:80"
-    restart: unless-stopped
+      - "${FRONTEND_PORT:-8080}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
