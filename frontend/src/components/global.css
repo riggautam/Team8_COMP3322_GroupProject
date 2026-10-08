@@ -50,6 +50,8 @@ body {
 .app-shell {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: auto;
 }
 
 .page-content {
@@ -59,6 +61,14 @@ body {
   align-items: center;
   justify-content: center;
   padding: 3rem 1.5rem;
+}
+
+.page-content.map-layout {
+  align-items: stretch;
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 1rem 1.5rem;
+  overflow: hidden;
 }
 
 .page-content--transfer-credit {
