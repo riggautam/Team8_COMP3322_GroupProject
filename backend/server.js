@@ -3,6 +3,7 @@ const cors = require('cors'); // Essential to allow your React app to talk to th
 const { rateLimit } = require('express-rate-limit');
 const eventsRouter = require('./routes/events');
 const dashboardRouter = require('./routes/dashboard');
+const authRouter = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
@@ -133,6 +134,7 @@ app.post('/api/matching-courses', async (req, res) => {
 
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/auth', authRouter);
 
 //db test
 app.get('/api/health/db', async (req, res) => {
