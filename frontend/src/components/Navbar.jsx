@@ -2,8 +2,8 @@ import './Navbar.css'
 
 const LINKS = [
   { href: '/', label: 'Home' },
-  { href: '/map', label: 'Map' },
   { href: '/blog', label: 'Blog' },
+  { href: '/map', label: 'Map' },
   { href: '/transfer-credits', label: 'Transfer Credits' },
 ]
 

@@ -1,7 +1,7 @@
 import Footer from './components/Footer.jsx'
 import Navbar from './components/Navbar.jsx'
 import Home from './pages/home/Home.jsx'
-import MapPage from './map/MapPage.jsx'
+import MapPage from './pages/map/MapPage.jsx'
 import TransferCredit from './pages/transfer_credit/TransferCredit.jsx'
 import Blog from './pages/Blog.jsx'
 
