@@ -1,6 +1,14 @@
 import './Navbar.css'
 
+const LINKS = [
+  { href: '/', label: 'Home' },
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/transfer-credits', label: 'Transfer Credits' },
+]
+
 function Navbar() {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+
   return (
     <header className="site-header">
       <div className="navbar">
@@ -8,9 +16,11 @@ function Navbar() {
           WEST
         </a>
         <nav className="navbar-links" aria-label="Main navigation">
-          <a href="/">Home</a>
-          <a href="/dashboard">Dashboard</a>
-          <a href="/transfer-credits">Transfer Credits</a>
+          {LINKS.map(({ href, label }) => (
+            <a key={href} href={href} aria-current={path === href ? 'page' : undefined}>
+              {label}
+            </a>
+          ))}
         </nav>
         <div className="navbar-right" aria-hidden="true" />
       </div>
