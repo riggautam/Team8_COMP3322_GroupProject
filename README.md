@@ -25,10 +25,10 @@ the frontend proxies API requests to it. Only the frontend is exposed on host po
 
 The backend reads `OPENROUTER_API_KEY` from `backend/.env`; keep this key out of
 source control. Transfer requests send the selected universities and exchange course
-description to OpenRouter's `google/gemma-4-31b-it:free` model and ask it to return
-JSON, which the backend validates. Suggestions and course links are not web-verified,
-so review them before relying on them. Free model availability and rate limits are
-controlled by OpenRouter.
+description to OpenRouter's `nvidia/nemotron-3-ultra-550b-a55b:free` model and ask it
+to return JSON, which the backend validates. Suggestions and course links are not
+web-verified, so review them before relying on them. Free model availability and rate
+limits are controlled by OpenRouter.
 Leave this command running during development; press `Ctrl+C` to stop its services.
 Use `docker compose down` only when you want to stop and remove the services:
 

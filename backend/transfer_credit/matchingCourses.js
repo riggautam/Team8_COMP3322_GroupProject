@@ -1,6 +1,6 @@
 const MAX_COURSE_DESCRIPTION_LENGTH = 40_000;
 const OPENROUTER_TIMEOUT_MS = 60_000;
-const OPENROUTER_MODEL = 'google/gemma-4-31b-it:free';
+const OPENROUTER_MODEL = 'nvidia/nemotron-3-ultra-550b-a55b:free';
 const universityNames = {
   queens: "Queen's University (Canada)",
   sfu: 'Simon Fraser University',
