@@ -1,11 +1,13 @@
-import Footer from './global/Footer.jsx'
-import Navbar from './global/Navbar.jsx'
-import Home from './home/Home.jsx'
-import TransferCredit from './transfer_credit/TransferCredit.jsx'
+import Footer from './components/Footer.jsx'
+import Navbar from './components/Navbar.jsx'
+import Home from './pages/home/Home.jsx'
+import TransferCredit from './pages/transfer_credit/TransferCredit.jsx'
+import Blog from './pages/Blog.jsx'
 
 function App() {
   const isTransferCreditPage =
     window.location.pathname.replace(/\/+$/, '') === '/transfer-credits'
+  const isBlogPage = window.location.pathname.replace(/\/+$/, '') === '/blog'
 
   return (
     <div className="app-shell">
@@ -13,7 +15,13 @@ function App() {
       <main
         className={`page-content${isTransferCreditPage ? ' page-content--transfer-credit' : ''}`}
       >
-        {isTransferCreditPage ? <TransferCredit /> : <Home />}
+        {isBlogPage ? (
+          <Blog />
+        ) : isTransferCreditPage ? (
+          <TransferCredit />
+        ) : (
+          <Home />
+        )}
       </main>
       <Footer />
     </div>

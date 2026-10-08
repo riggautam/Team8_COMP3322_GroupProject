@@ -1,4 +1,4 @@
-import TextField from '../global/TextField.jsx'
+import TextField from '../../components/TextField.jsx'
 
 function CourseCandidatesSection({ value }) {
   return (

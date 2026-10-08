@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import hkuIcon from '../assets/HKU.png'
-import queensIcon from '../assets/Queens.png'
-import sfuIcon from '../assets/SFU.png'
-import unswIcon from '../assets/UNSW.png'
-import uqIcon from '../assets/UQ.png'
-import westernIcon from '../assets/Western.png'
+import hkuIcon from '../../assets/HKU.png'
+import queensIcon from '../../assets/Queens.png'
+import sfuIcon from '../../assets/SFU.png'
+import unswIcon from '../../assets/UNSW.png'
+import uqIcon from '../../assets/UQ.png'
+import westernIcon from '../../assets/Western.png'
 import './TransferCredit.css'
 
 const universities = [

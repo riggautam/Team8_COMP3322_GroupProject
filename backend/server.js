@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors'); // Essential to allow your React app to talk to this API
 const { rateLimit } = require('express-rate-limit');
+const eventsRouter = require('./routes/events');
+const dashboardRouter = require('./routes/dashboard');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
-const { fetchCoursePage } = require('./transfer_credit/coursePage');
-const { findMatchingCourses } = require('./transfer_credit/matchingCourses');
+const { fetchCoursePage } = require('./routes/transfer_credit/coursePage');
+const { findMatchingCourses } = require('./routes/transfer_credit/matchingCourses');
 
 if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0) {
   throw new Error('TRUST_PROXY_HOPS must be a non-negative integer.');
@@ -60,6 +62,14 @@ app.post('/api/matching-courses', async (req, res) => {
       error: error.message || 'Could not generate course suggestions.',
     });
   }
+});
+
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/events', eventsRouter);
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(PORT, () => {

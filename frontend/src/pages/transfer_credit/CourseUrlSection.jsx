@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import Button from '../global/Button.jsx'
-import LoadingSpinner from '../global/LoadingSpinner.jsx'
-import UrlInput from '../global/UrlInput.jsx'
-import useApiRequest from '../hooks/useApiRequest.js'
+import Button from '../../components/Button.jsx'
+import LoadingSpinner from '../../components/LoadingSpinner.jsx'
+import UrlInput from '../../components/UrlInput.jsx'
+import useApiRequest from '../../hooks/useApiRequest.js'
 
 function CourseUrlSection({ id, label, onFetched }) {
   const [url, setUrl] = useState('')

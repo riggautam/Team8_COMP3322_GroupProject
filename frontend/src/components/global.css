@@ -13,6 +13,9 @@
   --color-accent: #024638;
   --color-success: #28633c;
   --color-error: #a33a3a;
+  --color-accent-soft: #e3efe9;
+  --color-warning: #8a6100;
+  --color-danger: #b3261e;
 }
 
 * {
