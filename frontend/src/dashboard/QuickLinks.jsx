@@ -1,18 +1,28 @@
+import CardHeading from './CardHeading.jsx'
+import Icon from './Icon.jsx'
+
 const LINKS = [
-  { href: '/map', title: 'Campus Map', text: 'Find classrooms and food' },
-  { href: '/transfer-credits', title: 'Transfer Credits', text: 'Plan course equivalencies' },
-  { href: '/blog', title: 'Blog', text: 'Read and share stories' },
+  { icon: 'map', href: '/map', title: 'Campus Map', text: 'Find classrooms and food' },
+  { icon: 'book', href: '/transfer-credits', title: 'Transfer Credits', text: 'Plan course equivalencies' },
+  { icon: 'pen', href: '/blog', title: 'Blog', text: 'Read and share stories' },
 ]
 
 function QuickLinks() {
   return (
     <nav className="dash-card" aria-labelledby="quick-links-title">
-      <h2 id="quick-links-title">Quick links</h2>
+      <CardHeading id="quick-links-title" icon="link">Quick links</CardHeading>
       <ul className="dash-list">
         {LINKS.map((link) => (
           <li key={link.href}>
-            <a href={link.href}>{link.title}</a>
-            <p className="dash-meta">{link.text}</p>
+            <a className="dash-tile" href={link.href}>
+              <span className="dash-heading-icon">
+                <Icon name={link.icon} />
+              </span>
+              <span>
+                <strong>{link.title}</strong>
+                <span className="dash-meta">{link.text}</span>
+              </span>
+            </a>
           </li>
         ))}
       </ul>

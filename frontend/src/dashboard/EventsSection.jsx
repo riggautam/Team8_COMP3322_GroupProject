@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import CardHeading from './CardHeading.jsx'
 import useApi from '../hooks/useApi.js'
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
@@ -19,7 +20,7 @@ function EventsSection() {
 
   return (
     <section className="dash-card dash-events" aria-labelledby="events-title">
-      <h2 id="events-title">Today's events</h2>
+      <CardHeading id="events-title" icon="calendar">Today's events</CardHeading>
 
       <ul className="dash-filters" aria-label="Filter events by category">
         {['', ...categories].map((name) => (
@@ -45,7 +46,11 @@ function EventsSection() {
         {events.map((event) => {
           const isOpen = selectedId === event.id
           return (
-            <li key={event.id}>
+            <li key={event.id} className="dash-event" data-category={event.category}>
+              <time className="dash-event-time" dateTime={event.startsAt}>
+                {timeFormat.format(new Date(event.startsAt))}
+              </time>
+              <div>
               <h3>
                 <button
                   type="button"
@@ -57,7 +62,7 @@ function EventsSection() {
                 </button>
               </h3>
               <p className="dash-meta">
-                {timeFormat.format(new Date(event.startsAt))} · {event.category}
+                {event.category}
               </p>
               {isOpen && (
                 <>
@@ -65,6 +70,7 @@ function EventsSection() {
                   <p className="dash-meta">Location: {event.location}</p>
                 </>
               )}
+              </div>
             </li>
           )
         })}
