@@ -13,3 +13,9 @@ Read the repository-root `AGENTS.md` first and follow it along with these fronte
 - Include straightforward optimizations where they improve the experience: lazy-load appropriate routes or large components, avoid unnecessary re-renders and repeated work, and keep assets reasonable.
 - Keep optimizations proportional to the feature; avoid complexity without a clear benefit.
 - Cover loading, error, empty, and relevant responsive states for user-facing features.
+
+## UI Design and Structure
+- Keep the visual design simple and minimal. Do not add unnecessary effects, shadows, gradients, or decoration; add them only when explicitly requested or when they serve a clear design purpose.
+- Before building a page or feature, think through the semantic DOM structure and component hierarchy. Use appropriate HTML elements and avoid wrapper elements that do not add meaning or functionality.
+- Do not add layers of `div` elements just to force margins or formatting. Prefer clear layout structure and maintainable CSS so spacing and responsive behavior remain easy to adjust.
+- Use REM fontsize
