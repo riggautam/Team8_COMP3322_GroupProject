@@ -28,3 +28,7 @@
   outline: none;
   border-bottom-color: var(--color-accent);
 }
+
+.text-field textarea[aria-invalid='true'] {
+  border-bottom-color: var(--color-error);
+}

@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Button from '../global/Button.jsx'
 import LoadingSpinner from '../global/LoadingSpinner.jsx'
+import useApiRequest from '../hooks/useApiRequest.js'
+import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'
 import CourseUrlSection from './CourseUrlSection.jsx'
 import UniversityDropdown from './UniversityDropdown.jsx'
@@ -10,8 +12,78 @@ function TransferCredit() {
   const [exchangeUniversity, setExchangeUniversity] = useState('')
   const [homeUniversity, setHomeUniversity] = useState('')
   const [exchangeCourseDetails, setExchangeCourseDetails] = useState('')
-  const [homeCourseDetails, setHomeCourseDetails] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
+  const [courseCandidates, setCourseCandidates] = useState('')
+  const [hasAttemptedTransfer, setHasAttemptedTransfer] = useState(false)
+  const [transferFeedback, setTransferFeedback] = useState(null)
+  const feedbackTimer = useRef(null)
+  const transferRequestId = useRef(0)
+  const { isLoading, sendRequest } = useApiRequest('/api/matching-courses')
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(feedbackTimer.current)
+    },
+    [],
+  )
+
+  function showTransferFeedback(message, isSuccess) {
+    window.clearTimeout(feedbackTimer.current)
+    setTransferFeedback({ message, isSuccess })
+    feedbackTimer.current = window.setTimeout(() => {
+      setTransferFeedback(null)
+    }, 2000)
+  }
+
+  function clearCandidateResults() {
+    transferRequestId.current += 1
+    setCourseCandidates('')
+    setTransferFeedback(null)
+    window.clearTimeout(feedbackTimer.current)
+  }
+
+  async function handleTransfer() {
+    if (isLoading) return
+
+    setHasAttemptedTransfer(true)
+    const transferDetails = {
+      'Exchange university': exchangeUniversity,
+      'Home university': homeUniversity,
+      'Exchange course details': exchangeCourseDetails.trim(),
+    }
+    const missingFields = Object.entries(transferDetails)
+      .filter(([, value]) => !value)
+      .map(([label]) => label)
+
+    if (missingFields.length) {
+      showTransferFeedback(
+        `Please complete: ${missingFields.join(', ')}.`,
+        false,
+      )
+      return
+    }
+
+    const requestId = ++transferRequestId.current
+    setTransferFeedback(null)
+    window.clearTimeout(feedbackTimer.current)
+    const result = await sendRequest({
+      exchangeUniversity,
+      homeUniversity,
+      courseDescription: exchangeCourseDetails.trim(),
+    })
+
+    if (requestId !== transferRequestId.current) return
+
+    if (result.data && Array.isArray(result.data.candidates)) {
+      setCourseCandidates(JSON.stringify(result.data, null, 2))
+      showTransferFeedback('AI generated potential course matches.', true)
+      return
+    }
+
+    showTransferFeedback(
+      result.error || 'Could not generate course suggestions.',
+      false,
+    )
+  }
 
   return (
     <section
@@ -24,18 +96,29 @@ function TransferCredit() {
             kind="exchange"
             title="Exchange university"
             value={exchangeUniversity}
-            onChange={setExchangeUniversity}
+            onChange={(value) => {
+              setExchangeUniversity(value)
+              clearCandidateResults()
+            }}
+            invalid={hasAttemptedTransfer && !exchangeUniversity}
           />
         </div>
         <CourseUrlSection
           id="exchange-course-url"
           label="Course description URL"
-          onFetched={setExchangeCourseDetails}
+          onFetched={(value) => {
+            setExchangeCourseDetails(value)
+            clearCandidateResults()
+          }}
         />
         <CourseDetailsSection
           id="exchange-course-details"
           value={exchangeCourseDetails}
-          onChange={setExchangeCourseDetails}
+          onChange={(value) => {
+            setExchangeCourseDetails(value)
+            clearCandidateResults()
+          }}
+          invalid={hasAttemptedTransfer && !exchangeCourseDetails.trim()}
         />
         <div className="university-secondary-space" />
       </section>
@@ -49,10 +132,17 @@ function TransferCredit() {
           <path d="M2 12h41m-9-9 9 9-9 9" />
         </svg>
         <div className="comparison-action">
-          {isSearching ? (
-            <LoadingSpinner label="Searching home university courses" />
+          {isLoading ? (
+            <LoadingSpinner label="Finding potential matching courses" />
+          ) : transferFeedback ? (
+            <p
+              className={`status-message status-message--${transferFeedback.isSuccess ? 'success' : 'error'}`}
+              role="status"
+            >
+              {transferFeedback.message}
+            </p>
           ) : (
-            <Button onClick={() => setIsSearching(true)} size="large">
+            <Button onClick={handleTransfer} size="large">
               Transfer
             </Button>
           )}
@@ -64,19 +154,14 @@ function TransferCredit() {
             kind="home"
             title="Home university"
             value={homeUniversity}
-            onChange={setHomeUniversity}
+            onChange={(value) => {
+              setHomeUniversity(value)
+              clearCandidateResults()
+            }}
+            invalid={hasAttemptedTransfer && !homeUniversity}
           />
         </div>
-        <CourseUrlSection
-          id="home-course-url"
-          label="Course description URL"
-          onFetched={setHomeCourseDetails}
-        />
-        <CourseDetailsSection
-          id="home-course-details"
-          value={homeCourseDetails}
-          onChange={setHomeCourseDetails}
-        />
+        <CourseCandidatesSection value={courseCandidates} />
         <div className="university-secondary-space" />
       </section>
     </section>

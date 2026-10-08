@@ -4,7 +4,8 @@ const { rateLimit } = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
-const { fetchCoursePage } = require('./coursePage');
+const { fetchCoursePage } = require('./transfer_credit/coursePage');
+const { findMatchingCourses } = require('./transfer_credit/matchingCourses');
 
 if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0) {
   throw new Error('TRUST_PROXY_HOPS must be a non-negative integer.');
@@ -26,7 +27,7 @@ app.use(
     },
   }),
 );
-app.use(express.json());
+app.use(express.json({ limit: '300kb' }));
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: "Hello backend!" });
@@ -46,6 +47,17 @@ app.post('/api/course-page', async (req, res) => {
     const statusCode = error.statusCode || 502;
     return res.status(statusCode).json({
       error: error.message || 'The linked page could not be fetched.',
+    });
+  }
+});
+
+app.post('/api/matching-courses', async (req, res) => {
+  try {
+    const data = await findMatchingCourses(req.body || {});
+    return res.status(200).json({ data });
+  } catch (error) {
+    return res.status(error.statusCode || 502).json({
+      error: error.message || 'Could not generate course suggestions.',
     });
   }
 });

@@ -128,27 +128,15 @@
   margin-top: 0.75rem;
 }
 
-.course-fetch-feedback {
-  margin: 0;
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-.course-fetch-feedback--success {
-  color: #28633c;
-}
-
-.course-fetch-feedback--error {
-  color: #a33a3a;
-}
-
-.university-course-details {
+.university-course-details,
+.university-course-candidates {
   margin-top: 1.25rem;
   padding-left: 0.75rem;
   border-left: 2px solid var(--color-border);
 }
 
-.university-course-details h3 {
+.university-course-details h3,
+.university-course-candidates h3 {
   margin: 0 0 0.75rem;
   color: var(--color-text);
   font-size: 0.875rem;
@@ -180,9 +168,19 @@
   top: 50%;
   display: flex;
   min-height: 2.75rem;
+  width: max-content;
+  max-width: 10rem;
   align-items: center;
   justify-content: center;
   transform: translateY(-50%);
+}
+
+.comparison-action .status-message {
+  max-width: 10rem;
+}
+
+.university-picker-trigger[aria-invalid='true'] {
+  border-color: var(--color-error);
 }
 
 @media (max-width: 48rem) {
@@ -213,5 +211,9 @@
   .comparison-action {
     position: static;
     transform: none;
+  }
+
+  .comparison-action .status-message {
+    max-width: 12rem;
   }
 }

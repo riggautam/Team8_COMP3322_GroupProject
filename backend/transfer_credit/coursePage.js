@@ -241,7 +241,7 @@ async function fetchCoursePage(inputUrl, redirects = 0) {
 
   const text = extractPageText(result.text, result.contentType);
   if (!text) {
-    const error = new Error('No readable page text was found at that link.');
+    const error = new Error('No readable course page text was found at that link.');
     error.statusCode = 422;
     throw error;
   }

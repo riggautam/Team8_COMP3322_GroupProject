@@ -40,7 +40,13 @@ function UniversityImage({ university }) {
   )
 }
 
-function UniversityDropdown({ kind, title, value, onChange }) {
+function UniversityDropdown({
+  kind,
+  title,
+  value,
+  onChange,
+  invalid = false,
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const pickerRef = useRef(null)
   const triggerRef = useRef(null)
@@ -110,6 +116,7 @@ function UniversityDropdown({ kind, title, value, onChange }) {
           aria-haspopup="listbox"
           aria-labelledby={`${kind}-university-label ${kind}-university-selected-label`}
           className="university-picker-trigger"
+          aria-invalid={invalid}
           onClick={() => setIsOpen((open) => !open)}
           onKeyDown={handleTriggerKeyDown}
           ref={triggerRef}

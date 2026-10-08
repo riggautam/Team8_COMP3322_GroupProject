@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: backend-dev
+    env_file:
+      - ./backend/.env
     environment:
       NODE_ENV: development
       PORT: 3001

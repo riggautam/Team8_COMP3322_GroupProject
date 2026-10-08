@@ -71,7 +71,7 @@ function CourseUrlSection({ id, label, onFetched }) {
           <LoadingSpinner label={`Fetching ${label.toLowerCase()}`} />
         ) : feedback ? (
           <p
-            className={`course-fetch-feedback${feedback.isSuccess ? ' course-fetch-feedback--success' : ' course-fetch-feedback--error'}`}
+            className={`status-message status-message--${feedback.isSuccess ? 'success' : 'error'}`}
             role="status"
           >
             {feedback.message}
