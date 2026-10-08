@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import CardHeading from './CardHeading.jsx'
-import useApi from '../hooks/useApi.js'
+import useApi from '../../hooks/useApi.js'
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
 

@@ -1,4 +1,4 @@
-import useApi from '../hooks/useApi.js'
+import useApi from '../../hooks/useApi.js'
 import Checklist from './Checklist.jsx'
 import CourseProgress from './CourseProgress.jsx'
 import EventsSection from './EventsSection.jsx'

@@ -1,7 +1,7 @@
-import Footer from './global/Footer.jsx'
-import Navbar from './global/Navbar.jsx'
-import Home from './home/Home.jsx'
-import TransferCredit from './transfer_credit/TransferCredit.jsx'
+import Footer from './components/Footer.jsx'
+import Navbar from './components/Navbar.jsx'
+import Home from './pages/home/Home.jsx'
+import TransferCredit from './pages/transfer_credit/TransferCredit.jsx'
 import Blog from './pages/Blog.jsx'
 
 function App() {
@@ -12,7 +12,9 @@ function App() {
   return (
     <div className="app-shell">
       <Navbar />
-      <main className="page-content">
+      <main
+        className={`page-content${isTransferCreditPage ? ' page-content--transfer-credit' : ''}`}
+      >
         {isBlogPage ? (
           <Blog />
         ) : isTransferCreditPage ? (
