@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import CardHeading from './CardHeading.jsx'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
@@ -12,7 +13,7 @@ function LatestPosts({ posts }) {
         <ul className="dash-list">
           {posts.map((post) => (
             <li key={post.id}>
-              <a href={`/blog/${post.id}`}>{post.title}</a>
+              <Link to="/blog">View all posts</Link>
               <p className="dash-meta">
                 {post.author} · <time dateTime={post.publishedAt}>{dateFormat.format(new Date(post.publishedAt))}</time>
               </p>

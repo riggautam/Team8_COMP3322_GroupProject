@@ -1,26 +1,25 @@
+import { NavLink, Link } from 'react-router'
 import './Navbar.css'
 
 const LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/map', label: 'Map' },
-  { href: '/transfer-credits', label: 'Transfer Credits' },
+  { to: '/', label: 'Home' },
+  { to: '/blog', label: 'Blog' },
+  { to: '/map', label: 'Map' },
+  { to: '/transfer-credits', label: 'Transfer Credits' },
 ]
 
 function Navbar() {
-  const path = window.location.pathname.replace(/\/+$/, '') || '/'
-
   return (
     <header className="site-header">
       <div className="navbar">
-        <a className="navbar-brand" href="/" aria-label="WEST home">
+        <Link className="navbar-brand" to="/" aria-label="WEST home">
           WEST
-        </a>
+        </Link>
         <nav className="navbar-links" aria-label="Main navigation">
-          {LINKS.map(({ href, label }) => (
-            <a key={href} href={href} aria-current={path === href ? 'page' : undefined}>
+          {LINKS.map(({ to, label }) => (
+            <NavLink key={to} to={to} end={to === '/'}>
               {label}
-            </a>
+            </NavLink>
           ))}
         </nav>
         <div className="navbar-right" aria-hidden="true" />

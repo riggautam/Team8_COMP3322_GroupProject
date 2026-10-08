@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import CardHeading from './CardHeading.jsx'
 
 const STATUSES = ['approved', 'pending', 'rejected']
@@ -45,7 +46,7 @@ function CourseProgress({ courses }) {
           </ul>
         </>
       )}
-      <a href="/transfer-credits">Manage transfer credits</a>
+      <Link to="/transfer-credits">Manage transfer credits</Link>
     </section>
   )
 }
