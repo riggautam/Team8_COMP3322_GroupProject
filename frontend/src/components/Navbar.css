@@ -58,3 +58,23 @@
     gap: 1.25rem;
   }
 }
+
+.navbar-right {
+  display: flex;
+  justify-self: end;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.navbar-auth {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 1rem;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}

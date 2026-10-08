@@ -5,6 +5,7 @@ import Home from './pages/home/Home.jsx'
 import MapPage from './pages/map/MapPage.jsx'
 import TransferCredit from './pages/transfer_credit/TransferCredit.jsx'
 import Blog from './pages/Blog.jsx'
+import Login from './pages/login/Login.jsx'
 
 function App() {
   const { pathname } = useLocation()
@@ -24,6 +25,7 @@ function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/transfer-credits" element={<TransferCredit />} />
+          <Route path="/login" element={<Login />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>
