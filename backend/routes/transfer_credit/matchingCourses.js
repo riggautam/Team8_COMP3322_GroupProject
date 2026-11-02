@@ -18,12 +18,6 @@ function createError(message, statusCode) {
   return error;
 }
 
-function safeErrorMessage(error, apiKey) {
-  const message =
-    error instanceof Error ? error.message : 'Unknown response error';
-  return message.split(apiKey).join('[REDACTED]').replace(/\s+/g, ' ').slice(0, 300);
-}
-
 function validateCandidates(result) {
   if (
     !result ||
@@ -130,18 +124,13 @@ async function findMatchingCourses({
             },
             { role: 'user', content: prompt },
           ],
-          max_tokens: 4096,
+          max_tokens: 1200,
           reasoning: { enabled: false },
-          temperature: 0.2,
-          stream: false,
         }),
         signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
       },
     );
   } catch (error) {
-    console.error(
-      `[OpenRouter] Request failed before response: ${safeErrorMessage(error, apiKey)}`,
-    );
     if (error.name === 'TimeoutError' || error.name === 'AbortError') {
       throw createError(
         'OpenRouter took too long to respond. Please try again.',
@@ -152,13 +141,14 @@ async function findMatchingCourses({
     throw createError('Could not connect to the OpenRouter API.', 502);
   }
 
+  if (!response.ok) {
+    throw createError('The course matching service could not complete the request.', 502);
+  }
+
   let rawResponse;
   try {
     rawResponse = await response.text();
   } catch (error) {
-    console.error(
-      `[OpenRouter] Failed reading HTTP ${response.status} response body: ${safeErrorMessage(error, apiKey)}`,
-    );
     if (error.name === 'TimeoutError' || error.name === 'AbortError') {
       throw createError(
         'OpenRouter took too long to finish generating a response. Please try again.',
@@ -168,62 +158,11 @@ async function findMatchingCourses({
     throw createError('Could not read the OpenRouter response.', 502);
   }
 
-  const safeResponse = rawResponse.split(apiKey).join('[REDACTED]');
-  const loggedResponse = safeResponse.slice(0, 12_000);
-  console.log(
-    `[OpenRouter] HTTP ${response.status}; response body (${rawResponse.length} characters): ${loggedResponse}${safeResponse.length > loggedResponse.length ? ' [truncated]' : ''}`,
-  );
-
   let responseBody;
   try {
     responseBody = JSON.parse(rawResponse);
   } catch {
     throw createError('OpenRouter returned an unreadable response.', 502);
-  }
-
-  if (!response.ok) {
-    const upstreamError = responseBody.error || {};
-    const upstreamCode =
-      typeof upstreamError.code === 'string' ||
-      typeof upstreamError.code === 'number'
-        ? ` ${upstreamError.code}`
-        : '';
-    const upstreamMessage =
-      typeof upstreamError.message === 'string'
-        ? upstreamError.message
-            .split(apiKey)
-            .join('[redacted]')
-            .replace(/\s+/g, ' ')
-            .slice(0, 300)
-        : '';
-    const detail = upstreamMessage ? ` OpenRouter says: ${upstreamMessage}` : '';
-
-    if (response.status === 401) {
-      throw createError(`OpenRouter rejected the API key (HTTP 401).${detail}`, 502);
-    }
-    if (response.status === 402) {
-      throw createError(
-        `OpenRouter reports insufficient credits (HTTP 402).${detail}`,
-        402,
-      );
-    }
-    if (response.status === 403) {
-      throw createError(
-        `OpenRouter denied access (HTTP 403${upstreamCode}). Check your key and account limits.${detail}`,
-        502,
-      );
-    }
-    if (response.status === 429) {
-      throw createError(
-        `OpenRouter rate limit reached (HTTP 429). Please retry later.${detail}`,
-        429,
-      );
-    }
-
-    throw createError(
-      `OpenRouter API request failed (HTTP ${response.status}${upstreamCode}).${detail}`,
-      502,
-    );
   }
 
   const generatedText = responseBody.choices?.[0]?.message?.content;
