@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import Button from '../../components/Button.jsx'
 import LoadingSpinner from '../../components/LoadingSpinner.jsx'
 import UrlInput from '../../components/UrlInput.jsx'
-import useApiRequest from '../../hooks/useApiRequest.js'
+import useApi from '../../hooks/useApi.js'
 
 function CourseUrlSection({ id, label, onFetched }) {
   const [url, setUrl] = useState('')
   const [isWorking, setIsWorking] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const feedbackTimer = useRef(null)
-  const { isLoading, sendRequest } = useApiRequest('/api/course-page')
+  const { isLoading, sendRequest } = useApi('/api/course-page', { auto: false })
 
   useEffect(
     () => () => {
@@ -46,11 +46,11 @@ function CourseUrlSection({ id, label, onFetched }) {
       return
     }
 
-    const result = await sendRequest({ url: parsedUrl.href })
+    const result = await sendRequest({ body: { url: parsedUrl.href } })
     setIsWorking(false)
 
-    if (result.data) {
-      onFetched(result.data)
+    if (result.data?.text) {
+      onFetched(result.data.text)
       showFeedback('Course information fetched successfully.', true)
       return
     }

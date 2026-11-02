@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import Button from '../../components/Button.jsx'
 import { useAuth } from '../../hooks/authContext.js'
-import useApiRequest from '../../hooks/useApiRequest.js'
+import useApi from '../../hooks/useApi.js'
 import './Login.css'
 
 function Login() {
@@ -10,16 +10,16 @@ function Login() {
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { error, isLoading, sendRequest } = useApiRequest(`/api/auth/${mode}`)
+  const { error, isLoading, sendRequest } = useApi(`/api/auth/${mode}`, { auto: false })
   const { login } = useAuth()
   const navigate = useNavigate()
   const isRegister = mode === 'register'
 
   async function handleSubmit(event) {
     event.preventDefault() // stop the browser's own form submit (a page reload)
-    const result = await sendRequest({ displayName, email, password })
-    if (result.data) {
-      login(result.data)
+    const result = await sendRequest({ body: { displayName, email, password } })
+    if (result.data?.data) {
+      login(result.data.data)
       navigate('/')
     }
   }

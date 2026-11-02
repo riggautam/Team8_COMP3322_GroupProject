@@ -16,7 +16,7 @@ function Navbar() {
     <header className="site-header">
       <div className="navbar">
         <Link className="navbar-brand" to="/" aria-label="WEST home">
-          WEST
+          <img src="/android-chrome-192x192.png" alt="" />
         </Link>
         <nav className="navbar-links" aria-label="Main navigation">
           {LINKS.map(({ to, label }) => (

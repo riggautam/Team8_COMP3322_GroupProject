@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Button from '../../components/Button.jsx'
 import LoadingSpinner from '../../components/LoadingSpinner.jsx'
-import useApiRequest from '../../hooks/useApiRequest.js'
+import useApi from '../../hooks/useApi.js'
 import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'
 import CourseUrlSection from './CourseUrlSection.jsx'
@@ -17,7 +17,7 @@ function TransferCredit() {
   const [transferFeedback, setTransferFeedback] = useState(null)
   const feedbackTimer = useRef(null)
   const transferRequestId = useRef(0)
-  const { isLoading, sendRequest } = useApiRequest('/api/matching-courses')
+  const { isLoading, sendRequest } = useApi('/api/matching-courses', { auto: false })
 
   useEffect(
     () => () => {
@@ -66,15 +66,17 @@ function TransferCredit() {
     setTransferFeedback(null)
     window.clearTimeout(feedbackTimer.current)
     const result = await sendRequest({
-      exchangeUniversity,
-      homeUniversity,
-      courseDescription: exchangeCourseDetails.trim(),
+      body: {
+        exchangeUniversity,
+        homeUniversity,
+        courseDescription: exchangeCourseDetails.trim(),
+      },
     })
 
     if (requestId !== transferRequestId.current) return
 
-    if (result.data && Array.isArray(result.data.candidates)) {
-      setMatchingData(result.data)
+    if (result.data?.data && Array.isArray(result.data.data.candidates)) {
+      setMatchingData(result.data.data)
       showTransferFeedback('AI generated potential course matches.', true)
       return
     }
