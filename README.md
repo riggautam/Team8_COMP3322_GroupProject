@@ -4,20 +4,20 @@
 
 1. Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Open a terminal in the project root (the folder containing `docker-compose.yml`).
-3. Build the development images, start both services, and enable automatic
-   synchronization/rebuilds:
+3. Build the development images and start the services:
 
    ```powershell
-   docker compose up --build --watch
+   docker compose up --build
    ```
 
 4. Open <http://localhost:8080> for the frontend. The API is available at
    <http://localhost:8080/api/hello>; the frontend's `/api/` requests are proxied to it.
 
-The single root `Dockerfile` contains development and production targets for both
-services. Compose uses the development targets: frontend changes sync to Vite, while
-backend changes sync to nodemon. Dependency changes and edits to the root Dockerfile
-automatically rebuild the affected service.
+The root `Dockerfile` contains the two development images used by Compose. It mounts
+the frontend and backend folders, so code changes show up while the containers run.
+Rebuild after changing dependencies or the Dockerfile with
+`docker compose up --build`. If dependencies changed, add `--renew-anon-volumes` so
+the containers get fresh `node_modules` folders.
 
 The backend listens on port 3001 inside Docker and is not published on a host port;
 the frontend proxies API requests to it. Only the frontend is exposed on host port
@@ -43,14 +43,3 @@ a reverse proxy, set `TRUST_PROXY_HOPS` to the number of trusted proxy hops befo
 backend so rate limiting uses the client IP. The default is `0` (no proxy trusted).
 The default limiter store is in-memory and is suitable for a single backend instance;
 multiple instances need a shared rate-limit store.
-
-## Run locally for development
-
-Install the dependencies in the project root and in both apps, then start them:
-
-```powershell
-npm install
-npm install --prefix frontend
-npm install --prefix backend
-npm run dev
-```
