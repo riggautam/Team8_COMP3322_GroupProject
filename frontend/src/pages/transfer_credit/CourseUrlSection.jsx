@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import Button from '../../components/forms/Button.jsx'
 import LoadingSpinner from '../../components/animation/LoadingSpinner.jsx'
 import TextInput from '../../components/forms/TextInput.jsx'
-import useApi from '../../hooks/useApi.js'
+import usePost from '../../hooks/usePost.js'
 
 function CourseUrlSection({ id, label, onFetched }) {
   const [url, setUrl] = useState('')
   const [isWorking, setIsWorking] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const feedbackTimer = useRef(null)
-  const { isLoading, sendRequest } = useApi('/api/course-page', { auto: false })
+  const { isLoading, post } = usePost('/api/course-page')
 
   useEffect(
     () => () => {
@@ -46,7 +46,7 @@ function CourseUrlSection({ id, label, onFetched }) {
       return
     }
 
-    const result = await sendRequest({ body: { url: parsedUrl.href } })
+    const result = await post({ url: parsedUrl.href })
     setIsWorking(false)
 
     if (result.data?.text) {

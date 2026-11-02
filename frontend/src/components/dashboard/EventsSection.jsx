@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import SectionHeading from '../ui/SectionHeading.jsx'
-import useApi from '../../hooks/useApi.js'
+import useGet from '../../hooks/useGet.js'
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
 
@@ -8,7 +8,7 @@ function EventsSection() {
   const [category, setCategory] = useState('')
   const [selectedId, setSelectedId] = useState(null)
   const query = category ? `?category=${encodeURIComponent(category)}` : ''
-  const { data, error, isLoading } = useApi(`/api/events${query}`)
+  const { data, error, isLoading } = useGet(`/api/events${query}`)
 
   const events = data?.events ?? []
   const categories = data?.categories ?? []

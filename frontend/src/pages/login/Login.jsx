@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import Button from '../../components/forms/Button.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
-import useApi from '../../hooks/useApi.js'
+import usePost from '../../hooks/usePost.js'
 import './Login.css'
 
 function Login() {
@@ -10,14 +10,14 @@ function Login() {
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { error, isLoading, sendRequest } = useApi(`/api/auth/${mode}`, { auto: false })
+  const { error, isLoading, post } = usePost(`/api/auth/${mode}`)
   const { login } = useAuth()
   const navigate = useNavigate()
   const isRegister = mode === 'register'
 
   async function handleSubmit(event) {
     event.preventDefault() // stop the browser's own form submit (a page reload)
-    const result = await sendRequest({ body: { displayName, email, password } })
+    const result = await post({ displayName, email, password })
     if (result.data?.data) {
       login(result.data.data)
       navigate('/')

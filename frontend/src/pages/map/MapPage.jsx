@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import useApi from '../../hooks/useApi.js'
+import usePost from '../../hooks/usePost.js'
 import { loadGoogleMaps } from './loadGoogleMaps.js'
 import './Map.css'
 
@@ -72,7 +72,7 @@ function pointBetween(a, b, amount) {
 }
 
 function MapPage() {
-  const { sendRequest } = useApi('/api/directions', { auto: false })
+  const { post } = usePost('/api/directions')
   const mapDiv = useRef(null)
   const mapRef = useRef(null)
   const mapsRef = useRef(null)
@@ -275,11 +275,9 @@ function MapPage() {
 
     // Our server calls Google. The page key is only allowed to show the map.
     try {
-      const result = await sendRequest({
-        body: {
-          origin: location,
-          destination: destinationQuery(query),
-        },
+      const result = await post({
+        origin: location,
+        destination: destinationQuery(query),
       })
       if (result.error) throw new Error(result.error)
 

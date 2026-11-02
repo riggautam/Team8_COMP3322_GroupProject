@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Button from '../../components/forms/Button.jsx'
 import LoadingSpinner from '../../components/animation/LoadingSpinner.jsx'
-import useApi from '../../hooks/useApi.js'
+import usePost from '../../hooks/usePost.js'
 import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'
 import CourseUrlSection from './CourseUrlSection.jsx'
@@ -17,7 +17,7 @@ function TransferCredit() {
   const [transferFeedback, setTransferFeedback] = useState(null)
   const feedbackTimer = useRef(null)
   const transferRequestId = useRef(0)
-  const { isLoading, sendRequest } = useApi('/api/matching-courses', { auto: false })
+  const { isLoading, post } = usePost('/api/matching-courses')
 
   useEffect(
     () => () => {
@@ -65,12 +65,10 @@ function TransferCredit() {
     const requestId = ++transferRequestId.current
     setTransferFeedback(null)
     window.clearTimeout(feedbackTimer.current)
-    const result = await sendRequest({
-      body: {
-        exchangeUniversity,
-        homeUniversity,
-        courseDescription: exchangeCourseDetails.trim(),
-      },
+    const result = await post({
+      exchangeUniversity,
+      homeUniversity,
+      courseDescription: exchangeCourseDetails.trim(),
     })
 
     if (requestId !== transferRequestId.current) return
