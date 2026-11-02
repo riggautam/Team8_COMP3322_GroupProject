@@ -1,3 +1,4 @@
+const express = require('express');
 const MAX_COURSE_DESCRIPTION_LENGTH = 40_000;
 const MAX_COURSE_CANDIDATES = 3;
 const OPENROUTER_TIMEOUT_MS = 120_000;
@@ -240,4 +241,17 @@ async function findMatchingCourses({
   return validateCandidates(result);
 }
 
-module.exports = { findMatchingCourses };
+const router = express.Router();
+
+router.post('/', async (req, res) => {
+  try {
+    const data = await findMatchingCourses(req.body || {});
+    return res.status(200).json({ data });
+  } catch (error) {
+    return res.status(error.statusCode || 502).json({
+      error: error.message || 'Could not generate course suggestions.',
+    });
+  }
+});
+
+module.exports = router;

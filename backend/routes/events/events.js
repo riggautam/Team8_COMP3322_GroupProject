@@ -1,5 +1,5 @@
 const express = require('express')
-const { CATEGORIES, getTodaysEvents } = require('../data/events')
+const { CATEGORIES, getTodaysEvents } = require('../../data/events')
 
 const router = express.Router()
 

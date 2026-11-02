@@ -1,5 +1,5 @@
 const express = require('express')
-const dashboard = require('../data/dashboard')
+const dashboard = require('../../data/dashboard')
 
 const router = express.Router()
 

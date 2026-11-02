@@ -22,7 +22,6 @@ services:
     env_file: ./backend/.env
     environment:
       PORT: 3001
-      TRUST_PROXY_HOPS: 1
       DB_HOST: db
       DB_USER: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}

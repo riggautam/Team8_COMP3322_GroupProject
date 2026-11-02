@@ -1,3 +1,4 @@
+const express = require('express');
 const dns = require('node:dns').promises;
 const http = require('node:http');
 const https = require('node:https');
@@ -390,4 +391,23 @@ async function fetchCoursePage(inputUrl, redirects = 0) {
   return text;
 }
 
-module.exports = { extractPageText, fetchCoursePage };
+const router = express.Router();
+
+router.post('/', async (req, res) => {
+  const { url } = req.body || {};
+
+  if (typeof url !== 'string' || !url.trim()) {
+    return res.status(400).json({ error: 'Enter a course description link.' });
+  }
+
+  try {
+    const text = await fetchCoursePage(url.trim());
+    return res.status(200).json({ text });
+  } catch (error) {
+    return res.status(error.statusCode || 502).json({
+      error: error.message || 'The linked page could not be fetched.',
+    });
+  }
+});
+
+module.exports = router;

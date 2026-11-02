@@ -10,8 +10,8 @@
    docker compose up --build
    ```
 
-4. Open <http://localhost:8080> for the frontend. The API is available at
-   <http://localhost:8080/api/hello>; the frontend's `/api/` requests are proxied to it.
+4. Open <http://localhost:8080> for the frontend. Its `/api/` requests are proxied to
+   the backend.
 
 The root `Dockerfile` contains the two development images used by Compose. It mounts
 the frontend and backend folders, so code changes show up while the containers run.
@@ -37,9 +37,3 @@ Use `docker compose down` only when you want to stop and remove the services:
 ```powershell
 docker compose down
 ```
-
-The API allows up to 100 requests per client IP every 15 minutes. If you deploy behind
-a reverse proxy, set `TRUST_PROXY_HOPS` to the number of trusted proxy hops before the
-backend so rate limiting uses the client IP. The default is `0` (no proxy trusted).
-The default limiter store is in-memory and is suitable for a single backend instance;
-multiple instances need a shared rate-limit store.
