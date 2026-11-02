@@ -2,7 +2,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  width: min(100%, 72rem);
+  width: 100%;
   min-height: 0;
   margin-inline: auto;
 }
@@ -27,7 +27,7 @@
   flex: 1 1 16rem;
   min-width: 12rem;
   padding: 0.55rem 0.7rem;
-  border: 1px solid var(--color-border);
+  border: 0.0625rem solid var(--color-border);
   background: #fff;
   color: var(--color-text);
   font: inherit;
@@ -35,7 +35,7 @@
 
 .map-search button {
   padding: 0.55rem 0.9rem;
-  border: 1px solid var(--color-accent);
+  border: 0.0625rem solid var(--color-accent);
   background: var(--color-accent);
   color: #fff;
   font: inherit;
@@ -68,7 +68,7 @@
   display: flex;
   overflow: hidden;
   background: #fff;
-  border: 1px solid var(--color-border);
+  border: 0.0625rem solid var(--color-border);
 }
 
 .map-mode button {
@@ -95,7 +95,7 @@
   padding: 0.65rem 0.85rem;
   list-style: none;
   background: #fff;
-  border: 1px solid var(--color-border);
+  border: 0.0625rem solid var(--color-border);
 }
 
 .map-steps li {

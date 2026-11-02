@@ -1,0 +1,28 @@
+.text-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.text-input label {
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.text-input input {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: 0.0625rem solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.text-input input:focus-visible {
+  outline: none;
+  border-bottom-color: var(--color-accent);
+}

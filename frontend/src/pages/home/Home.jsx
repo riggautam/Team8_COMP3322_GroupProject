@@ -1,15 +1,15 @@
-import useApi from '../../hooks/useApi.js'
-import Checklist from './Checklist.jsx'
-import CourseProgress from './CourseProgress.jsx'
-import EventsSection from './EventsSection.jsx'
-import FoodSpots from './FoodSpots.jsx'
-import LatestPosts from './LatestPosts.jsx'
-import QuickLinks from './QuickLinks.jsx'
-import WelcomeHeader from './WelcomeHeader.jsx'
+import useGet from '../../hooks/useGet.js'
+import Checklist from '../../components/dashboard/Checklist.jsx'
+import CourseProgress from '../../components/dashboard/CourseProgress.jsx'
+import EventsSection from '../../components/dashboard/EventsSection.jsx'
+import FoodSpots from '../../components/dashboard/FoodSpots.jsx'
+import LatestPosts from '../../components/dashboard/LatestPosts.jsx'
+import QuickLinks from '../../components/dashboard/QuickLinks.jsx'
+import WelcomeHeader from '../../components/dashboard/WelcomeHeader.jsx'
 import './Home.css'
 
 function Home() {
-  const { data, error, isLoading } = useApi('/api/dashboard')
+  const { data, error, isLoading } = useGet('/api/dashboard')
 
   return (
     <div className="home">

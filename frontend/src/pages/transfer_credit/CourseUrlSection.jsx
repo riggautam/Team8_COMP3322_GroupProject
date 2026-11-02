@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import Button from '../../components/Button.jsx'
-import LoadingSpinner from '../../components/LoadingSpinner.jsx'
-import UrlInput from '../../components/UrlInput.jsx'
-import useApiRequest from '../../hooks/useApiRequest.js'
+import Button from '../../components/forms/Button.jsx'
+import LoadingSpinner from '../../components/animation/LoadingSpinner.jsx'
+import TextInput from '../../components/forms/TextInput.jsx'
+import usePost from '../../hooks/usePost.js'
 
 function CourseUrlSection({ id, label, onFetched }) {
   const [url, setUrl] = useState('')
   const [isWorking, setIsWorking] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const feedbackTimer = useRef(null)
-  const { isLoading, sendRequest } = useApiRequest('/api/course-page')
+  const { isLoading, post } = usePost('/api/course-page')
 
   useEffect(
     () => () => {
@@ -46,11 +46,11 @@ function CourseUrlSection({ id, label, onFetched }) {
       return
     }
 
-    const result = await sendRequest({ url: parsedUrl.href })
+    const result = await post({ url: parsedUrl.href })
     setIsWorking(false)
 
-    if (result.data) {
-      onFetched(result.data)
+    if (result.data?.text) {
+      onFetched(result.data.text)
       showFeedback('Course information fetched successfully.', true)
       return
     }
@@ -60,10 +60,13 @@ function CourseUrlSection({ id, label, onFetched }) {
 
   return (
     <section className="university-course-input" aria-label={label}>
-      <UrlInput
+      <TextInput
+        autoComplete="url"
         id={id}
         label={label}
         onChange={setUrl}
+        placeholder="https://"
+        type="url"
         value={url}
       />
       <div className="university-course-input-action">

@@ -1,33 +1,28 @@
-import { Routes, Route, useLocation } from 'react-router'
-import Footer from './components/Footer.jsx'
-import Navbar from './components/Navbar.jsx'
-import Home from './pages/home/Home.jsx'
-import MapPage from './pages/map/MapPage.jsx'
-import TransferCredit from './pages/transfer_credit/TransferCredit.jsx'
-import Blog from './pages/Blog.jsx'
-import Login from './pages/login/Login.jsx'
+import { lazy, Suspense } from 'react'
+import { Routes, Route } from 'react-router'
+import Footer from './components/layout/Footer.jsx'
+import Navbar from './components/layout/Navbar.jsx'
+const Home = lazy(() => import('./pages/home/Home.jsx'))
+const MapPage = lazy(() => import('./pages/map/MapPage.jsx'))
+const TransferCredit = lazy(() => import('./pages/transfer_credit/TransferCredit.jsx'))
+const Blog = lazy(() => import('./pages/blog/Blog.jsx'))
+const Login = lazy(() => import('./pages/login/Login.jsx'))
 
 function App() {
-  const { pathname } = useLocation()
-  const mainClass =
-    pathname === '/map'
-      ? 'page-content map-layout'
-      : pathname === '/transfer-credits'
-        ? 'page-content page-content--transfer-credit'
-        : 'page-content'
-
   return (
     <div className="app-shell">
       <Navbar />
-      <main className={mainClass}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/map" element={<MapPage />} />
-          <Route path="/transfer-credits" element={<TransferCredit />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<Home />} />
-        </Routes>
+      <main className="page-content">
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/map" element={<MapPage />} />
+            <Route path="/transfer-credits" element={<TransferCredit />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </div>

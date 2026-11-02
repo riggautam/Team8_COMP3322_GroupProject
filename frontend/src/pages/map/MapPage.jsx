@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import usePost from '../../hooks/usePost.js'
 import { loadGoogleMaps } from './loadGoogleMaps.js'
 import './Map.css'
 
@@ -71,6 +72,7 @@ function pointBetween(a, b, amount) {
 }
 
 function MapPage() {
+  const { post } = usePost('/api/directions')
   const mapDiv = useRef(null)
   const mapRef = useRef(null)
   const mapsRef = useRef(null)
@@ -258,7 +260,7 @@ function MapPage() {
     }
   }, [])
 
-  function onSearch(event) {
+  async function onSearch(event) {
     event.preventDefault()
     const query = building.trim()
 
@@ -272,57 +274,48 @@ function MapPage() {
     setStatus('Finding a walking route...')
 
     // Our server calls Google. The page key is only allowed to show the map.
-    fetch('/api/directions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      const result = await post({
         origin: location,
         destination: destinationQuery(query),
-      }),
-    })
-      .then(async (response) => {
-        const data = await response.json()
-        if (!response.ok) {
-          throw new Error(data.error || 'No walking route found.')
-        }
-        return data
       })
-      .then((data) => {
-        const maps = mapsRef.current
-        const path = maps.geometry.encoding.decodePath(data.polyline)
+      if (result.error) throw new Error(result.error)
 
-        if (routeLine.current) routeLine.current.setMap(null)
-        routeLine.current = new maps.Polyline({
-          path,
-          map: mapRef.current,
-          strokeColor: '#024638',
-          strokeWeight: 6,
-        })
+      const data = result.data
+      const maps = mapsRef.current
+      const path = maps.geometry.encoding.decodePath(data.polyline)
 
-        const nextSteps = data.steps.map((step) => ({
-          text: plainText(step.text),
-          lat: step.lat,
-          lng: step.lng,
-        }))
-        routeOrigin.current = locationRef.current
-        rememberSteps(nextSteps, 0)
-        hasRoute.current = true
-        setStatus(walkSummary(data.distanceMeters, data.durationSeconds))
-
-        if (modeRef.current === '3d') {
-          lastCamera.current = null
-          followIn3d(locationRef.current)
-        } else {
-          const bounds = new maps.LatLngBounds()
-          path.forEach((point) => bounds.extend(point))
-          mapRef.current.fitBounds(bounds)
-        }
+      if (routeLine.current) routeLine.current.setMap(null)
+      routeLine.current = new maps.Polyline({
+        path,
+        map: mapRef.current,
+        strokeColor: '#024638',
+        strokeWeight: 6,
       })
-      .catch((error) => {
-        hasRoute.current = false
-        rememberSteps([], 0)
-        setStatus(error.message || 'No walking route for that. Try a fuller name, like "HKU Main Library".')
-      })
+
+      const nextSteps = data.steps.map((step) => ({
+        text: plainText(step.text),
+        lat: step.lat,
+        lng: step.lng,
+      }))
+      routeOrigin.current = locationRef.current
+      rememberSteps(nextSteps, 0)
+      hasRoute.current = true
+      setStatus(walkSummary(data.distanceMeters, data.durationSeconds))
+
+      if (modeRef.current === '3d') {
+        lastCamera.current = null
+        followIn3d(locationRef.current)
+      } else {
+        const bounds = new maps.LatLngBounds()
+        path.forEach((point) => bounds.extend(point))
+        mapRef.current.fitBounds(bounds)
+      }
+    } catch (error) {
+      hasRoute.current = false
+      rememberSteps([], 0)
+      setStatus(error.message || 'No walking route for that. Try a fuller name, like "HKU Main Library".')
+    }
   }
 
   const upcoming = steps.slice(stepIndex, stepIndex + STEPS_ON_SCREEN)
