@@ -28,6 +28,7 @@ function EventsSection() {
             <button
               type="button"
               aria-pressed={category === name}
+              disabled={isLoading}
               onClick={() => selectCategory(name)}
             >
               {name || 'All'}
