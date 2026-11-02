@@ -63,7 +63,7 @@ body {
   padding: 3rem 1.5rem;
 }
 
-.page-content.map-layout {
+.page-content:has(> .map-page) {
   align-items: stretch;
   justify-content: flex-start;
   min-height: 0;
@@ -71,7 +71,7 @@ body {
   overflow: hidden;
 }
 
-.page-content--transfer-credit {
+.page-content:has(> .university-comparison) {
   justify-content: flex-start;
   padding-top: 1.5rem;
 }
