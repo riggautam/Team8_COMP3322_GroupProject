@@ -1,6 +1,5 @@
 .blog-page {
   width: 100%;
-  max-width: 72rem;
   color: var(--color-text);
 }
 
@@ -69,7 +68,7 @@
 
 .blog-card {
   padding: 1.25rem 1.5rem;
-  border: 1px solid var(--color-border);
+  border: 0.0625rem solid var(--color-border);
   border-radius: 0.75rem;
   background: #fff;
 }
@@ -110,8 +109,8 @@
 
 .blog-search label {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: 0.0625rem;
+  height: 0.0625rem;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
@@ -120,15 +119,15 @@
 .blog-search input {
   min-height: 2.5rem;
   padding: 0.4rem 0.8rem;
-  border: 1px solid var(--color-border);
+  border: 0.0625rem solid var(--color-border);
   border-radius: 0.5rem;
   background: #fff;
   font-size: 0.875rem;
 }
 
 .blog-search input:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 1px;
+  outline: 0.125rem solid var(--color-accent);
+  outline-offset: 0.0625rem;
 }
 
 .blog-featured {
@@ -189,7 +188,7 @@
 .blog-post-footer {
   margin-top: 0.5rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #f3f4f6;
+  border-top: 0.0625rem solid #f3f4f6;
   color: #374151;
   font-size: 0.85rem;
 }

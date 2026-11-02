@@ -1,12 +1,12 @@
 .site-header {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 0.0625rem solid var(--color-border);
 }
 
 .navbar {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  width: min(100% - 3rem, 72rem);
+  width: min(100% - 3rem, var(--content-width));
   min-height: 4rem;
   margin-inline: auto;
 }
@@ -75,7 +75,7 @@
 
 .navbar-auth {
   padding: 0.25rem 0.75rem;
-  border: 1px solid var(--color-accent);
+  border: 0.0625rem solid var(--color-accent);
   border-radius: 1rem;
   background: none;
   color: var(--color-accent);

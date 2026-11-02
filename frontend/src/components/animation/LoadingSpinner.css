@@ -9,7 +9,7 @@
 .loading-spinner > span {
   width: 1.75rem;
   height: 1.75rem;
-  border: 3px solid var(--color-border);
+  border: 0.1875rem solid var(--color-border);
   border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: loading-spinner-rotation 0.8s linear infinite;

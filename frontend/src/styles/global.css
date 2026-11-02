@@ -16,6 +16,7 @@
   --color-accent-soft: #e3efe9;
   --color-warning: #8a6100;
   --color-danger: #b3261e;
+  --content-width: 72rem;
 }
 
 * {
@@ -60,18 +61,19 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem;
+  width: min(100% - 3rem, var(--content-width));
+  margin-inline: auto;
+  padding-block: 3rem;
 }
 
 .page-content:has(> .map-page) {
   align-items: stretch;
   justify-content: flex-start;
   min-height: 0;
-  padding: 1rem 1.5rem;
+  padding-block: 1rem;
   overflow: hidden;
 }
 
 .page-content:has(> .university-comparison) {
   justify-content: flex-start;
-  padding-top: 1.5rem;
 }

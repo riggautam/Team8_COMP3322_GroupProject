@@ -5,7 +5,7 @@ import Navbar from './components/layout/Navbar.jsx'
 const Home = lazy(() => import('./pages/home/Home.jsx'))
 const MapPage = lazy(() => import('./pages/map/MapPage.jsx'))
 const TransferCredit = lazy(() => import('./pages/transfer_credit/TransferCredit.jsx'))
-const Blog = lazy(() => import('./pages/Blog.jsx'))
+const Blog = lazy(() => import('./pages/blog/Blog.jsx'))
 const Login = lazy(() => import('./pages/login/Login.jsx'))
 
 function App() {

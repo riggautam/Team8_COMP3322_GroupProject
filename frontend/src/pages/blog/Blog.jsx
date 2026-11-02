@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import Button from '../components/forms/Button.jsx'
-import TextInput from '../components/forms/TextInput.jsx'
-import { BLOG_POSTS, CATEGORIES } from './blog/mockdata.js'
+import Button from '../../components/forms/Button.jsx'
+import TextInput from '../../components/forms/TextInput.jsx'
+import { BLOG_POSTS, CATEGORIES } from './mockdata.js'
 import './Blog.css'
 
 function Blog() {
@@ -39,7 +39,7 @@ function Blog() {
       </header>
 
       <div className="blog-layout">
-        <main className="blog-main">
+        <section className="blog-main" aria-label="Blog posts">
           <section className="blog-card" aria-label="Filter blog posts">
             <div className="blog-filter-header">
               <div className="blog-categories" aria-label="Post categories">
@@ -108,7 +108,7 @@ function Blog() {
               </div>
             )}
           </div>
-        </main>
+        </section>
 
         <aside className="blog-sidebar">
           <section className="blog-card">
