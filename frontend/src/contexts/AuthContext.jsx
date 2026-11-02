@@ -1,9 +1,8 @@
-import { useState } from 'react'
-import { AuthContext } from '../hooks/authContext.js'
+import { createContext, useContext, useState } from 'react'
 
 const STORAGE_KEY = 'west-user'
+const AuthContext = createContext(null)
 
-// Reads the saved user so a page refresh keeps you logged in.
 function loadUser() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY))
@@ -30,6 +29,10 @@ function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
+}
+
+export function useAuth() {
+  return useContext(AuthContext)
 }
 
 export default AuthProvider

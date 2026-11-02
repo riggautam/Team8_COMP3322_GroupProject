@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import Button from '../../components/Button.jsx'
-import LoadingSpinner from '../../components/LoadingSpinner.jsx'
-import UrlInput from '../../components/UrlInput.jsx'
+import Button from '../../components/forms/Button.jsx'
+import LoadingSpinner from '../../components/animation/LoadingSpinner.jsx'
+import TextInput from '../../components/forms/TextInput.jsx'
 import useApi from '../../hooks/useApi.js'
 
 function CourseUrlSection({ id, label, onFetched }) {
@@ -60,10 +60,13 @@ function CourseUrlSection({ id, label, onFetched }) {
 
   return (
     <section className="university-course-input" aria-label={label}>
-      <UrlInput
+      <TextInput
+        autoComplete="url"
         id={id}
         label={label}
         onChange={setUrl}
+        placeholder="https://"
+        type="url"
         value={url}
       />
       <div className="university-course-input-action">

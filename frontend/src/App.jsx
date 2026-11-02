@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router'
-import Footer from './components/Footer.jsx'
-import Navbar from './components/Navbar.jsx'
+import Footer from './components/layout/Footer.jsx'
+import Navbar from './components/layout/Navbar.jsx'
 const Home = lazy(() => import('./pages/home/Home.jsx'))
 const MapPage = lazy(() => import('./pages/map/MapPage.jsx'))
 const TransferCredit = lazy(() => import('./pages/transfer_credit/TransferCredit.jsx'))

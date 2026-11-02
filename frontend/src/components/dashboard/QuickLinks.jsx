@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import CardHeading from './CardHeading.jsx'
-import Icon from './Icon.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
+import Icon from '../ui/Icon.jsx'
 
 const LINKS = [
   { icon: 'map', href: '/map', title: 'Campus Map', text: 'Find classrooms and food' },
@@ -11,12 +11,12 @@ const LINKS = [
 function QuickLinks() {
   return (
     <nav className="dash-card" aria-labelledby="quick-links-title">
-      <CardHeading id="quick-links-title" icon="link">Quick links</CardHeading>
+      <SectionHeading id="quick-links-title" icon="link">Quick links</SectionHeading>
       <ul className="dash-list">
         {LINKS.map((link) => (
           <li key={link.href}>
             <Link className="dash-tile" to={link.href}>
-              <span className="dash-heading-icon">
+              <span className="section-heading-icon">
                 <Icon name={link.icon} />
               </span>
               <span>

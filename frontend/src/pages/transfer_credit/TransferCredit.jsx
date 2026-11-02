@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import Button from '../../components/Button.jsx'
-import LoadingSpinner from '../../components/LoadingSpinner.jsx'
+import Button from '../../components/forms/Button.jsx'
+import LoadingSpinner from '../../components/animation/LoadingSpinner.jsx'
 import useApi from '../../hooks/useApi.js'
 import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'

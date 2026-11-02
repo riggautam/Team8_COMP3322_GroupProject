@@ -1,12 +1,12 @@
 import { Link } from 'react-router'
-import CardHeading from './CardHeading.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
 
 function LatestPosts({ posts }) {
   return (
     <section className="dash-card" aria-labelledby="posts-title">
-      <CardHeading id="posts-title" icon="pen">Latest blog posts</CardHeading>
+      <SectionHeading id="posts-title" icon="pen">Latest blog posts</SectionHeading>
       {posts.length === 0 ? (
         <p>No posts yet. Be the first to write one!</p>
       ) : (

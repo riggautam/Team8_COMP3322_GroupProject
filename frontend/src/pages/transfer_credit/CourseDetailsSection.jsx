@@ -1,4 +1,4 @@
-import TextField from '../../components/TextField.jsx'
+import TextField from '../../components/forms/TextField.jsx'
 
 function CourseDetailsSection({ id, value, onChange, invalid = false }) {
   return (

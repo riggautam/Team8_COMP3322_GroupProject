@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import CardHeading from './CardHeading.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
 
 const STATUSES = ['approved', 'pending', 'rejected']
 
@@ -10,7 +10,7 @@ function CourseProgress({ courses }) {
 
   return (
     <section className="dash-card" aria-labelledby="courses-title">
-      <CardHeading id="courses-title" icon="book">Course mapping</CardHeading>
+      <SectionHeading id="courses-title" icon="book">Course mapping</SectionHeading>
 
       {courses.length === 0 ? (
         <p>No courses mapped yet. Start on the Transfer Credits page.</p>

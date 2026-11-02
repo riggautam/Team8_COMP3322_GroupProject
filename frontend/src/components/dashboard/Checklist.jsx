@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import CardHeading from './CardHeading.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
 
 const STORAGE_KEY = 'west-checklist'
 const ITEMS = [
@@ -35,7 +35,7 @@ function Checklist() {
 
   return (
     <section className="dash-card" aria-labelledby="checklist-title">
-      <CardHeading id="checklist-title" icon="check">Exchange checklist</CardHeading>
+      <SectionHeading id="checklist-title" icon="check">Exchange checklist</SectionHeading>
       <progress max={ITEMS.length} value={checked.length} aria-label="Checklist progress" />
       <p className="dash-meta">
         {checked.length} of {ITEMS.length} done

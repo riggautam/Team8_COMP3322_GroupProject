@@ -9,10 +9,10 @@ const PATHS = {
   pin: 'M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
 }
 
-function Icon({ name }) {
+function Icon({ name, className = 'icon' }) {
   return (
     <svg
-      className="dash-icon"
+      className={className}
       viewBox="0 0 24 24"
       width="20"
       height="20"

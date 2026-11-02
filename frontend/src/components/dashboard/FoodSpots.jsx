@@ -1,10 +1,10 @@
 import { Link } from 'react-router'
-import CardHeading from './CardHeading.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
 
 function FoodSpots({ spots }) {
   return (
     <section className="dash-card" aria-labelledby="food-title">
-      <CardHeading id="food-title" icon="utensils">Food near campus</CardHeading>
+      <SectionHeading id="food-title" icon="utensils">Food near campus</SectionHeading>
       {spots.length === 0 ? (
         <p>No food spots to show yet.</p>
       ) : (

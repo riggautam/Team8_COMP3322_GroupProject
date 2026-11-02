@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import Button from '../../components/Button.jsx'
-import { useAuth } from '../../hooks/authContext.js'
+import Button from '../../components/forms/Button.jsx'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import useApi from '../../hooks/useApi.js'
 import './Login.css'
 

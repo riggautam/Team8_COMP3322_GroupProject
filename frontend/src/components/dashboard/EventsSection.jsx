@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import CardHeading from './CardHeading.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
 import useApi from '../../hooks/useApi.js'
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
@@ -20,7 +20,7 @@ function EventsSection() {
 
   return (
     <section className="dash-card dash-events" aria-labelledby="events-title">
-      <CardHeading id="events-title" icon="calendar">Today's events</CardHeading>
+      <SectionHeading id="events-title" icon="calendar">Today's events</SectionHeading>
 
       <ul className="dash-filters" aria-label="Filter events by category">
         {['', ...categories].map((name) => (

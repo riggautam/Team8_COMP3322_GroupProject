@@ -1,5 +1,5 @@
 import { NavLink, Link } from 'react-router'
-import { useAuth } from '../hooks/authContext.js'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Navbar.css'
 
 const LINKS = [
@@ -16,7 +16,7 @@ function Navbar() {
     <header className="site-header">
       <div className="navbar">
         <Link className="navbar-brand" to="/" aria-label="WEST home">
-          <img src="/west.png" alt="" />
+          <img src="/WEST.png" alt="" />
         </Link>
         <nav className="navbar-links" aria-label="Main navigation">
           {LINKS.map(({ to, label }) => (
