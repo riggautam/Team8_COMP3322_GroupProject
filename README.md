@@ -43,6 +43,11 @@ docker compose exec -T db sh -c 'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYS
 The read endpoints are ready to reflect database changes; authenticated content
 management endpoints are not part of this feature.
 
+The public landing page is `/`. After signing in, the current user is sent to
+`/dashboard`, which is available only while the frontend has a signed-in user.
+Events, posts, and food spots remain shared content; course mappings and checklist
+are not yet connected to an individual account.
+
 To check service status and logs:
 
 ```sh
