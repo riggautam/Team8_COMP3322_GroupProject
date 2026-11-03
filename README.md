@@ -1,44 +1,58 @@
 # Team8_COMP3322_GroupProject
 
-## Run with Docker Desktop
+## Deploy on the COMP3322 server
 
-1. Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-2. Open a terminal in the project root (the folder containing `docker-compose.yml`).
-3. Copy `.env.example` to `.env` in the project root and fill in the required values.
-   The same root `.env` supplies the database credentials and API keys to the services.
-4. Build the development images and start the services:
+1. Connect to HKUVPN and SSH into your group's Ubuntu server, as described in the
+   COMP3322 Project Server Guide.
+2. Clone or upload this repository and enter its root directory.
+3. Create `.env` from `.env.example`. Set unique, strong database passwords and add
+   the required API keys. For production, set `BACKEND_TARGET=backend-prod`,
+   `FRONTEND_TARGET=frontend-prod`, and set both `FRONTEND_HOST_PORT` and
+   `FRONTEND_CONTAINER_PORT` to `80`. Do not commit `.env`. The Google Maps key is
+   included in browser code, so restrict it to the required APIs and your server's
+   HTTP referrer.
+4. Start the production services:
 
-   ```powershell
-   docker compose up --build
+   ```sh
+   docker compose up -d --build
    ```
 
-5. Open <http://localhost:8080> for the frontend. Its `/api/` requests are proxied to
-   the backend.
+5. Visit `http://c3322-pg08.cs.hku.hk`.
 
-The root `Dockerfile` contains the two development images used by Compose. It mounts
-the frontend and backend folders, so code changes show up while the containers run.
-Rebuild after changing dependencies or the Dockerfile with
-`docker compose up --build`. If dependencies changed, add `--renew-anon-volumes` so
-the containers get fresh `node_modules` folders.
+The production Compose setup builds the frontend as static files, serves them with
+Nginx on host port 80, and proxies `/api/` requests to the backend. The backend and
+MySQL are not published to host ports. MySQL data is kept in the `db-data` volume;
+`docker compose down` does not delete it. Back up this volume before server
+maintenance or data migrations.
 
-The backend listens on port 3001 inside Docker and is not published on a host port;
-the frontend proxies API requests to it. Only the frontend is exposed on host port
-8080, avoiding a macOS host-port conflict with AirPlay.
+To check service status and logs:
 
-The backend reads `OPENROUTER_API_KEY` from the root `.env`; keep this key out of
-source control. `VITE_GOOGLE_MAPS_API_KEY` is passed to the frontend from the same
-file. Since Vite exposes `VITE_` variables in browser code, restrict this Google Maps
-key using the appropriate API and HTTP referrer restrictions. Transfer requests send
-the selected universities and exchange course
-description to OpenRouter's `nvidia/nemotron-3-ultra-550b-a55b:free` model and ask it
-to return the exchange course code and name plus up to three ranked home-university
+```sh
+docker compose ps
+docker compose logs -f
+```
+
+This deployment uses plain HTTP as permitted by the server guide. HTTP does not
+encrypt login credentials in transit, and the current application stores passwords
+without hashing. Do not use real or reused passwords until authentication is secured.
+
+## Local development
+
+Use the development target and ports from `.env.example`, then run:
+
+```sh
+docker compose up --build
+```
+
+Open <http://localhost:8080>. After changing source code, run
+`docker compose up --build` to rebuild the development images. Stop the services
+with `Ctrl+C`, or run `docker compose down`.
+
+The backend reads `OPENROUTER_API_KEY` from the root `.env`; keep it out of source
+control. Transfer requests send the selected universities and exchange course
+description to OpenRouter's `nvidia/nemotron-3-ultra-550b-a55b:free` model and ask
+it to return the exchange course code and name plus up to three ranked home-university
 course suggestions with rough match percentages in JSON, which the backend validates.
 Suggestions, percentages, and course links are not web-verified, so review them before
-relying on them. The request timeout is two minutes. Free model availability and rate
-limits are controlled by OpenRouter.
-Leave this command running during development; press `Ctrl+C` to stop its services.
-Use `docker compose down` only when you want to stop and remove the services:
-
-```powershell
-docker compose down
-```
+relying on them. The request timeout is two minutes. Free model availability and
+rate limits are controlled by OpenRouter.

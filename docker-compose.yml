@@ -1,6 +1,7 @@
 services:
   db:
     image: mysql:8.4
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -9,11 +10,17 @@ services:
     volumes:
       - db-data:/var/lib/mysql
       - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
   
   backend:
     build:
       context: .
-      target: backend-dev
+      target: ${BACKEND_TARGET:-backend-dev}
     environment:
       PORT: 3001
       DB_HOST: db
@@ -23,24 +30,21 @@ services:
       GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
     depends_on:
-      - db
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      db:
+        condition: service_healthy
+    restart: on-failure:3
 
   frontend:
     build:
       context: .
-      target: frontend-dev
-    environment:
-      VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
+      target: ${FRONTEND_TARGET:-frontend-dev}
+      args:
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
     depends_on:
       - backend
     ports:
-      - "${FRONTEND_PORT:-8080}:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "${FRONTEND_HOST_PORT:-8080}:${FRONTEND_CONTAINER_PORT:-5173}"
+    restart: unless-stopped
 
 volumes:
   db-data:
