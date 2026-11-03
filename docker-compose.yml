@@ -14,7 +14,6 @@ services:
     build:
       context: .
       target: backend-dev
-    env_file: ./backend/.env
     environment:
       PORT: 3001
       DB_HOST: db
@@ -22,6 +21,7 @@ services:
       DB_PASSWORD: ${MYSQL_PASSWORD}
       DB_NAME: ${MYSQL_DATABASE}
       GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
     depends_on:
       - db
     volumes:
@@ -32,6 +32,8 @@ services:
     build:
       context: .
       target: frontend-dev
+    environment:
+      VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
     depends_on:
       - backend
     ports:

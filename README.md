@@ -4,13 +4,15 @@
 
 1. Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Open a terminal in the project root (the folder containing `docker-compose.yml`).
-3. Build the development images and start the services:
+3. Copy `.env.example` to `.env` in the project root and fill in the required values.
+   The same root `.env` supplies the database credentials and API keys to the services.
+4. Build the development images and start the services:
 
    ```powershell
    docker compose up --build
    ```
 
-4. Open <http://localhost:8080> for the frontend. Its `/api/` requests are proxied to
+5. Open <http://localhost:8080> for the frontend. Its `/api/` requests are proxied to
    the backend.
 
 The root `Dockerfile` contains the two development images used by Compose. It mounts
@@ -23,8 +25,11 @@ The backend listens on port 3001 inside Docker and is not published on a host po
 the frontend proxies API requests to it. Only the frontend is exposed on host port
 8080, avoiding a macOS host-port conflict with AirPlay.
 
-The backend reads `OPENROUTER_API_KEY` from `backend/.env`; keep this key out of
-source control. Transfer requests send the selected universities and exchange course
+The backend reads `OPENROUTER_API_KEY` from the root `.env`; keep this key out of
+source control. `VITE_GOOGLE_MAPS_API_KEY` is passed to the frontend from the same
+file. Since Vite exposes `VITE_` variables in browser code, restrict this Google Maps
+key using the appropriate API and HTTP referrer restrictions. Transfer requests send
+the selected universities and exchange course
 description to OpenRouter's `nvidia/nemotron-3-ultra-550b-a55b:free` model and ask it
 to return the exchange course code and name plus up to three ranked home-university
 course suggestions with rough match percentages in JSON, which the backend validates.

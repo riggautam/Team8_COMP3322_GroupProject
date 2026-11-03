@@ -184,7 +184,7 @@ function MapPage() {
   useEffect(() => {
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
     if (!apiKey) {
-      setStatus('Add VITE_GOOGLE_MAPS_API_KEY to frontend/.env and restart the app.')
+      setStatus('Add VITE_GOOGLE_MAPS_API_KEY to the root .env and restart the app.')
       return
     }
 
