@@ -1,16 +1,22 @@
 import { useState } from 'react'
 import Button from '../../components/forms/Button.jsx'
 import TextInput from '../../components/forms/TextInput.jsx'
-import { BLOG_POSTS, CATEGORIES } from './mockdata.js'
+import useGet from '../../hooks/useGet.js'
 import './Blog.css'
+
+const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 
 function Blog() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const { data, error, isLoading } = useGet('/api/blog/posts', { refreshInterval: 15000 })
+  const posts = data?.posts ?? []
+  const categories = ['All', ...(data?.categories ?? [])]
+  const activeCategory = categories.includes(selectedCategory) ? selectedCategory : 'All'
 
-  const filteredPosts = BLOG_POSTS.filter((post) => {
+  const filteredPosts = posts.filter((post) => {
     const matchesCategory =
-      selectedCategory === 'All' || post.category === selectedCategory
+      activeCategory === 'All' || post.category === activeCategory
     const query = searchQuery.toLowerCase()
     const matchesSearch =
       post.title.toLowerCase().includes(query) ||
@@ -19,7 +25,7 @@ function Blog() {
     return matchesCategory && matchesSearch
   })
 
-  const featuredPost = BLOG_POSTS[0]
+  const featuredPost = posts.find((post) => post.featured) ?? posts[0]
 
   return (
     <div className="blog-page">
@@ -27,8 +33,7 @@ function Blog() {
         <div>
           <h1>HKU Student Blog</h1>
           <p>
-            Thursday, 8 October 2026 · Stories, guides, and campus tips from
-            fellow students
+            {dateFormat.format(new Date())} · Stories, guides, and campus tips from fellow students
           </p>
         </div>
         <div className="blog-skyline" aria-hidden="true">
@@ -43,11 +48,11 @@ function Blog() {
           <section className="blog-card" aria-label="Filter blog posts">
             <div className="blog-filter-header">
               <div className="blog-categories" aria-label="Post categories">
-                {CATEGORIES.map((category) => (
+                {categories.map((category) => (
                   <Button
                     key={category}
-                    className={`blog-category-button${selectedCategory === category ? ' is-active' : ''}`}
-                    aria-pressed={selectedCategory === category}
+                    className={`blog-category-button${activeCategory === category ? ' is-active' : ''}`}
+                    aria-pressed={activeCategory === category}
                     onClick={() => setSelectedCategory(category)}
                   >
                     {category}
@@ -65,12 +70,15 @@ function Blog() {
             </div>
           </section>
 
-          {selectedCategory === 'All' && !searchQuery && (
+          {isLoading && <div className="blog-card" role="status">Loading posts…</div>}
+          {error && <div className="blog-card" role="alert">Could not load posts: {error}</div>}
+
+          {!isLoading && !error && activeCategory === 'All' && !searchQuery && featuredPost && (
             <article className="blog-card blog-featured">
               <p className="blog-featured-badge">Featured Story</p>
               <h2>{featuredPost.title}</h2>
               <p className="blog-post-meta">
-                By <strong>{featuredPost.author}</strong> · {featuredPost.date} ·{' '}
+                By <strong>{featuredPost.author}</strong> · {dateFormat.format(new Date(featuredPost.publishedAt))} ·{' '}
                 {featuredPost.readTime}
               </p>
               <p className="blog-excerpt">{featuredPost.excerpt}</p>
@@ -82,32 +90,34 @@ function Blog() {
             </article>
           )}
 
-          <div className="blog-posts">
-            {filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => (
-                <article key={post.id} className="blog-card">
-                  <div className="blog-post-header">
-                    <span className="blog-category-badge">{post.category}</span>
-                    <span className="blog-post-meta">
-                      {post.date} · {post.readTime}
-                    </span>
-                  </div>
-                  <h2 className="blog-post-title">{post.title}</h2>
-                  <p className="blog-excerpt">{post.excerpt}</p>
-                  <div className="blog-post-footer">
-                    <span>
-                      Written by <strong>{post.author}</strong>
-                    </span>
-                    <Button className="blog-read-button">Read post →</Button>
-                  </div>
-                </article>
-              ))
-            ) : (
-              <div className="blog-card blog-empty">
-                <p>No posts found matching your filter.</p>
-              </div>
-            )}
-          </div>
+          {!isLoading && !error && (
+            <div className="blog-posts">
+              {filteredPosts.length > 0 ? (
+                filteredPosts.map((post) => (
+                  <article key={post.id} className="blog-card">
+                    <div className="blog-post-header">
+                      <span className="blog-category-badge">{post.category}</span>
+                      <span className="blog-post-meta">
+                        {dateFormat.format(new Date(post.publishedAt))} · {post.readTime}
+                      </span>
+                    </div>
+                    <h2 className="blog-post-title">{post.title}</h2>
+                    <p className="blog-excerpt">{post.excerpt}</p>
+                    <div className="blog-post-footer">
+                      <span>
+                        Written by <strong>{post.author}</strong>
+                      </span>
+                      <Button className="blog-read-button">Read post →</Button>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="blog-card blog-empty">
+                  <p>No posts found matching your filter.</p>
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
         <aside className="blog-sidebar">

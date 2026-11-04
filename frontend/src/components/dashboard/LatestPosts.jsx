@@ -13,7 +13,7 @@ function LatestPosts({ posts }) {
         <ul className="dash-list">
           {posts.map((post) => (
             <li key={post.id}>
-              <Link to="/blog">View all posts</Link>
+              <strong>{post.title}</strong>
               <p className="dash-meta">
                 {post.author} · <time dateTime={post.publishedAt}>{dateFormat.format(new Date(post.publishedAt))}</time>
               </p>
@@ -21,7 +21,7 @@ function LatestPosts({ posts }) {
           ))}
         </ul>
       )}
-      <a href="/blog">View all posts</a>
+      <Link to="/blog">View all posts</Link>
     </section>
   )
 }

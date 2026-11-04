@@ -8,7 +8,7 @@ function EventsSection() {
   const [category, setCategory] = useState('')
   const [selectedId, setSelectedId] = useState(null)
   const query = category ? `?category=${encodeURIComponent(category)}` : ''
-  const { data, error, isLoading } = useGet(`/api/events${query}`)
+  const { data, error, isLoading } = useGet(`/api/events${query}`, { refreshInterval: 15000 })
 
   const events = data?.events ?? []
   const categories = data?.categories ?? []
