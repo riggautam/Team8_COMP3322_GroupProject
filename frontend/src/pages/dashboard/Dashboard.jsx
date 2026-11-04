@@ -1,4 +1,6 @@
 import useGet from '../../hooks/useGet.js'
+import Checklist from './components/Checklist.jsx'
+import CourseProgress from './components/CourseProgress.jsx'
 import EventsSection from './components/EventsSection.jsx'
 import FoodSpots from './components/FoodSpots.jsx'
 import LatestPosts from './components/LatestPosts.jsx'
@@ -26,11 +28,8 @@ function Dashboard() {
             <FoodSpots spots={data.foodSpots} />
           </>
         )}
-        <section className="dash-card" aria-labelledby="personal-dashboard-title">
-          <h2 id="personal-dashboard-title">Your personal dashboard</h2>
-          <p>Course mapping and checklist features will appear here when they are connected to your account.</p>
-        </section>
-      </div>
+        <CourseProgress />
+        <Checklist />      </div>
     </div>
   )
 }
