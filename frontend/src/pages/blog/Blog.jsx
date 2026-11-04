@@ -14,8 +14,11 @@ function Blog() {
   const [newContent, setNewContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Track full reader post
+  // Track full reader post & comments
   const [selectedPost, setSelectedPost] = useState(null)
+  const [comments, setComments] = useState([])
+  const [newCommentText, setNewCommentText] = useState('')
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
   const fetchPosts = () => {
     fetch('/api/blog-posts')
@@ -24,9 +27,25 @@ function Blog() {
       .catch(() => setPosts([]))
   }
 
+  const fetchComments = (postId) => {
+    fetch(`/api/blog-posts/${postId}/comments`)
+      .then((res) => res.json())
+      .then((data) => setComments(Array.isArray(data) ? data : []))
+      .catch(() => setComments([]))
+  }
+
   useEffect(() => {
     fetchPosts()
   }, [])
+
+  // Fetch comments whenever a post is selected
+  useEffect(() => {
+    if (selectedPost?.id) {
+      fetchComments(selectedPost.id)
+    } else {
+      setComments([])
+    }
+  }, [selectedPost])
 
   const handleCreatePost = async (e) => {
     e.preventDefault()
@@ -59,6 +78,34 @@ function Blog() {
     }
   }
 
+  const handleAddComment = async (e) => {
+    e.preventDefault()
+    if (!newCommentText.trim() || !selectedPost?.id) return
+
+    const currentUser = JSON.parse(localStorage.getItem('west-user')) || null
+
+    setIsSubmittingComment(true)
+    try {
+      const response = await fetch(`/api/blog-posts/${selectedPost.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: newCommentText,
+          author_id: currentUser ? currentUser.id : null
+        })
+      })
+
+      if (response.ok) {
+        setNewCommentText('')
+        fetchComments(selectedPost.id) // Refresh comment list
+      }
+    } catch (err) {
+      console.error('Failed to post comment:', err)
+    } finally {
+      setIsSubmittingComment(false)
+    }
+  }
+
   const safePosts = Array.isArray(posts) ? posts : []
   const filteredPosts = safePosts.filter((post) => {
     const matchesCategory = selectedCategory === 'All'
@@ -87,7 +134,7 @@ function Blog() {
       <div className="blog-layout">
         <section className="blog-main" aria-label="Blog posts">
           
-          {/* VIEW 1: Full Post Reader */}
+          {/* VIEW 1: Full Post Reader + Comments */}
           {selectedPost ? (
             <article className="blog-card blog-full-view">
               <Button 
@@ -110,9 +157,75 @@ function Blog() {
               <p className="blog-post-meta" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
                 Written by <strong style={{ color: '#111827' }}>{selectedPost.author || 'Anonymous'}</strong>
               </p>
-              <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: '#374151', fontSize: '1rem' }}>
+              <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: '#374151', fontSize: '1rem', marginBottom: '2rem' }}>
                 {selectedPost.content}
               </div>
+
+              {/* Comment Section */}
+              <hr style={{ border: '0', borderTop: '1px solid #e5e7eb', margin: '2rem 0 1.5rem' }} />
+              <section aria-label="Comments section">
+                <h3 style={{ fontSize: '1.15rem', marginBottom: '1rem', color: '#111827' }}>
+                  Comments ({comments.length})
+                </h3>
+
+                {/* Comment Form */}
+                <form onSubmit={handleAddComment} style={{ marginBottom: '1.5rem' }}>
+                  <textarea
+                    rows="3"
+                    value={newCommentText}
+                    onChange={(e) => setNewCommentText(e.target.value)}
+                    placeholder="Write a comment..."
+                    style={{
+                      width: '100%',
+                      padding: '0.6rem 0.75rem',
+                      borderRadius: '6px',
+                      border: '1px solid #d1d5db',
+                      fontFamily: 'inherit',
+                      fontSize: '0.875rem',
+                      color: '#1f2937',
+                      marginBottom: '0.5rem'
+                    }}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="blog-submit-button"
+                    disabled={isSubmittingComment}
+                  >
+                    {isSubmittingComment ? 'Posting...' : 'Post Comment'}
+                  </Button>
+                </form>
+
+                {/* Comment Feed */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {comments.length > 0 ? (
+                    comments.map((comment) => (
+                      <div 
+                        key={comment.id} 
+                        style={{ 
+                          padding: '0.75rem 1rem', 
+                          background: '#f9fafb', 
+                          border: '1px solid #f3f4f6', 
+                          borderRadius: '6px' 
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                          <strong style={{ fontSize: '0.85rem', color: '#111827' }}>{comment.author}</strong>
+                          <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                            {new Date(comment.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '0.875rem', color: '#4b5563', lineHeight: '1.4' }}>
+                          {comment.content}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{ color: '#9ca3af', fontSize: '0.875rem', fontStyle: 'italic' }}>
+                      No comments yet. Be the first to join the conversation!
+                    </p>
+                  )}
+                </div>
+              </section>
             </article>
 
           /* VIEW 2: Create Post Form */
