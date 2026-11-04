@@ -3,6 +3,8 @@ import Button from '../../components/forms/Button.jsx'
 import TextInput from '../../components/forms/TextInput.jsx'
 import './Blog.css'
 
+const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+
 function Blog() {
   const [posts, setPosts] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('All')

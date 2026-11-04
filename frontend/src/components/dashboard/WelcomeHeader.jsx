@@ -13,7 +13,7 @@ const timeFormat = new Intl.DateTimeFormat(undefined, {
   timeZone: 'Asia/Hong_Kong',
 })
 
-function WelcomeHeader({ weather }) {
+function WelcomeHeader({ weather, weatherError }) {
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
@@ -33,6 +33,7 @@ function WelcomeHeader({ weather }) {
       <p>
         {dateFormat.format(now)} · {timeFormat.format(now)} in Hong Kong
         {weather && ` · ${weather.tempC}°C, ${weather.condition}`}
+        {weatherError && ' · Weather currently unavailable'}
       </p>
       </div>
       <svg className="dash-skyline" viewBox="0 0 200 60" aria-hidden="true">
