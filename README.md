@@ -28,16 +28,14 @@ maintenance or data migrations.
 ## Dashboard data
 
 The shared dashboard data comes from the MySQL `events`, `blog_posts`, and
-`food_spots` tables created by `db/init/02-dashboard.sql`. Published blog posts,
-food spots, and today's events are checked every 15 seconds; the page updates only when the returned data changes. Hong Kong weather comes from Open-Meteo and is
+`food_spots` tables defined in `db/init/01-schema.sql`, with sample data in
+`db/init/02-seed.sql`. Blog posts, food spots, and today's events are checked every 15 seconds; the page updates only when the returned data changes. Hong Kong weather comes from Open-Meteo and is
 refreshed every 10 minutes. Course mappings and checklist progress remain deferred
 until dashboard requests can be securely scoped to a signed-in student.
 
-On a new database, Compose runs the SQL file automatically. If the `db-data` volume
-already exists, apply the schema without deleting the volume:
-
+On a new database, Compose runs both SQL files automatically. If the `db-data` volume already exists, apply any new tables without deleting the volume:
 ```sh
-docker compose exec -T db sh -c 'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' < db/init/02-dashboard.sql
+docker compose exec -T db sh -c 'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' < db/init/01-schema.sql
 ```
 
 The read endpoints are ready to reflect database changes; authenticated content
@@ -55,9 +53,7 @@ docker compose ps
 docker compose logs -f
 ```
 
-This deployment uses plain HTTP as permitted by the server guide. HTTP does not
-encrypt login credentials in transit, and the current application stores passwords
-without hashing. Do not use real or reused passwords until authentication is secured.
+This deployment uses plain HTTP as permitted by the server guide. Passwords are hashed with bcrypt before storage, but HTTP does not encrypt them in transit, so do not use real or reused passwords.
 
 ## Local development
 
