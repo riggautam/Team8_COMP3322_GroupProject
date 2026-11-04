@@ -6,13 +6,14 @@ const router = express.Router()
 router.get('/', async (req, res, next) => {
   try {
     const [posts] = await pool.query(
-      `SELECT id, title, author,
-        DATE_FORMAT(published_at, '%Y-%m-%dT%H:%i:%s+08:00') AS publishedAt
+      `SELECT blog_posts.id, blog_posts.title,
+         COALESCE(users.display_name, 'Anonymous') AS author,
+         DATE_FORMAT(blog_posts.created_at, '%Y-%m-%dT%H:%i:%s+08:00') AS publishedAt
        FROM blog_posts
-       WHERE is_published = TRUE AND published_at <= NOW()
-       ORDER BY published_at DESC
+       LEFT JOIN users ON blog_posts.author_id = users.id
+       ORDER BY blog_posts.created_at DESC
        LIMIT 3`,
-    )
+    )    
     const [foodSpots] = await pool.query(
       'SELECT id, name, cuisine, walk_minutes AS walkMinutes FROM food_spots ORDER BY name',
     )

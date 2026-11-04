@@ -1,5 +1,6 @@
 const express = require('express')
 const pool = require('../../db')
+const bcrypt = require('bcryptjs')
 
 const router = express.Router()
 
@@ -23,10 +24,13 @@ router.post('/register', async (req, res, next) => {
   }
 
   try {
+    // Store a one-way hash, never the password itself. 10 is the cost: higher is slower to crack.
+    const passwordHash = await bcrypt.hash(password, 10)
+
     // ? placeholders stop SQL injection: mysql2 escapes the values.
     const [result] = await pool.query(
       'INSERT INTO users (email, password, display_name) VALUES (?, ?, ?)',
-      [email, password, displayName],
+      [email, passwordHash, displayName],
     )
     res.status(201).json({ data: { id: result.insertId, email, displayName } })
   } catch (err) {
@@ -54,7 +58,7 @@ router.post('/login', async (req, res, next) => {
     const user = rows[0]
 
     // Same message for both cases, so nobody can probe which emails exist.
-    if (!user || user.password !== password) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: 'Wrong email or password.' })
     }
     res.json({ data: publicUser(user) })
