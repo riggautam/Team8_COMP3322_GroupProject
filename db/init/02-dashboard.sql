@@ -11,23 +11,6 @@ CREATE TABLE IF NOT EXISTS events (
   KEY idx_events_starts_at (starts_at)
 );
 
-CREATE TABLE IF NOT EXISTS blog_posts (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  slug VARCHAR(120) NOT NULL UNIQUE,
-  title VARCHAR(255) NOT NULL,
-  author VARCHAR(100) NOT NULL,
-  published_at DATETIME NOT NULL,
-  read_time_minutes TINYINT UNSIGNED NOT NULL,
-  category VARCHAR(50) NOT NULL,
-  excerpt TEXT NOT NULL,
-  featured BOOLEAN NOT NULL DEFAULT FALSE,
-  tags JSON NOT NULL,
-  is_published BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY idx_blog_posts_published (is_published, published_at)
-);
-
 CREATE TABLE IF NOT EXISTS food_spots (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL UNIQUE,
@@ -44,8 +27,11 @@ INSERT IGNORE INTO events (title, category, starts_at, location, description) VA
   ('Hong Kong Heritage Walk', 'Culture', TIMESTAMP(CURDATE(), '16:00:00'), 'Hong Kong Museum of Medical Sciences', 'Visit nearby heritage sites with student guides.'),
   ('Evening Badminton Meetup', 'Sports', TIMESTAMP(CURDATE(), '19:00:00'), 'Sports Centre', 'Casual doubles open to all levels. Rackets provided.');
 
-INSERT IGNORE INTO blog_posts
-  (slug, title, author, published_at, read_time_minutes, category, excerpt, featured, tags)
+INSERT INTO blog_posts (title, content, created_at) VALUES
+  ('My first week at HKU: what I wish I knew', 'Navigating Main Campus, finding the best study spots in Main Library, and getting used to the steep hills and escalators!', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+  ('How to get an Octopus card and top it up', 'A complete guide for exchange and international students to apply for Student Octopus and set up automatic top-ups.', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+  ('Best weekend hikes starting near campus', 'From Lugard Road at Victoria Peak to Mount Davis: quick nature escapes when you need a study break.', DATE_SUB(NOW(), INTERVAL 10 DAY));
+
 VALUES
   ('first-week-at-hku', 'My first week at HKU: what I wish I knew', 'Mia', DATE_SUB(NOW(), INTERVAL 1 DAY), 4, 'Academic', 'Navigating Main Campus, finding the best study spots in Main Library, and getting used to the steep hills and escalators!', TRUE, JSON_ARRAY('Orientation', 'Campus Life', 'Tips')),
   ('octopus-card-guide', 'How to get an Octopus card and top it up', 'Lucas', DATE_SUB(NOW(), INTERVAL 3 DAY), 3, 'Tips', 'A complete guide for exchange and international students to apply for Student Octopus and set up automatic top-ups.', FALSE, JSON_ARRAY('Transport', 'Essentials')),
