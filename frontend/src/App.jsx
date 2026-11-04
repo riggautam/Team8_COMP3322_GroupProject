@@ -11,8 +11,10 @@ const Blog = lazy(() => import('./pages/blog/Blog.jsx'))
 const Login = lazy(() => import('./pages/login/Login.jsx'))
 
 function App() {
-  const { user } = useAuth()
-
+  const { user, isLoading } = useAuth()
+  
+  // Wait for /api/auth/me, or a refresh would briefly look logged out and redirect.
+  if (isLoading) return null
   return (
     <div className="app-shell">
       <Navbar />

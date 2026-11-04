@@ -53,8 +53,6 @@ function Blog() {
     e.preventDefault()
     if (!newTitle.trim() || !newContent.trim()) return
 
-    const currentUser = JSON.parse(localStorage.getItem('west-user')) || null
-
     setIsSubmitting(true)
     try {
       const response = await fetch('/api/blog-posts', {
@@ -63,7 +61,6 @@ function Blog() {
         body: JSON.stringify({ 
           title: newTitle, 
           content: newContent,
-          author_id: currentUser ? currentUser.id : null
         })
       })
 
@@ -84,8 +81,6 @@ function Blog() {
     e.preventDefault()
     if (!newCommentText.trim() || !selectedPost?.id) return
 
-    const currentUser = JSON.parse(localStorage.getItem('west-user')) || null
-
     setIsSubmittingComment(true)
     try {
       const response = await fetch(`/api/blog-posts/${selectedPost.id}/comments`, {
@@ -93,7 +88,6 @@ function Blog() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: newCommentText,
-          author_id: currentUser ? currentUser.id : null
         })
       })
 

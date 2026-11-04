@@ -26,20 +26,21 @@ router.get('/', async (req, res) => {
 
 // POST a new blog post
 router.post('/', async (req, res) => {
-  const { title, content, author_id } = req.body;
+  const { title, content } = req.body;
   
   if (!title || !content) {
     return res.status(400).json({ error: 'Title and content are required' });
   }
 
-  const parsedAuthorId = author_id ? parseInt(author_id, 10) : null;
+  // The server decides the author from the session. Logged-out posts stay anonymous.
+  const authorId = req.session.userId ?? null;
 
   try {
     const query = `
       INSERT INTO blog_posts (title, content, author_id, created_at)
       VALUES (?, ?, ?, NOW());
     `;
-    const [result] = await db.query(query, [title, content, parsedAuthorId]);
+    const [result] = await db.query(query, [title, content, authorId]);
     
     // Fetch newly inserted post joined with the user's display_name
     const [newPost] = await db.query(`
@@ -87,20 +88,21 @@ router.get('/:id/comments', async (req, res) => {
 // POST a new comment on a specific post
 router.post('/:id/comments', async (req, res) => {
   const { id } = req.params;
-  const { content, author_id } = req.body;
+  const { content } = req.body;
 
   if (!content || !content.trim()) {
     return res.status(400).json({ error: 'Comment content cannot be empty' });
   }
 
-  const parsedAuthorId = author_id ? parseInt(author_id, 10) : null;
+  // The server decides the author from the session. Logged-out posts stay anonymous.
+  const authorId = req.session.userId ?? null;
 
   try {
     const query = `
       INSERT INTO blog_comments (post_id, content, author_id, created_at)
       VALUES (?, ?, ?, NOW());
     `;
-    const [result] = await db.query(query, [id, content.trim(), parsedAuthorId]);
+    const [result] = await db.query(query, [id, content.trim(), authorId]);
 
     // Fetch newly created comment
     const [newComment] = await db.query(`

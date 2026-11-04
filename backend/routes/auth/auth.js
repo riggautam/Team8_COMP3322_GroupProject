@@ -1,6 +1,6 @@
 const express = require('express')
-const pool = require('../../db')
 const bcrypt = require('bcryptjs')
+const pool = require('../../db')
 
 const router = express.Router()
 
@@ -12,6 +12,17 @@ function field(body, name) {
 // The only user fields sent back to the browser. Never the password.
 function publicUser(user) {
   return { id: user.id, email: user.email, displayName: user.display_name }
+}
+
+// Gives the browser a brand new session id on login, then stores who logged in.
+function startSession(req, userId) {
+  return new Promise((resolve, reject) => {
+    req.session.regenerate((regenerateError) => {
+      if (regenerateError) return reject(regenerateError)
+      req.session.userId = userId
+      req.session.save((saveError) => (saveError ? reject(saveError) : resolve()))
+    })
+  })
 }
 
 router.post('/register', async (req, res, next) => {
@@ -32,6 +43,7 @@ router.post('/register', async (req, res, next) => {
       'INSERT INTO users (email, password, display_name) VALUES (?, ?, ?)',
       [email, passwordHash, displayName],
     )
+    await startSession(req, result.insertId)
     res.status(201).json({ data: { id: result.insertId, email, displayName } })
   } catch (err) {
     // The UNIQUE rule on users.email rejects a second account with the same email.
@@ -61,10 +73,39 @@ router.post('/login', async (req, res, next) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: 'Wrong email or password.' })
     }
+    await startSession(req, user.id)
     res.json({ data: publicUser(user) })
   } catch (err) {
     next(err)
   }
+})
+
+// Tells the frontend who is logged in, using the session cookie.
+router.get('/me', async (req, res, next) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Not logged in.' })
+  }
+
+  try {
+    const [rows] = await pool.query(
+      'SELECT id, email, display_name FROM users WHERE id = ?',
+      [req.session.userId],
+    )
+    if (!rows[0]) {
+      return res.status(401).json({ error: 'Not logged in.' })
+    }
+    res.json({ data: publicUser(rows[0]) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.post('/logout', (req, res, next) => {
+  req.session.destroy((err) => {
+    if (err) return next(err)
+    res.clearCookie('west.sid')
+    res.status(204).end()
+  })
 })
 
 module.exports = router
