@@ -28,7 +28,7 @@ function Home() {
         )}
         <section className="dash-card" aria-labelledby="personal-dashboard-title">
           <h2 id="personal-dashboard-title">Your personal dashboard</h2>
-          <p>Course mapping and checklist syncing will be available when secure sign-in is connected.</p>
+          <p>Course mapping and checklist features will appear here when they are connected to your account.</p>
         </section>
       </div>
     </div>

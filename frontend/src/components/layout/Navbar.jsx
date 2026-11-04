@@ -2,15 +2,14 @@ import { NavLink, Link } from 'react-router'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Navbar.css'
 
-const LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/blog', label: 'Blog' },
-  { to: '/map', label: 'Map' },
-  { to: '/transfer-credits', label: 'Transfer Credits' },
-]
-
 function Navbar() {
   const { user, logout } = useAuth()
+  const links = [
+    { to: user ? '/dashboard' : '/', label: user ? 'Dashboard' : 'Home' },
+    { to: '/blog', label: 'Blog' },
+    { to: '/map', label: 'Map' },
+    { to: '/transfer-credits', label: 'Transfer Credits' },
+  ]
 
   return (
     <header className="site-header">
@@ -19,7 +18,7 @@ function Navbar() {
           <img src="/WEST.png" alt="" />
         </Link>
         <nav className="navbar-links" aria-label="Main navigation">
-          {LINKS.map(({ to, label }) => (
+          {links.map(({ to, label }) => (
             <NavLink key={to} to={to} end={to === '/'}>
               {label}
             </NavLink>

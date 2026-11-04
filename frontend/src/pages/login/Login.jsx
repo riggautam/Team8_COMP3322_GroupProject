@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Navigate, useNavigate } from 'react-router'
 import Button from '../../components/forms/Button.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import usePost from '../../hooks/usePost.js'
@@ -11,7 +11,7 @@ function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { error, isLoading, post } = usePost(`/api/auth/${mode}`)
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const navigate = useNavigate()
   const isRegister = mode === 'register'
 
@@ -20,9 +20,11 @@ function Login() {
     const result = await post({ displayName, email, password })
     if (result.data?.data) {
       login(result.data.data)
-      navigate('/')
+      navigate('/dashboard')
     }
   }
+
+  if (user) return <Navigate to="/dashboard" replace />
 
   return (
     <section className="login">
