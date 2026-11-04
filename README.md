@@ -30,8 +30,7 @@ maintenance or data migrations.
 The shared dashboard data comes from the MySQL `events`, `blog_posts`, and
 `food_spots` tables defined in `db/init/01-schema.sql`, with sample data in
 `db/init/02-seed.sql`. Blog posts, food spots, and today's events are checked every 15 seconds; the page updates only when the returned data changes. Hong Kong weather comes from Open-Meteo and is
-refreshed every 10 minutes. Course mappings and checklist progress remain deferred
-until dashboard requests can be securely scoped to a signed-in student.
+refreshed every 10 minutes. Course mappings and checklist items are stored per signed-in user.
 
 On a new database, Compose runs both SQL files automatically. If the `db-data` volume already exists, apply any new tables without deleting the volume:
 ```sh
@@ -43,8 +42,7 @@ management endpoints are not part of this feature.
 
 The public landing page is `/`. After signing in, the current user is sent to
 `/dashboard`, which is available only while the frontend has a signed-in user.
-Events, posts, and food spots remain shared content; course mappings and checklist
-are not yet connected to an individual account.
+Events, posts, and food spots remain shared content; course mappings and checklist items belong to each account.
 
 To check service status and logs:
 

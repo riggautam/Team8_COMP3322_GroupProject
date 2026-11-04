@@ -4,6 +4,17 @@ const pool = require('../../db')
 
 const router = express.Router()
 
+
+// Every new account starts with these. Students can tick, remove or add to them.
+const STARTER_CHECKLIST = [
+  'Collect student visa / HKID',
+  'Get an Octopus card',
+  'Open a local bank account',
+  'Register for courses',
+  'Submit course mapping for approval',
+  'Take a campus tour',
+]
+
 // Reads a text field from the request body, or '' if it's missing.
 function field(body, name) {
   return typeof body?.[name] === 'string' ? body[name].trim() : ''
@@ -43,6 +54,11 @@ router.post('/register', async (req, res, next) => {
       'INSERT INTO users (email, password, display_name) VALUES (?, ?, ?)',
       [email, passwordHash, displayName],
     )
+        // VALUES ? with nested arrays inserts one row per item.
+    await pool.query('INSERT INTO checklist_items (user_id, label) VALUES ?', [
+      STARTER_CHECKLIST.map((label) => [result.insertId, label]),
+    ])
+    
     await startSession(req, result.insertId)
     res.status(201).json({ data: { id: result.insertId, email, displayName } })
   } catch (err) {

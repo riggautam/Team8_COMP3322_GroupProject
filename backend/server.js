@@ -7,6 +7,8 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 const dashboardRouter = require('./routes/dashboard/dashboard')
+const checklistRouter = require('./routes/dashboard/checklist')
+const courseMappingsRouter = require('./routes/dashboard/courseMappings')
 const eventsRouter = require('./routes/events/events')
 const weatherRouter = require('./routes/weather/weather')
 const authRouter = require('./routes/auth/auth')
@@ -34,6 +36,8 @@ app.use(
 )
 
 app.use('/api/dashboard', dashboardRouter)
+app.use('/api/checklist', checklistRouter)
+app.use('/api/course-mappings', courseMappingsRouter)
 app.use('/api/events', eventsRouter)
 app.use('/api/weather', weatherRouter)
 app.use('/api/auth', authRouter)
