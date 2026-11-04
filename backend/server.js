@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 5000
 
 const dashboardRouter = require('./routes/dashboard/dashboard')
 const eventsRouter = require('./routes/events/events')
-const weatherRouter = require('./routes/weather')
+const weatherRouter = require('./routes/weather/weather')
 const authRouter = require('./routes/auth/auth')
 const directionsRouter = require('./routes/directions/directions')
 const coursePageRouter = require('./routes/transfer_credit/coursePage')
