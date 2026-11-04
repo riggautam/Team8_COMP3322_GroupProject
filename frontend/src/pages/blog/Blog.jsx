@@ -1,117 +1,65 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../components/forms/Button.jsx'
 import TextInput from '../../components/forms/TextInput.jsx'
+import requestJson from '../../hooks/requestJson.js'
+import PostDetail from './PostDetail.jsx'
+import PostForm from './PostForm.jsx'
 import './Blog.css'
 
-const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+const ALL = 'All'
+const EXCERPT_LENGTH = 120
 
 function Blog() {
   const [posts, setPosts] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [loadError, setLoadError] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState(ALL)
   const [searchQuery, setSearchQuery] = useState('')
-  
-  // Inline creation states
-  const [isCreating, setIsCreating] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
-  const [newContent, setNewContent] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Track full reader post & comments
+  const [view, setView] = useState('list') // 'list', 'read', 'create' or 'edit'
   const [selectedPost, setSelectedPost] = useState(null)
-  const [comments, setComments] = useState([])
-  const [newCommentText, setNewCommentText] = useState('')
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
-  const fetchPosts = () => {
-    fetch('/api/blog-posts')
-      .then((res) => res.json())
-      .then((data) => setPosts(Array.isArray(data) ? data : []))
-      .catch(() => setPosts([]))
-  }
-
-  const fetchComments = (postId) => {
-    fetch(`/api/blog-posts/${postId}/comments`)
-      .then((res) => res.json())
-      .then((data) => setComments(Array.isArray(data) ? data : []))
-      .catch(() => setComments([]))
+  async function loadPosts() {
+    const result = await requestJson('/api/blog-posts')
+    setLoadError(result.error)
+    setPosts(result.error ? [] : result.data)
+    setIsLoading(false)
   }
 
   useEffect(() => {
-    fetchPosts()
+    loadPosts()
   }, [])
 
-  // Fetch comments whenever a post is selected
-  useEffect(() => {
-    if (selectedPost?.id) {
-      fetchComments(selectedPost.id)
-    } else {
-      setComments([])
-    }
-  }, [selectedPost])
+  // Unique category names, taken from the posts themselves.
+  const categories = [...new Set(posts.map((post) => post.category))].sort()
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault()
-    if (!newTitle.trim() || !newContent.trim()) return
-
-    setIsSubmitting(true)
-    try {
-      const response = await fetch('/api/blog-posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          title: newTitle, 
-          content: newContent,
-        })
-      })
-
-      if (response.ok) {
-        setNewTitle('')
-        setNewContent('')
-        setIsCreating(false) 
-        fetchPosts() 
-      }
-    } catch (err) {
-      console.error('Failed to save post:', err)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleAddComment = async (e) => {
-    e.preventDefault()
-    if (!newCommentText.trim() || !selectedPost?.id) return
-
-    setIsSubmittingComment(true)
-    try {
-      const response = await fetch(`/api/blog-posts/${selectedPost.id}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: newCommentText,
-        })
-      })
-
-      if (response.ok) {
-        setNewCommentText('')
-        fetchComments(selectedPost.id) // Refresh comment list
-      }
-    } catch (err) {
-      console.error('Failed to post comment:', err)
-    } finally {
-      setIsSubmittingComment(false)
-    }
-  }
-
-  const safePosts = Array.isArray(posts) ? posts : []
-  const filteredPosts = safePosts.filter((post) => {
-    const matchesCategory = selectedCategory === 'All'
-    const query = searchQuery.toLowerCase()
-    return (
-      matchesCategory &&
-      (post.title?.toLowerCase().includes(query) ||
-        post.content?.toLowerCase().includes(query))
-    )
+  const query = searchQuery.trim().toLowerCase()
+  const filteredPosts = posts.filter((post) => {
+    const matchesCategory = selectedCategory === ALL || post.category === selectedCategory
+    const matchesSearch =
+      post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query)
+    return matchesCategory && matchesSearch
   })
+
+  function showList() {
+    setSelectedPost(null)
+    setView('list')
+  }
+
+  function chooseCategory(name) {
+    setSelectedCategory(name)
+    showList()
+  }
+
+  function handleSaved(savedPost) {
+    loadPosts()
+    setSelectedPost(savedPost)
+    setView('read')
+  }
+
+  function handleDeleted() {
+    loadPosts()
+    showList()
+  }
 
   return (
     <div className="blog-page">
@@ -129,157 +77,43 @@ function Blog() {
 
       <div className="blog-layout">
         <section className="blog-main" aria-label="Blog posts">
-          
-          {/* VIEW 1: Full Post Reader + Comments */}
-          {selectedPost ? (
-            <article className="blog-card blog-full-view">
-              <Button 
-                type="button" 
-                className="blog-secondary-button"
-                onClick={() => setSelectedPost(null)}
-                style={{ marginBottom: '1.25rem' }}
-              >
-                ← Back to all posts
-              </Button>
-              <div className="blog-post-header">
-                <span className="blog-category-badge">Blog</span>
-                <span className="blog-post-meta">
-                  {new Date(selectedPost.created_at).toLocaleDateString()}
-                </span>
-              </div>
-              <h1 style={{ marginTop: '0.75rem', marginBottom: '0.5rem', fontSize: '1.75rem' }}>
-                {selectedPost.title}
-              </h1>
-              <p className="blog-post-meta" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                Written by <strong style={{ color: '#111827' }}>{selectedPost.author || 'Anonymous'}</strong>
-              </p>
-              <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: '#374151', fontSize: '1rem', marginBottom: '2rem' }}>
-                {selectedPost.content}
-              </div>
+          {view === 'read' && (
+            <PostDetail
+              post={selectedPost}
+              onBack={showList}
+              onEdit={() => setView('edit')}
+              onDeleted={handleDeleted}
+            />
+          )}
 
-              {/* Comment Section */}
-              <hr style={{ border: '0', borderTop: '1px solid #e5e7eb', margin: '2rem 0 1.5rem' }} />
-              <section aria-label="Comments section">
-                <h3 style={{ fontSize: '1.15rem', marginBottom: '1rem', color: '#111827' }}>
-                  Comments ({comments.length})
-                </h3>
+          {view === 'create' && (
+            <PostForm categories={categories} onSaved={handleSaved} onCancel={showList} />
+          )}
 
-                {/* Comment Form */}
-                <form onSubmit={handleAddComment} style={{ marginBottom: '1.5rem' }}>
-                  <textarea
-                    rows="3"
-                    value={newCommentText}
-                    onChange={(e) => setNewCommentText(e.target.value)}
-                    placeholder="Write a comment..."
-                    style={{
-                      width: '100%',
-                      padding: '0.6rem 0.75rem',
-                      borderRadius: '6px',
-                      border: '1px solid #d1d5db',
-                      fontFamily: 'inherit',
-                      fontSize: '0.875rem',
-                      color: '#1f2937',
-                      marginBottom: '0.5rem'
-                    }}
-                  />
-                  <Button 
-                    type="submit" 
-                    className="blog-submit-button"
-                    disabled={isSubmittingComment}
-                  >
-                    {isSubmittingComment ? 'Posting...' : 'Post Comment'}
-                  </Button>
-                </form>
+          {view === 'edit' && (
+            <PostForm
+              post={selectedPost}
+              categories={categories}
+              onSaved={handleSaved}
+              onCancel={() => setView('read')}
+            />
+          )}
 
-                {/* Comment Feed */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {comments.length > 0 ? (
-                    comments.map((comment) => (
-                      <div 
-                        key={comment.id} 
-                        style={{ 
-                          padding: '0.75rem 1rem', 
-                          background: '#f9fafb', 
-                          border: '1px solid #f3f4f6', 
-                          borderRadius: '6px' 
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                          <strong style={{ fontSize: '0.85rem', color: '#111827' }}>{comment.author}</strong>
-                          <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                            {new Date(comment.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p style={{ margin: 0, fontSize: '0.875rem', color: '#4b5563', lineHeight: '1.4' }}>
-                          {comment.content}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <p style={{ color: '#9ca3af', fontSize: '0.875rem', fontStyle: 'italic' }}>
-                      No comments yet. Be the first to join the conversation!
-                    </p>
-                  )}
-                </div>
-              </section>
-            </article>
-
-          /* VIEW 2: Create Post Form */
-          ) : isCreating ? (
-            <section className="blog-card" aria-label="Create new post">
-              <h2>Create a New Post</h2>
-              <form onSubmit={handleCreatePost} style={{ marginTop: '1rem' }}>
-                <div style={{ marginBottom: '1rem' }}>
-                  <TextInput
-                    className="blog-search"
-                    id="post-title"
-                    label="Post Title"
-                    onChange={setNewTitle}
-                    placeholder="Enter post title..."
-                    value={newTitle}
-                  />
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="post-content" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#1f2937' }}>
-                    Content
-                  </label>
-                  <textarea
-                    id="post-content"
-                    rows="6"
-                    value={newContent}
-                    onChange={(e) => setNewContent(e.target.value)}
-                    placeholder="Write your story here..."
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #d1d5db', fontFamily: 'inherit', color: '#1f2937' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <Button type="submit" className="blog-submit-button" disabled={isSubmitting}>
-                    {isSubmitting ? 'Publishing...' : 'Publish Post'}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    className="blog-secondary-button"
-                    onClick={() => setIsCreating(false)} 
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </section>
-
-          /* VIEW 3: Feed List */
-          ) : (
+          {view === 'list' && (
             <>
               <section className="blog-card" aria-label="Filter blog posts">
                 <div className="blog-filter-header">
                   <div className="blog-categories" aria-label="Post categories">
-                    <Button
-                      className={`blog-category-button${selectedCategory === 'All' ? ' is-active' : ''}`}
-                      aria-pressed={selectedCategory === 'All'}
-                      onClick={() => setSelectedCategory('All')}
-                    >
-                      All
-                    </Button>
+                    {[ALL, ...categories].map((name) => (
+                      <Button
+                        key={name}
+                        className={`blog-category-button${selectedCategory === name ? ' is-active' : ''}`}
+                        aria-pressed={selectedCategory === name}
+                        onClick={() => setSelectedCategory(name)}
+                      >
+                        {name}
+                      </Button>
+                    ))}
                   </div>
                   <TextInput
                     className="blog-search"
@@ -292,40 +126,50 @@ function Blog() {
                 </div>
               </section>
 
-              <div className="blog-posts" style={{ marginTop: '1.5rem' }}>
-                {filteredPosts.length > 0 ? (
-                  filteredPosts.map((post) => (
-                    <article key={post.id} className="blog-card">
-                      <div className="blog-post-header">
-                        <span className="blog-category-badge">Blog</span>
-                        <span className="blog-post-meta">
-                          {new Date(post.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <h2 className="blog-post-title">{post.title}</h2>
-                      <p className="blog-excerpt">{post.content?.slice(0, 120)}...</p>
-                      <div className="blog-post-footer">
-                        <span>
-                          Written by <strong>{post.author || 'Anonymous'}</strong>
-                        </span>
-                        <Button 
-                          className="blog-read-button" 
-                          onClick={() => setSelectedPost(post)}
-                        >
-                          Read post →
-                        </Button>
-                      </div>
-                    </article>
-                  ))
-                ) : (
+              <div className="blog-posts">
+                {isLoading && <p role="status">Loading posts…</p>}
+                {loadError && (
+                  <p className="status-message status-message--error" role="alert">
+                    Could not load posts: {loadError}
+                  </p>
+                )}
+                {!isLoading && !loadError && filteredPosts.length === 0 && (
                   <div className="blog-card blog-empty">
                     <p>No posts found matching your filter.</p>
                   </div>
                 )}
+                {filteredPosts.map((post) => (
+                  <article key={post.id} className="blog-card">
+                    <div className="blog-post-header">
+                      <span className="blog-category-badge">{post.category}</span>
+                      <span className="blog-post-meta">
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <h2 className="blog-post-title">{post.title}</h2>
+                    <p className="blog-excerpt">
+                      {post.content.slice(0, EXCERPT_LENGTH)}
+                      {post.content.length > EXCERPT_LENGTH && '...'}
+                    </p>
+                    <div className="blog-post-footer">
+                      <span>
+                        Written by <strong>{post.author}</strong>
+                      </span>
+                      <Button
+                        className="blog-read-button"
+                        onClick={() => {
+                          setSelectedPost(post)
+                          setView('read')
+                        }}
+                      >
+                        Read post →
+                      </Button>
+                    </div>
+                  </article>
+                ))}
               </div>
             </>
           )}
-
         </section>
 
         <aside className="blog-sidebar">
@@ -335,18 +179,27 @@ function Blog() {
               Have tips for incoming students or a story about campus life?
               Write for the HKU Blog!
             </p>
-            <Button className="blog-create-button" onClick={() => { setSelectedPost(null); setIsCreating(true); }}>
+            <Button
+              className="blog-create-button"
+              onClick={() => {
+                setSelectedPost(null)
+                setView('create')
+              }}
+            >
               + Create New Post
             </Button>
           </section>
 
           <section className="blog-card">
-            <h2>Popular Topics</h2>
+            <h2>Categories</h2>
             <ul className="blog-topic-list">
-              <li><a href="#orientation"># Exchange Orientation</a></li>
-              <li><a href="#canteen"># Campus Dining Guides</a></li>
-              <li><a href="#course-mapping"># Course Mapping Tips</a></li>
-              <li><a href="#living"># Living in Hong Kong</a></li>
+              {categories.map((name) => (
+                <li key={name}>
+                  <button type="button" onClick={() => chooseCategory(name)}>
+                    # {name}
+                  </button>
+                </li>
+              ))}
             </ul>
           </section>
 
