@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Button from '../../components/forms/Button.jsx'
-import LoadingSpinner from '../../components/animation/LoadingSpinner.jsx'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.jsx'
 import usePost from '../../hooks/usePost.js'
 import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'

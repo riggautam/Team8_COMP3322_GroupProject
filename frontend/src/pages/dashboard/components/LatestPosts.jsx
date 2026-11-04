@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import SectionHeading from '../ui/SectionHeading.jsx'
+import SectionHeading from '../../../components/ui/SectionHeading.jsx'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
 

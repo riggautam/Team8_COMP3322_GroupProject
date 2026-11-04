@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import SectionHeading from '../ui/SectionHeading.jsx'
+import SectionHeading from '../../../components/ui/SectionHeading.jsx'
 
 const STORAGE_KEY = 'west-checklist'
 const ITEMS = [

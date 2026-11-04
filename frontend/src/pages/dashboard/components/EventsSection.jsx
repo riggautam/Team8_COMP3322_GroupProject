@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import SectionHeading from '../ui/SectionHeading.jsx'
-import useGet from '../../hooks/useGet.js'
+import SectionHeading from '../../../components/ui/SectionHeading.jsx'
+import useGet from '../../../hooks/useGet.js'
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
 

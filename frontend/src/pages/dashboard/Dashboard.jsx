@@ -1,12 +1,12 @@
 import useGet from '../../hooks/useGet.js'
-import EventsSection from '../../components/dashboard/EventsSection.jsx'
-import FoodSpots from '../../components/dashboard/FoodSpots.jsx'
-import LatestPosts from '../../components/dashboard/LatestPosts.jsx'
-import QuickLinks from '../../components/dashboard/QuickLinks.jsx'
-import WelcomeHeader from '../../components/dashboard/WelcomeHeader.jsx'
-import './Home.css'
+import EventsSection from './components/EventsSection.jsx'
+import FoodSpots from './components/FoodSpots.jsx'
+import LatestPosts from './components/LatestPosts.jsx'
+import QuickLinks from './components/QuickLinks.jsx'
+import WelcomeHeader from './components/WelcomeHeader.jsx'
+import './Dashboard.css'
 
-function Home() {
+function Dashboard() {
   const { data, error, isLoading } = useGet('/api/dashboard', { refreshInterval: 15000 })
   const { data: weather, error: weatherError } = useGet('/api/weather', { refreshInterval: 600000 })
 
@@ -35,4 +35,4 @@ function Home() {
   )
 }
 
-export default Home
+export default Dashboard

@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import SectionHeading from '../ui/SectionHeading.jsx'
-import Icon from '../ui/Icon.jsx'
+import SectionHeading from '../../../components/ui/SectionHeading.jsx'
+import Icon from '../../../components/ui/Icon.jsx'
 
 const LINKS = [
   { icon: 'map', href: '/map', title: 'Campus Map', text: 'Find classrooms and food' },
