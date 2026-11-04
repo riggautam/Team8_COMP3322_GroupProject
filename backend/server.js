@@ -42,11 +42,18 @@ app.use('/api/course-page', coursePageRouter)
 app.use('/api/matching-courses', matchingCoursesRouter)
 app.use('/api/blog-posts', blogPostsRouter)
 
-app.use((err, req, res, next) => {
-  console.error(err)
-  res.status(500).json({ error: 'Internal server error' })
+// Any /api path that no route above matched.
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'Not found.' })
 })
 
+// Errors with their own status, such as malformed JSON (400), keep it. The rest are 500s,
+// and their details stay in the server log.
+app.use((err, req, res, next) => {
+  const status = err.status || 500
+  if (status >= 500) console.error(err)
+  res.status(status).json({ error: status < 500 ? err.message : 'Internal server error' })
+})
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)
 })
