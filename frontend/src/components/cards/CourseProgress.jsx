@@ -1,60 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useId, useState } from 'react'
 import { Link } from 'react-router'
-import Button from '../../../components/forms/Button.jsx'
-import SectionHeading from '../../../components/ui/SectionHeading.jsx'
-import requestJson from '../../../hooks/requestJson.js'
+import Button from '../forms/Button.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
 
 const STATUSES = ['pending', 'approved', 'rejected']
 
-function CourseProgress() {
-  const [courses, setCourses] = useState([])
+function CourseProgress({
+  courses = [],
+  error = null,
+  isLoading = false,
+  onAdd,
+  onStatusChange,
+  onRemove,
+  title = 'Course mapping',
+  matchingHref = '/transfer-credits',
+  matchingLabel = 'Find matching courses',
+}) {
+  const titleId = useId()
   const [hkuCode, setHkuCode] = useState('')
   const [homeCode, setHomeCode] = useState('')
   const [credits, setCredits] = useState('')
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    async function loadCourses() {
-      const result = await requestJson('/api/course-mappings')
-      setError(result.error)
-      setCourses(result.data?.data ?? [])
-      setIsLoading(false)
-    }
-    loadCourses()
-  }, [])
 
   async function handleAdd(event) {
     event.preventDefault()
-    const result = await requestJson('/api/course-mappings', {
-      method: 'POST',
-      body: { hkuCode, homeCode, credits },
-    })
-    setError(result.error)
-    if (!result.error) {
-      setCourses([...courses, result.data.data])
+    if (await onAdd({ hkuCode, homeCode, credits })) {
       setHkuCode('')
       setHomeCode('')
       setCredits('')
-    }
-  }
-
-  async function handleStatus(id, status) {
-    const result = await requestJson(`/api/course-mappings/${id}`, {
-      method: 'PATCH',
-      body: { status },
-    })
-    setError(result.error)
-    if (!result.error) {
-      setCourses(courses.map((course) => (course.id === id ? { ...course, status } : course)))
-    }
-  }
-
-  async function handleRemove(id) {
-    const result = await requestJson(`/api/course-mappings/${id}`, { method: 'DELETE' })
-    setError(result.error)
-    if (!result.error) {
-      setCourses(courses.filter((course) => course.id !== id))
     }
   }
 
@@ -67,8 +39,8 @@ function CourseProgress() {
   const rejected = courses.filter((course) => course.status === 'rejected')
 
   return (
-    <section className="dash-card" aria-labelledby="courses-title">
-      <SectionHeading id="courses-title" icon="book">Course mapping</SectionHeading>
+    <section className="dash-card" aria-labelledby={titleId}>
+      <SectionHeading id={titleId} icon="book">{title}</SectionHeading>
 
       {isLoading && <p role="status">Loading courses…</p>}
       {error && <p className="status-message status-message--error" role="alert">{error}</p>}
@@ -108,7 +80,7 @@ function CourseProgress() {
                   <select
                     aria-label={`Status of ${course.hkuCode}`}
                     className={`dash-badge dash-badge-${course.status}`}
-                    onChange={(event) => handleStatus(course.id, event.target.value)}
+                    onChange={(event) => onStatusChange(course.id, event.target.value)}
                     value={course.status}
                   >
                     {STATUSES.map((status) => (
@@ -119,7 +91,7 @@ function CourseProgress() {
                     type="button"
                     className="dash-remove"
                     aria-label={`Remove ${course.hkuCode}`}
-                    onClick={() => handleRemove(course.id)}
+                    onClick={() => onRemove(course.id)}
                   >
                     ×
                   </button>
@@ -167,7 +139,7 @@ function CourseProgress() {
         <Button type="submit" size="small">Add</Button>
       </form>
 
-      <Link to="/transfer-credits">Find matching courses</Link>
+      <Link to={matchingHref}>{matchingLabel}</Link>
     </section>
   )
 }

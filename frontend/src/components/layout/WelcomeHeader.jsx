@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useAuth } from '../../../contexts/AuthContext.jsx'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
   weekday: 'long',
@@ -14,8 +13,7 @@ const timeFormat = new Intl.DateTimeFormat(undefined, {
   timeZone: 'Asia/Hong_Kong',
 })
 
-function WelcomeHeader({ weather, weatherError }) {
-  const { user } = useAuth()
+function WelcomeHeader({ displayName, weather, weatherError }) {
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
@@ -31,7 +29,7 @@ function WelcomeHeader({ weather, weatherError }) {
   return (
     <header className="dash-welcome">
       <div>
-      <h1>{greeting}, {user.displayName}!</h1>
+      <h1>{greeting}, {displayName}!</h1>
       <p>
         {dateFormat.format(now)} · {timeFormat.format(now)} in Hong Kong
         {weather && ` · ${weather.tempC}°C, ${weather.condition}`}

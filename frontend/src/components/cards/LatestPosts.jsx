@@ -1,12 +1,15 @@
+import { useId } from 'react'
 import { Link } from 'react-router'
-import SectionHeading from '../../../components/ui/SectionHeading.jsx'
+import SectionHeading from '../ui/SectionHeading.jsx'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
 
-function LatestPosts({ posts }) {
+function LatestPosts({ posts = [] }) {
+  const titleId = useId()
+
   return (
-    <section className="dash-card" aria-labelledby="posts-title">
-      <SectionHeading id="posts-title" icon="pen">Latest blog posts</SectionHeading>
+    <section className="dash-card" aria-labelledby={titleId}>
+      <SectionHeading id={titleId} icon="pen">Latest blog posts</SectionHeading>
       {posts.length === 0 ? (
         <p>No posts yet. Be the first to write one!</p>
       ) : (
