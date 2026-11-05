@@ -2,12 +2,6 @@
   width: 100%;
 }
 
-.dash-welcome h1 {
-  margin: 0;
-  color: var(--color-accent);
-  font-size: 2rem;
-}
-
 .dash-meta {
   margin: 0.25rem 0 0;
   color: var(--color-muted);
@@ -139,44 +133,6 @@
   .dash-events {
     grid-column: auto;
   }
-
-  .dash-welcome h1 {
-    font-size: 1.5rem;
-  }
-}
-
-.dash-welcome {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  overflow: hidden;
-  padding: 1.5rem 1.5rem 0;
-  border-radius: 0.75rem;
-  background: var(--color-accent);
-  color: #fff;
-}
-
-.dash-welcome h1 {
-  color: #fff;
-}
-
-.dash-welcome p {
-  margin: 0.25rem 0 1.5rem;
-  opacity: 0.85;
-  font-size: 0.875rem;
-}
-
-.dash-skyline {
-  flex: none;
-  width: 12.5rem;
-  fill: var(--color-accent-soft);
-  opacity: 0.35;
-}
-
-.dash-skyline-wave {
-  opacity: 1;
-  fill: var(--color-accent-soft);
 }
 
 .dash-event {
@@ -251,8 +207,79 @@
   font-weight: bold;
 }
 
-@media (max-width: 40rem) {
-  .dash-skyline {
-    display: none;
-  }
+.dash-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 0.0625rem solid var(--color-border);
+}
+
+.dash-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.dash-field-grow {
+  flex: 1 1 6rem;
+  min-width: 0;
+}
+
+.dash-field-small {
+  flex: 0 1 4.5rem;
+}
+
+.dash-field input {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.dash-field input:focus-visible {
+  outline: 0.125rem solid var(--color-accent);
+  outline-offset: 0.0625rem;
+}
+
+.dash-row-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dash-row-actions select {
+  background: #fff;
+  cursor: pointer;
+}
+
+.dash-credits {
+  display: block;
+}
+
+.dash-remove {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dash-remove:hover,
+.dash-remove:focus-visible {
+  background: var(--color-accent-soft);
+  color: var(--color-danger);
 }

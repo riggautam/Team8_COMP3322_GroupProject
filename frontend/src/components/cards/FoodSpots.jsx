@@ -1,10 +1,13 @@
+import { useId } from 'react'
 import { Link } from 'react-router'
 import SectionHeading from '../ui/SectionHeading.jsx'
 
-function FoodSpots({ spots }) {
+function FoodSpots({ spots = [] }) {
+  const titleId = useId()
+
   return (
-    <section className="dash-card" aria-labelledby="food-title">
-      <SectionHeading id="food-title" icon="utensils">Food near campus</SectionHeading>
+    <section className="dash-card" aria-labelledby={titleId}>
+      <SectionHeading id={titleId} icon="utensils">Food near campus</SectionHeading>
       {spots.length === 0 ? (
         <p>No food spots to show yet.</p>
       ) : (

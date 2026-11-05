@@ -31,6 +31,7 @@ services:
       DB_NAME: ${MYSQL_DATABASE}
       GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      SESSION_SECRET: ${SESSION_SECRET}
     depends_on:
       db:
         condition: service_healthy
@@ -42,6 +43,8 @@ services:
       target: ${FRONTEND_TARGET:-frontend-dev}
       args:
         VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
+    environment:
+      VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
     depends_on:
       - backend
     ports:

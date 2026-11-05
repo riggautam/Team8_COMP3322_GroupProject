@@ -5,7 +5,16 @@ async function requestJson(url, { method, body } = {}) {
       headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     })
-    const data = await response.json()
+
+    // Some responses have no JSON body, such as 204 or a crashed backend.
+    const text = await response.text()
+    let data = null
+    try {
+      data = text ? JSON.parse(text) : null
+    } catch {
+      data = null
+    }
+
     const error = response.ok
       ? null
       : `${response.status} ${response.statusText}: ${data?.error || 'Request failed.'}`

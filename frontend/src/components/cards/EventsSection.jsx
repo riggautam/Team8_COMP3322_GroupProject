@@ -1,26 +1,22 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import SectionHeading from '../ui/SectionHeading.jsx'
-import useGet from '../../hooks/useGet.js'
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
 
-function EventsSection() {
-  const [category, setCategory] = useState('')
+function EventsSection({
+  events,
+  categories,
+  category,
+  onCategoryChange,
+  isLoading,
+  error,
+}) {
+  const titleId = useId()
   const [selectedId, setSelectedId] = useState(null)
-  const query = category ? `?category=${encodeURIComponent(category)}` : ''
-  const { data, error, isLoading } = useGet(`/api/events${query}`, { refreshInterval: 15000 })
-
-  const events = data?.events ?? []
-  const categories = data?.categories ?? []
-
-  function selectCategory(next) {
-    setCategory(next)
-    setSelectedId(null)
-  }
 
   return (
-    <section className="dash-card dash-events" aria-labelledby="events-title">
-      <SectionHeading id="events-title" icon="calendar">Today's events</SectionHeading>
+    <section className="dash-card dash-events" aria-labelledby={titleId}>
+      <SectionHeading id={titleId} icon="calendar">Today's events</SectionHeading>
 
       <ul className="dash-filters" aria-label="Filter events by category">
         {['', ...categories].map((name) => (
@@ -29,7 +25,10 @@ function EventsSection() {
               type="button"
               aria-pressed={category === name}
               disabled={isLoading}
-              onClick={() => selectCategory(name)}
+              onClick={() => {
+                setSelectedId(null)
+                onCategoryChange(name)
+              }}
             >
               {name || 'All'}
             </button>
@@ -52,25 +51,23 @@ function EventsSection() {
                 {timeFormat.format(new Date(event.startsAt))}
               </time>
               <div>
-              <h3>
-                <button
-                  type="button"
-                  className="dash-link-button"
-                  aria-expanded={isOpen}
-                  onClick={() => setSelectedId(isOpen ? null : event.id)}
-                >
-                  {event.title}
-                </button>
-              </h3>
-              <p className="dash-meta">
-                {event.category}
-              </p>
-              {isOpen && (
-                <>
-                  <p>{event.description}</p>
-                  <p className="dash-meta">Location: {event.location}</p>
-                </>
-              )}
+                <h3>
+                  <button
+                    type="button"
+                    className="dash-link-button"
+                    aria-expanded={isOpen}
+                    onClick={() => setSelectedId(isOpen ? null : event.id)}
+                  >
+                    {event.title}
+                  </button>
+                </h3>
+                <p className="dash-meta">{event.category}</p>
+                {isOpen && (
+                  <>
+                    <p>{event.description}</p>
+                    <p className="dash-meta">Location: {event.location}</p>
+                  </>
+                )}
               </div>
             </li>
           )

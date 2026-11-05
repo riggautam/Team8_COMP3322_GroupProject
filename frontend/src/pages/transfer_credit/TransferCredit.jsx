@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Button from '../../components/forms/Button.jsx'
-import LoadingSpinner from '../../components/animation/LoadingSpinner.jsx'
+import PageBanner from '../../components/layout/PageBanner.jsx'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.jsx'
 import usePost from '../../hooks/usePost.js'
 import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'
@@ -86,102 +87,108 @@ function TransferCredit() {
   }
 
   return (
-    <section
-      className="university-comparison"
-      aria-label="Select exchange and home universities"
-    >
-      <section className="university-column university-column--exchange">
-        <div className="university-primary-row">
-          <UniversityDropdown
-            kind="exchange"
-            title="Exchange university"
-            value={exchangeUniversity}
-            onChange={(value) => {
-              setExchangeUniversity(value)
+    <div className="transfer-credit-page">
+      <PageBanner
+        title="Course transfer planner"
+        description="Compare exchange courses with your home university and find potential credit matches."
+      />
+      <section
+        className="university-comparison"
+        aria-label="Select exchange and home universities"
+      >
+        <section className="university-column university-column--exchange">
+          <div className="university-primary-row">
+            <UniversityDropdown
+              kind="exchange"
+              title="Exchange university"
+              value={exchangeUniversity}
+              onChange={(value) => {
+                setExchangeUniversity(value)
+                clearCandidateResults()
+              }}
+              invalid={hasAttemptedTransfer && !exchangeUniversity}
+            />
+            <div className="exchange-course-picker">
+              <label className="exchange-course-label" htmlFor="exchange-course">
+                Exchange course
+              </label>
+              <select
+                className="exchange-course-select"
+                defaultValue=""
+                id="exchange-course"
+              >
+                <option disabled value="">
+                  Select a course
+                </option>
+                <option disabled value="pending">
+                  Saved courses will appear here
+                </option>
+              </select>
+            </div>
+          </div>
+          <CourseUrlSection
+            id="exchange-course-url"
+            label="Course description URL"
+            onFetched={(value) => {
+              setExchangeCourseDetails(value)
               clearCandidateResults()
             }}
-            invalid={hasAttemptedTransfer && !exchangeUniversity}
           />
-          <div className="exchange-course-picker">
-            <label className="exchange-course-label" htmlFor="exchange-course">
-              Exchange course
-            </label>
-            <select
-              className="exchange-course-select"
-              defaultValue=""
-              id="exchange-course"
-            >
-              <option disabled value="">
-                Select a course
-              </option>
-              <option disabled value="pending">
-                Saved courses will appear here
-              </option>
-            </select>
+          <CourseDetailsSection
+            id="exchange-course-details"
+            value={exchangeCourseDetails}
+            onChange={(value) => {
+              setExchangeCourseDetails(value)
+              clearCandidateResults()
+            }}
+            invalid={hasAttemptedTransfer && !exchangeCourseDetails.trim()}
+          />
+          <div className="university-secondary-space" />
+        </section>
+        <div className="comparison-middle">
+          <svg
+            aria-label="Credits transfer from exchange university to home university"
+            className="comparison-arrow"
+            viewBox="0 0 48 24"
+            role="img"
+          >
+            <path d="M2 12h41m-9-9 9 9-9 9" />
+          </svg>
+          <div className="comparison-action">
+            {isLoading ? (
+              <LoadingSpinner label="Finding potential matching courses" />
+            ) : transferFeedback ? (
+              <p
+                className={`status-message status-message--${transferFeedback.isSuccess ? 'success' : 'error'}`}
+                role="status"
+              >
+                {transferFeedback.message}
+              </p>
+            ) : (
+              <Button onClick={handleTransfer} size="large">
+                Transfer
+              </Button>
+            )}
           </div>
         </div>
-        <CourseUrlSection
-          id="exchange-course-url"
-          label="Course description URL"
-          onFetched={(value) => {
-            setExchangeCourseDetails(value)
-            clearCandidateResults()
-          }}
-        />
-        <CourseDetailsSection
-          id="exchange-course-details"
-          value={exchangeCourseDetails}
-          onChange={(value) => {
-            setExchangeCourseDetails(value)
-            clearCandidateResults()
-          }}
-          invalid={hasAttemptedTransfer && !exchangeCourseDetails.trim()}
-        />
-        <div className="university-secondary-space" />
+        <section className="university-column university-column--home">
+          <div className="university-primary-row">
+            <UniversityDropdown
+              kind="home"
+              title="Home university"
+              value={homeUniversity}
+              onChange={(value) => {
+                setHomeUniversity(value)
+                clearCandidateResults()
+              }}
+              invalid={hasAttemptedTransfer && !homeUniversity}
+            />
+          </div>
+          <CourseCandidatesSection matchingData={matchingData} />
+          <div className="university-secondary-space" />
+        </section>
       </section>
-      <div className="comparison-middle">
-        <svg
-          aria-label="Credits transfer from exchange university to home university"
-          className="comparison-arrow"
-          viewBox="0 0 48 24"
-          role="img"
-        >
-          <path d="M2 12h41m-9-9 9 9-9 9" />
-        </svg>
-        <div className="comparison-action">
-          {isLoading ? (
-            <LoadingSpinner label="Finding potential matching courses" />
-          ) : transferFeedback ? (
-            <p
-              className={`status-message status-message--${transferFeedback.isSuccess ? 'success' : 'error'}`}
-              role="status"
-            >
-              {transferFeedback.message}
-            </p>
-          ) : (
-            <Button onClick={handleTransfer} size="large">
-              Transfer
-            </Button>
-          )}
-        </div>
-      </div>
-      <section className="university-column university-column--home">
-        <div className="university-primary-row">
-          <UniversityDropdown
-            kind="home"
-            title="Home university"
-            value={homeUniversity}
-            onChange={(value) => {
-              setHomeUniversity(value)
-              clearCandidateResults()
-            }}
-            invalid={hasAttemptedTransfer && !homeUniversity}
-          />
-        </div>
-        <CourseCandidatesSection matchingData={matchingData} />
-        <div className="university-secondary-space" />
-      </section>
-    </section>
+    </div>
   )
 }
 
