@@ -1,3 +1,11 @@
+.transfer-credit-page {
+  width: 100%;
+}
+
+.transfer-credit-page .page-banner {
+  margin-bottom: 1.5rem;
+}
+
 .university-comparison {
   display: flex;
   width: 100%;

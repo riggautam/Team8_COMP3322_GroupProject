@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import Button from '../../components/forms/Button.jsx'
+import PageBanner from '../../components/layout/PageBanner.jsx'
+import SectionHeading from '../../components/ui/SectionHeading.jsx'
 import TextInput from '../../components/forms/TextInput.jsx'
 import requestJson from '../../hooks/requestJson.js'
 import PostDetail from './PostDetail.jsx'
@@ -63,17 +65,10 @@ function Blog() {
 
   return (
     <div className="blog-page">
-      <header className="blog-banner">
-        <div>
-          <h1>HKU Student Blog</h1>
-          <p>Stories, guides, and campus tips from fellow students</p>
-        </div>
-        <div className="blog-skyline" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
-      </header>
+      <PageBanner
+        title="HKU Student Blog"
+        description="Stories, guides, and campus tips from fellow students"
+      />
 
       <div className="blog-layout">
         <section className="blog-main" aria-label="Blog posts">
@@ -173,8 +168,8 @@ function Blog() {
         </section>
 
         <aside className="blog-sidebar">
-          <section className="blog-card">
-            <h2>Share your story</h2>
+          <section className="blog-card" aria-labelledby="share-story-title">
+            <SectionHeading id="share-story-title" icon="pen">Share your story</SectionHeading>
             <p>
               Have tips for incoming students or a story about campus life?
               Write for the HKU Blog!
@@ -190,21 +185,26 @@ function Blog() {
             </Button>
           </section>
 
-          <section className="blog-card">
-            <h2>Categories</h2>
+          <section className="blog-card" aria-labelledby="blog-categories-title">
+            <SectionHeading id="blog-categories-title" icon="book">Categories</SectionHeading>
             <ul className="blog-topic-list">
               {categories.map((name) => (
                 <li key={name}>
-                  <button type="button" onClick={() => chooseCategory(name)}>
+                  <Button
+                    className="blog-topic-button"
+                    aria-pressed={selectedCategory === name}
+                    onClick={() => chooseCategory(name)}
+                    size="small"
+                  >
                     # {name}
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
           </section>
 
-          <section className="blog-card blog-guidelines">
-            <h2>Blog Guidelines</h2>
+          <section className="blog-card blog-guidelines" aria-labelledby="blog-guidelines-title">
+            <SectionHeading id="blog-guidelines-title" icon="check">Blog Guidelines</SectionHeading>
             <p>Keep discussions respectful and relevant to student life at HKU.</p>
           </section>
         </aside>
