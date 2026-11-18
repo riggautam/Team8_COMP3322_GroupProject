@@ -23,10 +23,14 @@ function Blog() {
   const [view, setView] = useState('list') // 'list', 'read', 'create' or 'edit'
   const [selectedPost, setSelectedPost] = useState(null)
 
+  const REFRESH_INTERVAL_MS = 30000 // 30 seconds
+
   async function loadPosts() {
     const result = await requestJson('/api/blog-posts')
     setLoadError(result.error)
-    setPosts(result.error ? [] : result.data)
+    // On an error, keep the posts already on screen instead of blanking the list.
+    // A refresh that fails once (e.g. a network blip) then fixes itself on the next try.
+    if (!result.error) setPosts(result.data)
     setIsLoading(false)
   }
 
@@ -35,6 +39,21 @@ function Blog() {
     loadPosts()
   }, [user?.id])
 
+  // While the post list is showing, fetch the latest posts and votes every 30 seconds,
+  // so other people's votes and new posts appear without a page refresh.
+  // It stops while reading or writing a post, so the page never changes under the reader.
+  useEffect(() => {
+    if (view !== 'list') return
+
+    const timer = setInterval(() => {
+      // Skip while the browser tab is in the background. Nobody is looking at it.
+      if (!document.hidden) loadPosts()
+    }, REFRESH_INTERVAL_MS)
+
+    // Runs when the view changes or the page closes, so old timers never pile up.
+    return () => clearInterval(timer)
+  }, [view])
+  
   // Unique category names, taken from the posts themselves.
   const categories = [...new Set(posts.map((post) => post.category))].sort()
 
