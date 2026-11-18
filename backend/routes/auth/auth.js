@@ -1,6 +1,7 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const pool = require('../../db')
+const crypto = require('crypto')
 
 const router = express.Router()
 
@@ -14,6 +15,11 @@ const STARTER_CHECKLIST = [
   'Submit course mapping for approval',
   'Take a campus tour',
 ]
+
+// Google's OAuth 2.0 endpoints.
+const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
+const GOOGLE_USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo'
 
 // Reads a text field from the request body, or '' if it's missing.
 function field(body, name) {
@@ -36,6 +42,39 @@ function startSession(req, userId) {
   })
 }
 
+// Gives a new account the starter checklist. VALUES ? with nested arrays inserts one row per item.
+function addStarterChecklist(userId) {
+  return pool.query('INSERT INTO checklist_items (user_id, label) VALUES ?', [
+    STARTER_CHECKLIST.map((label) => [userId, label]),
+  ])
+}
+
+// Finds the account for this Google user, linking or creating one if needed. Returns the user id.
+async function findOrCreateGoogleUser(profile) {
+  const email = profile.email.toLowerCase()
+
+  // 1. They have signed in with Google before.
+  const [byGoogle] = await pool.query('SELECT id FROM users WHERE google_id = ?', [profile.sub])
+  if (byGoogle[0]) return byGoogle[0].id
+
+  // 2. They have a password account with the same email: link it.
+  //    Safe because Google has verified they own this email.
+  const [byEmail] = await pool.query('SELECT id FROM users WHERE email = ?', [email])
+  if (byEmail[0]) {
+    await pool.query('UPDATE users SET google_id = ? WHERE id = ?', [profile.sub, byEmail[0].id])
+    return byEmail[0].id
+  }
+
+  // 3. New user: no password, and the same starter checklist as a normal sign-up.
+  const displayName = (profile.name || email.split('@')[0]).slice(0, 100)
+  const [result] = await pool.query(
+    'INSERT INTO users (email, google_id, display_name) VALUES (?, ?, ?)',
+    [email, profile.sub, displayName],
+  )
+  await addStarterChecklist(result.insertId)
+  return result.insertId
+}
+
 router.post('/register', async (req, res, next) => {
   const email = field(req.body, 'email').toLowerCase()
   const password = field(req.body, 'password')
@@ -54,11 +93,8 @@ router.post('/register', async (req, res, next) => {
       'INSERT INTO users (email, password, display_name) VALUES (?, ?, ?)',
       [email, passwordHash, displayName],
     )
-        // VALUES ? with nested arrays inserts one row per item.
-    await pool.query('INSERT INTO checklist_items (user_id, label) VALUES ?', [
-      STARTER_CHECKLIST.map((label) => [result.insertId, label]),
-    ])
-    
+    await addStarterChecklist(result.insertId)
+
     await startSession(req, result.insertId)
     res.status(201).json({ data: { id: result.insertId, email, displayName } })
   } catch (err) {
@@ -123,6 +159,83 @@ router.post('/logout', (req, res, next) => {
     res.clearCookie('west.sid')
     res.status(204).end()
   })
+})
+
+// Google sign-in, step 1: send the browser to Google's account picker.
+router.get('/google', (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REDIRECT_URI) {
+    return res.redirect('/login?error=google')
+  }
+
+  // A random one-time value. Google sends it back, and the callback checks it matches,
+  // so nobody can trick a browser into finishing a login it never started (CSRF).
+  const state = crypto.randomBytes(16).toString('hex')
+  req.session.oauthState = state
+
+  // Save first, so the state is in the database before Google sends the user back.
+  req.session.save((err) => {
+    if (err) return next(err)
+    const params = new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      response_type: 'code', // we want a one-time code, swapped for a token below
+      scope: 'openid email profile',
+      state,
+      prompt: 'select_account', // always show the account picker
+    })
+    res.redirect(`${GOOGLE_AUTH_URL}?${params}`)
+  })
+})
+
+// Google sign-in, step 2: Google sends the browser back here with a one-time code.
+router.get('/google/callback', async (req, res) => {
+  const { code, state, error } = req.query
+  const expectedState = req.session.oauthState
+  delete req.session.oauthState // each state can only be used once
+
+  // error means the user pressed Cancel. A wrong state means this login did not start here.
+  if (error || typeof code !== 'string' || !expectedState || state !== expectedState) {
+    return res.redirect('/login?error=google')
+  }
+
+  try {
+    // Swap the code for an access token. The client secret proves the request comes from our server.
+    const tokenResponse = await fetch(GOOGLE_TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: 'authorization_code',
+      }),
+    })
+    if (!tokenResponse.ok) {
+      throw new Error(`Google token exchange failed with status ${tokenResponse.status}`)
+    }
+    const { access_token: accessToken } = await tokenResponse.json()
+
+    // Ask Google who this token belongs to: id (sub), email, name.
+    const profileResponse = await fetch(GOOGLE_USERINFO_URL, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    if (!profileResponse.ok) {
+      throw new Error(`Google userinfo failed with status ${profileResponse.status}`)
+    }
+    const profile = await profileResponse.json()
+
+    if (!profile.sub || !profile.email || !profile.email_verified) {
+      return res.redirect('/login?error=google')
+    }
+
+    const userId = await findOrCreateGoogleUser(profile)
+    await startSession(req, userId)
+    res.redirect('/dashboard')
+  } catch (err) {
+    console.error(err)
+    res.redirect('/login?error=google')
+  }
 })
 
 module.exports = router
