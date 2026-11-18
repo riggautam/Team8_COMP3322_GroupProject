@@ -30,7 +30,7 @@ const MAX_NAME_LENGTH = 100
 // Text, @, text, a dot, text, with no spaces. Simple on purpose: it catches typos, not every rule.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Each IP address gets 10 failed attempts per 15 minutes, then a 429 until the window ends.
+// Each IP address gets 10 failed logins per 15 minutes, then a 429 until the window ends.
 // Successful logins don't count, so normal users never hit it. This slows down password guessing.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -39,6 +39,16 @@ const authLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { error: 'Too many attempts. Please try again in 15 minutes.' },
+})
+
+// Sign-ups get their own limit that counts every attempt, so one IP address can't create
+// accounts in bulk. 20 per hour, because a whole class on HKU Wi-Fi or HKUVPN can share one IP.
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many sign-up attempts. Please try again in an hour.' },
 })
 
 // Reads a text field from the request body, or '' if it's missing.
@@ -81,7 +91,12 @@ async function findOrCreateGoogleUser(profile) {
   //    Safe because Google has verified they own this email.
   const [byEmail] = await pool.query('SELECT id FROM users WHERE email = ?', [email])
   if (byEmail[0]) {
-    await pool.query('UPDATE users SET google_id = ? WHERE id = ?', [profile.sub, byEmail[0].id])
+    // Clear any password: someone else could have registered this email before its real owner,
+    // and would otherwise keep a way into the owner's account.
+    await pool.query('UPDATE users SET google_id = ?, password = NULL WHERE id = ?', [
+      profile.sub,
+      byEmail[0].id,
+    ])
     return byEmail[0].id
   }
 
@@ -95,7 +110,7 @@ async function findOrCreateGoogleUser(profile) {
   return result.insertId
 }
 
-router.post('/register', authLimiter, async (req, res, next) => {
+router.post('/register', registerLimiter, async (req, res, next) => {
   const email = field(req.body, 'email').toLowerCase()
   const password = field(req.body, 'password')
   const displayName = field(req.body, 'displayName')
