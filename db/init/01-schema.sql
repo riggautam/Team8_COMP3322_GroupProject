@@ -33,6 +33,18 @@ CREATE TABLE IF NOT EXISTS blog_comments (
   FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Up and down votes on blog posts. value is 1 for an upvote and -1 for a downvote.
+CREATE TABLE IF NOT EXISTS blog_votes (
+  post_id INT NOT NULL,
+  user_id INT NOT NULL,
+  value TINYINT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (post_id, user_id), -- one vote per user per post
+  CONSTRAINT chk_blog_votes_value CHECK (value IN (-1, 1)),
+  FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS events (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
