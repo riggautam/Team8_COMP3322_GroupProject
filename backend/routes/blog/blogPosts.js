@@ -7,6 +7,7 @@ const router = express.Router();
 const MAX_TITLE_LENGTH = 255;
 const MAX_CATEGORY_LENGTH = 50;
 const MAX_COMMENT_LENGTH = 5000;
+const MAX_CONTENT_LENGTH = 5000;
 const DEFAULT_CATEGORY = 'General';
 
 const POST_FIELDS = `
@@ -47,6 +48,9 @@ function readPostFields(body) {
   }
   if (title.length > MAX_TITLE_LENGTH) {
     return { error: `Title must be ${MAX_TITLE_LENGTH} characters or fewer.` };
+  }
+  if (content.length > MAX_CONTENT_LENGTH) {
+    return { error: `Content must be ${MAX_CONTENT_LENGTH} characters or fewer.` };
   }
   if (category.length > MAX_CATEGORY_LENGTH) {
     return { error: `Category must be ${MAX_CATEGORY_LENGTH} characters or fewer.` };
