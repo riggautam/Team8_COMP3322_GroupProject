@@ -3,8 +3,9 @@ import { Link } from 'react-router'
 import Button from '../../components/forms/Button.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
+import VoteControl from './VoteControl.jsx'
 
-function PostDetail({ post, onBack, onEdit, onDeleted }) {
+function PostDetail({ post, onBack, onEdit, onDeleted, onVoted }) {
   const { user } = useAuth()
   const isOwner = user?.id === post.author_id
   const [comments, setComments] = useState([])
@@ -95,6 +96,8 @@ function PostDetail({ post, onBack, onEdit, onDeleted }) {
       </p>
       <div className="blog-full-content">{post.content}</div>
 
+      <VoteControl post={post} onVoted={onVoted} />
+
       <hr className="blog-divider" />
 
       <section aria-label="Comments section">
@@ -104,6 +107,7 @@ function PostDetail({ post, onBack, onEdit, onDeleted }) {
           <label htmlFor="comment-text">Add a comment</label>
           <textarea
             id="comment-text"
+            maxLength={5000}
             onChange={(event) => setCommentText(event.target.value)}
             placeholder="Write a comment..."
             required

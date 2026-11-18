@@ -3,15 +3,18 @@ import Button from '../../components/forms/Button.jsx'
 import PageBanner from '../../components/layout/PageBanner.jsx'
 import SectionHeading from '../../components/ui/SectionHeading.jsx'
 import TextInput from '../../components/forms/TextInput.jsx'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
 import PostDetail from './PostDetail.jsx'
 import PostForm from './PostForm.jsx'
+import VoteControl from './VoteControl.jsx'
 import './Blog.css'
 
 const ALL = 'All'
 const EXCERPT_LENGTH = 120
 
 function Blog() {
+  const { user } = useAuth()
   const [posts, setPosts] = useState([])
   const [loadError, setLoadError] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -27,9 +30,10 @@ function Blog() {
     setIsLoading(false)
   }
 
+  // Reload when someone logs in or out, because my_vote depends on who is looking.
   useEffect(() => {
     loadPosts()
-  }, [])
+  }, [user?.id])
 
   // Unique category names, taken from the posts themselves.
   const categories = [...new Set(posts.map((post) => post.category))].sort()
@@ -63,6 +67,13 @@ function Blog() {
     showList()
   }
 
+  // Puts the new score and my_vote into our copies of the post, so the page updates
+  // straight away without reloading every post from the server.
+  function handleVoted(postId, votes) {
+    setPosts((current) => current.map((post) => (post.id === postId ? { ...post, ...votes } : post)))
+    setSelectedPost((current) => (current?.id === postId ? { ...current, ...votes } : current))
+  }
+
   return (
     <div className="blog-page">
       <PageBanner
@@ -78,6 +89,7 @@ function Blog() {
               onBack={showList}
               onEdit={() => setView('edit')}
               onDeleted={handleDeleted}
+              onVoted={handleVoted}
             />
           )}
 
@@ -150,15 +162,18 @@ function Blog() {
                       <span>
                         Written by <strong>{post.author}</strong>
                       </span>
-                      <Button
-                        className="blog-read-button"
-                        onClick={() => {
-                          setSelectedPost(post)
-                          setView('read')
-                        }}
-                      >
-                        Read post →
-                      </Button>
+                      <div className="blog-post-footer-actions">
+                        <VoteControl post={post} onVoted={handleVoted} />
+                        <Button
+                          className="blog-read-button"
+                          onClick={() => {
+                            setSelectedPost(post)
+                            setView('read')
+                          }}
+                        >
+                          Read post →
+                        </Button>
+                      </div>
                     </div>
                   </article>
                 ))}
