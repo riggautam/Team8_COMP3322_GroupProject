@@ -12,6 +12,24 @@ import './Blog.css'
 
 const ALL = 'All'
 const EXCERPT_LENGTH = 120
+const REFRESH_INTERVAL_MS = 30000 // 30 seconds
+
+// Newest post first. Two posts from the same second fall back to the higher id (made later).
+function byNewest(a, b) {
+  return new Date(b.created_at) - new Date(a.created_at) || b.id - a.id
+}
+
+// The three ways to order posts. Each compare function returns a negative number when
+// post a should come first. "||" moves on to the next rule only when the first one ties (0).
+const SORTS = [
+  {
+    id: 'featured',
+    label: 'Featured',
+    compare: (a, b) => b.recent_score - a.recent_score || byNewest(a, b),
+  },
+  { id: 'newest', label: 'Newest', compare: byNewest },
+  { id: 'top', label: 'Top', compare: (a, b) => b.score - a.score || byNewest(a, b) },
+]
 
 function Blog() {
   const { user } = useAuth()
@@ -20,10 +38,9 @@ function Blog() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState(ALL)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sort, setSort] = useState('featured')
   const [view, setView] = useState('list') // 'list', 'read', 'create' or 'edit'
   const [selectedPost, setSelectedPost] = useState(null)
-
-  const REFRESH_INTERVAL_MS = 30000 // 30 seconds
 
   async function loadPosts() {
     const result = await requestJson('/api/blog-posts')
@@ -53,7 +70,7 @@ function Blog() {
     // Runs when the view changes or the page closes, so old timers never pile up.
     return () => clearInterval(timer)
   }, [view])
-  
+
   // Unique category names, taken from the posts themselves.
   const categories = [...new Set(posts.map((post) => post.category))].sort()
 
@@ -64,6 +81,10 @@ function Blog() {
       post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query)
     return matchesCategory && matchesSearch
   })
+
+  // Copy first ([...]), because sort() changes the array it is called on.
+  const currentSort = SORTS.find((option) => option.id === sort)
+  const sortedPosts = [...filteredPosts].sort(currentSort.compare)
 
   function showList() {
     setSelectedPost(null)
@@ -86,8 +107,8 @@ function Blog() {
     showList()
   }
 
-  // Puts the new score and my_vote into our copies of the post, so the page updates
-  // straight away without reloading every post from the server.
+  // Puts the new score, recent_score and my_vote into our copies of the post, so the page
+  // updates straight away without reloading every post from the server.
   function handleVoted(postId, votes) {
     setPosts((current) => current.map((post) => (post.id === postId ? { ...post, ...votes } : post)))
     setSelectedPost((current) => (current?.id === postId ? { ...current, ...votes } : current))
@@ -128,6 +149,25 @@ function Blog() {
           {view === 'list' && (
             <>
               <section className="blog-card" aria-label="Filter blog posts">
+                <div className="blog-sort" aria-label="Sort posts">
+                  <span className="blog-post-meta">Sort by</span>
+                  {SORTS.map((option) => (
+                    <Button
+                      key={option.id}
+                      className={`blog-category-button${sort === option.id ? ' is-active' : ''}`}
+                      aria-pressed={sort === option.id}
+                      onClick={() => setSort(option.id)}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </div>
+                {sort === 'featured' && (
+                  <p className="blog-post-meta blog-sort-hint">
+                    Most upvoted in the last 72 hours
+                  </p>
+                )}
+
                 <div className="blog-filter-header">
                   <div className="blog-categories" aria-label="Post categories">
                     {[ALL, ...categories].map((name) => (
@@ -159,12 +199,12 @@ function Blog() {
                     Could not load posts: {loadError}
                   </p>
                 )}
-                {!isLoading && !loadError && filteredPosts.length === 0 && (
+                {!isLoading && !loadError && sortedPosts.length === 0 && (
                   <div className="blog-card blog-empty">
                     <p>No posts found matching your filter.</p>
                   </div>
                 )}
-                {filteredPosts.map((post) => (
+                {sortedPosts.map((post) => (
                   <article key={post.id} className="blog-card">
                     <div className="blog-post-header">
                       <span className="blog-category-badge">{post.category}</span>

@@ -473,3 +473,20 @@
   align-items: center;
   gap: 0.75rem;
 }
+
+/* Featured / Newest / Top */
+.blog-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.blog-sort-hint {
+  margin: 0.5rem 0 0;
+}
+
+.blog-sort + .blog-filter-header,
+.blog-sort-hint + .blog-filter-header {
+  margin-top: 1rem;
+}

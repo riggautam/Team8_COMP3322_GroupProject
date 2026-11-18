@@ -11,9 +11,12 @@ const MAX_CONTENT_LENGTH = 5000;
 const DEFAULT_CATEGORY = 'General';
 const VOTE_VALUES = [1, -1, 0]; // up, down, remove my vote
 
-// Every post comes back with two vote fields:
+const FEATURED_WINDOW_HOURS = 72;
+
+// Every post comes back with three vote fields:
 // score: all votes added up (each upvote +1, each downvote -1). SUM gives a DECIMAL,
 //   which mysql2 returns as a string, so CAST turns it into a whole number.
+// recent_score: the same, but only votes cast in the last 72 hours. The Featured sort uses it.
 // my_vote: the visitor's own vote (1, -1, or 0 for none). The ? is the visitor's user id,
 //   so every query that uses POST_FIELDS passes viewerId(req) as its first value.
 const POST_FIELDS = `
@@ -27,6 +30,9 @@ const POST_FIELDS = `
     COALESCE(users.display_name, 'Anonymous') AS author,
     (SELECT CAST(COALESCE(SUM(blog_votes.value), 0) AS SIGNED)
        FROM blog_votes WHERE blog_votes.post_id = blog_posts.id) AS score,
+    (SELECT CAST(COALESCE(SUM(blog_votes.value), 0) AS SIGNED)
+       FROM blog_votes WHERE blog_votes.post_id = blog_posts.id
+       AND blog_votes.voted_at >= NOW() - INTERVAL ${FEATURED_WINDOW_HOURS} HOUR) AS recent_score,
     COALESCE((SELECT blog_votes.value FROM blog_votes
        WHERE blog_votes.post_id = blog_posts.id AND blog_votes.user_id = ?), 0) AS my_vote
   FROM blog_posts
@@ -192,11 +198,16 @@ router.put('/:id/vote', requireAuth, async (req, res) => {
     );
   }
 
+  // Send back both totals, so the page can re-sort straight away for Top and Featured.
   const [rows] = await db.query(
-    'SELECT CAST(COALESCE(SUM(value), 0) AS SIGNED) AS score FROM blog_votes WHERE post_id = ?',
+    `SELECT
+       CAST(COALESCE(SUM(value), 0) AS SIGNED) AS score,
+       CAST(COALESCE(SUM(CASE WHEN voted_at >= NOW() - INTERVAL ${FEATURED_WINDOW_HOURS} HOUR
+         THEN value ELSE 0 END), 0) AS SIGNED) AS recent_score
+     FROM blog_votes WHERE post_id = ?`,
     [req.params.id],
   );
-  res.json({ score: rows[0].score, my_vote: value });
+  res.json({ score: rows[0].score, recent_score: rows[0].recent_score, my_vote: value });
 });
 
 router.get('/:id/comments', async (req, res) => {

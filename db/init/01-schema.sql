@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS blog_votes (
   post_id INT NOT NULL,
   user_id INT NOT NULL,
   value TINYINT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  voted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- last time this vote was cast or changed
   PRIMARY KEY (post_id, user_id), -- one vote per user per post
   CONSTRAINT chk_blog_votes_value CHECK (value IN (-1, 1)),
   FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
