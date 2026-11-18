@@ -1,5 +1,6 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
+const rateLimit = require('express-rate-limit')
 const pool = require('../../db')
 const crypto = require('crypto')
 
@@ -20,6 +21,25 @@ const STARTER_CHECKLIST = [
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 const GOOGLE_USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo'
+
+// Limits for new accounts. The two maximums match the column sizes in the users table.
+const MIN_PASSWORD_LENGTH = 8
+const MAX_PASSWORD_LENGTH = 72 // bcrypt ignores anything after 72 bytes
+const MAX_EMAIL_LENGTH = 255
+const MAX_NAME_LENGTH = 100
+// Text, @, text, a dot, text, with no spaces. Simple on purpose: it catches typos, not every rule.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Each IP address gets 10 failed attempts per 15 minutes, then a 429 until the window ends.
+// Successful logins don't count, so normal users never hit it. This slows down password guessing.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  skipSuccessfulRequests: true,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please try again in 15 minutes.' },
+})
 
 // Reads a text field from the request body, or '' if it's missing.
 function field(body, name) {
@@ -75,13 +95,24 @@ async function findOrCreateGoogleUser(profile) {
   return result.insertId
 }
 
-router.post('/register', async (req, res, next) => {
+router.post('/register', authLimiter, async (req, res, next) => {
   const email = field(req.body, 'email').toLowerCase()
   const password = field(req.body, 'password')
   const displayName = field(req.body, 'displayName')
 
   if (!email || !password || !displayName) {
     return res.status(400).json({ error: 'Name, email and password are required.' })
+  }
+  if (displayName.length > MAX_NAME_LENGTH) {
+    return res.status(400).json({ error: `Name must be ${MAX_NAME_LENGTH} characters or fewer.` })
+  }
+  if (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email)) {
+    return res.status(400).json({ error: 'Enter a valid email address.' })
+  }
+  if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) {
+    return res.status(400).json({
+      error: `Password must be ${MIN_PASSWORD_LENGTH} to ${MAX_PASSWORD_LENGTH} characters long.`,
+    })
   }
 
   try {
@@ -106,7 +137,7 @@ router.post('/register', async (req, res, next) => {
   }
 })
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', authLimiter, async (req, res, next) => {
   const email = field(req.body, 'email').toLowerCase()
   const password = field(req.body, 'password')
 

@@ -45,6 +45,7 @@ function Login() {
             Name
             <input
               autoComplete="name"
+              maxLength={100}
               required
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
@@ -55,6 +56,7 @@ function Login() {
           Email
           <input
             autoComplete="email"
+            maxLength={255}
             required
             type="email"
             value={email}
@@ -65,6 +67,9 @@ function Login() {
           Password
           <input
             autoComplete={isRegister ? 'new-password' : 'current-password'}
+            // Only new passwords need 8+ characters. Older accounts may have shorter ones.
+            minLength={isRegister ? 8 : undefined}
+            maxLength={72}
             required
             type="password"
             value={password}

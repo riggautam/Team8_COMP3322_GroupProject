@@ -3,6 +3,7 @@ const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session)
 const pool = require('./db')
 const app = express()
+app.set('trust proxy', 1)
 const PORT = process.env.PORT || 5000
 
 const dashboardRouter = require('./routes/dashboard/dashboard')
