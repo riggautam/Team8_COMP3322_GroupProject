@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router'
+import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import Button from '../../components/forms/Button.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import usePost from '../../hooks/usePost.js'
@@ -14,6 +14,9 @@ function Login() {
   const { login, user } = useAuth()
   const navigate = useNavigate()
   const isRegister = mode === 'register'
+  // The backend sends the browser to /login?error=google when Google sign-in fails or is cancelled.
+  const [searchParams] = useSearchParams()
+  const googleFailed = searchParams.get('error') === 'google'
 
   async function handleSubmit(event) {
     event.preventDefault() // stop the browser's own form submit (a page reload)
@@ -29,6 +32,12 @@ function Login() {
   return (
     <section className="login">
       <h1>{isRegister ? 'Create an account' : 'Log in'}</h1>
+
+      {googleFailed && (
+        <p className="status-message status-message--error" role="alert">
+          Google sign-in did not work. Please try again.
+        </p>
+      )}
 
       <form className="login-form" onSubmit={handleSubmit}>
         {isRegister && (
@@ -73,6 +82,14 @@ function Login() {
           {isLoading ? 'Please wait…' : isRegister ? 'Register' : 'Log in'}
         </Button>
       </form>
+
+      <p className="login-divider">or</p>
+
+      {/* A plain <a>, not <Link>: the whole page must go to the backend, which redirects to Google.
+          <Link> would stay inside React and never reach the server. */}
+      <a className="login-google" href="/api/auth/google">
+        Continue with Google
+      </a>
 
       <button
         className="login-switch"
