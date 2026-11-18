@@ -85,8 +85,9 @@ router.post('/login', async (req, res, next) => {
     )
     const user = rows[0]
 
-    // Same message for both cases, so nobody can probe which emails exist.
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    // Google-only accounts have no password (NULL), so they can't log in this way.
+    // Same message for every case, so nobody can probe which emails exist.
+    if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: 'Wrong email or password.' })
     }
     await startSession(req, user.id)
