@@ -28,7 +28,7 @@ function CourseUrlSection({ id, label, onFetched }) {
   async function fetchCourse() {
     setFeedback(null)
     setIsWorking(true)
-    onFetched('')
+    onFetched('', '')
     await new Promise((resolve) => window.setTimeout(resolve, 0))
 
     let parsedUrl
@@ -50,7 +50,7 @@ function CourseUrlSection({ id, label, onFetched }) {
     setIsWorking(false)
 
     if (result.data?.text) {
-      onFetched(result.data.text)
+      onFetched(result.data.text, parsedUrl.href) // the text, and the page it came from
       showFeedback('Course information fetched successfully.', true)
       return
     }

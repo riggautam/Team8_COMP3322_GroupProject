@@ -1,192 +1,233 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import hkuIcon from '../../assets/HKU.webp'
 import Button from '../../components/forms/Button.jsx'
+import TextInput from '../../components/forms/TextInput.jsx'
 import PageBanner from '../../components/layout/PageBanner.jsx'
 import LoadingSpinner from '../../components/ui/LoadingSpinner.jsx'
+import SectionHeading from '../../components/ui/SectionHeading.jsx'
+import { useAuth } from '../../contexts/AuthContext.jsx'
+import useCourseMappings from '../../hooks/useCourseMappings.js'
 import usePost from '../../hooks/usePost.js'
 import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'
 import CourseUrlSection from './CourseUrlSection.jsx'
+import StudyPlanTable from './StudyPlanTable.jsx'
 import UniversityDropdown from './UniversityDropdown.jsx'
 import './TransferCredit.css'
 
+const HKU_TO_HOME = 'hku-to-home' // enter an HKU course, get home courses
+const HOME_TO_HKU = 'home-to-hku' // enter a home course, get HKU courses
+
+// HKU is always one side, so it's a fixed badge instead of a dropdown.
+function HkuBadge({ title }) {
+  return (
+    <div>
+      <h3 className="university-select-label">{title}</h3>
+      <div className="hku-badge">
+        <span className="university-image">
+          <img src={hkuIcon} alt="" />
+        </span>
+        The University of Hong Kong (HKU)
+      </div>
+    </div>
+  )
+}
+
 function TransferCredit() {
-  const [exchangeUniversity, setExchangeUniversity] = useState('')
+  const { user } = useAuth()
+  const plan = useCourseMappings()
+  const [direction, setDirection] = useState(HKU_TO_HOME)
   const [homeUniversity, setHomeUniversity] = useState('')
-  const [exchangeCourseDetails, setExchangeCourseDetails] = useState('')
+  const [courseCode, setCourseCode] = useState('')
+  const [courseDetails, setCourseDetails] = useState('')
+  const [courseUrl, setCourseUrl] = useState('') // the page the details were fetched from
   const [matchingData, setMatchingData] = useState(null)
-  const [hasAttemptedTransfer, setHasAttemptedTransfer] = useState(false)
-  const [transferFeedback, setTransferFeedback] = useState(null)
-  const feedbackTimer = useRef(null)
-  const transferRequestId = useRef(0)
+  const [formError, setFormError] = useState(null)
+  const [hasAttempted, setHasAttempted] = useState(false)
+  // Goes up with every new request, so a slow old answer can't replace a newer one.
+  const requestId = useRef(0)
   const { isLoading, post } = usePost('/api/matching-courses')
 
-  useEffect(
-    () => () => {
-      window.clearTimeout(feedbackTimer.current)
-    },
-    [],
-  )
+  const isHkuToHome = direction === HKU_TO_HOME
 
-  function showTransferFeedback(message, isSuccess) {
-    window.clearTimeout(feedbackTimer.current)
-    setTransferFeedback({ message, isSuccess })
-    feedbackTimer.current = window.setTimeout(() => {
-      setTransferFeedback(null)
-    }, 2000)
-  }
-
-  function clearCandidateResults() {
-    transferRequestId.current += 1
+  // Results belong to the inputs they came from, so any change throws them away.
+  function clearResults() {
+    requestId.current += 1
     setMatchingData(null)
-    setTransferFeedback(null)
-    window.clearTimeout(feedbackTimer.current)
+    setFormError(null)
   }
 
-  async function handleTransfer() {
-    if (isLoading) return
+  function flipDirection() {
+    setDirection(isHkuToHome ? HOME_TO_HKU : HKU_TO_HOME)
+    clearResults()
+  }
 
-    setHasAttemptedTransfer(true)
-    const transferDetails = {
-      'Exchange university': exchangeUniversity,
-      'Home university': homeUniversity,
-      'Exchange course details': exchangeCourseDetails.trim(),
-    }
-    const missingFields = Object.entries(transferDetails)
-      .filter(([, value]) => !value)
-      .map(([label]) => label)
-
-    if (missingFields.length) {
-      showTransferFeedback(
-        `Please complete: ${missingFields.join(', ')}.`,
-        false,
-      )
+  async function handleFindMatches() {
+    setHasAttempted(true)
+    const missing = [
+      !homeUniversity && 'home university',
+      !courseCode.trim() && 'course code',
+      !courseDetails.trim() && 'course details',
+    ].filter(Boolean)
+    if (missing.length) {
+      setFormError(`Please add the ${missing.join(', ')}.`)
       return
     }
 
-    const requestId = ++transferRequestId.current
-    setTransferFeedback(null)
-    window.clearTimeout(feedbackTimer.current)
+    const thisRequest = ++requestId.current
+    setFormError(null)
+    setMatchingData(null)
     const result = await post({
-      exchangeUniversity,
+      direction,
       homeUniversity,
-      courseDescription: exchangeCourseDetails.trim(),
+      courseCode,
+      courseDescription: courseDetails,
     })
+    if (thisRequest !== requestId.current) return // the inputs changed while we waited
 
-    if (requestId !== transferRequestId.current) return
-
-    if (result.data?.data && Array.isArray(result.data.data.candidates)) {
-      setMatchingData(result.data.data)
-      showTransferFeedback('AI generated potential course matches.', true)
-      return
+    if (Array.isArray(result.data?.data?.candidates)) {
+      // Keep the fetched link with the result: in Home → HKU it's the home course's page.
+      setMatchingData({ ...result.data.data, sourceUrl: courseUrl })
+    } else {
+      setFormError(result.error || 'Could not find matching courses.')
     }
+  }
 
-    showTransferFeedback(
-      result.error || 'Could not generate course suggestions.',
-      false,
+  // Works out which code is HKU's and which is the home university's. It uses the direction
+  // stored in the result, so flipping the toggle afterwards can't mix them up.
+  function pairFor(candidate) {
+    const code = candidate.courseCode.trim().toUpperCase()
+    if (!code) return null
+
+    const sourceIsHku = matchingData.direction === HKU_TO_HOME
+    return {
+      hkuCode: sourceIsHku ? matchingData.sourceCourseCode : code,
+      homeCode: sourceIsHku ? code : matchingData.sourceCourseCode,
+      homeUrl: (sourceIsHku ? candidate.courseUrl : matchingData.sourceUrl) || null,
+    }
+  }
+
+  function isInPlan(pair) {
+    return plan.courses.some(
+      (course) => course.hkuCode === pair.hkuCode && course.homeCode === pair.homeCode,
     )
   }
+
+  function savePair(pair, credits) {
+    return plan.addCourse({ ...pair, credits })
+  }
+
+  const homeSide = (
+    <div>
+      <UniversityDropdown
+        kind="home"
+        title={isHkuToHome ? 'To' : 'From'}
+        value={homeUniversity}
+        onChange={(value) => {
+          setHomeUniversity(value)
+          clearResults()
+        }}
+        invalid={hasAttempted && !homeUniversity}
+      />
+    </div>
+  )
 
   return (
     <div className="transfer-credit-page">
       <PageBanner
         title="Course transfer planner"
-        description="Compare exchange courses with your home university and find potential credit matches."
+        description="Find courses that could transfer between HKU and your home university, then save them to your study plan."
       />
-      <section
-        className="university-comparison"
-        aria-label="Select exchange and home universities"
-      >
-        <section className="university-column university-column--exchange">
-          <div className="university-primary-row">
-            <UniversityDropdown
-              kind="exchange"
-              title="Exchange university"
-              value={exchangeUniversity}
-              onChange={(value) => {
-                setExchangeUniversity(value)
-                clearCandidateResults()
-              }}
-              invalid={hasAttemptedTransfer && !exchangeUniversity}
-            />
-            <div className="exchange-course-picker">
-              <label className="exchange-course-label" htmlFor="exchange-course">
-                Exchange course
-              </label>
-              <select
-                className="exchange-course-select"
-                defaultValue=""
-                id="exchange-course"
-              >
-                <option disabled value="">
-                  Select a course
-                </option>
-                <option disabled value="pending">
-                  Saved courses will appear here
-                </option>
-              </select>
-            </div>
-          </div>
+
+      <section className="tc-card" aria-labelledby="tc-match-title">
+        <SectionHeading id="tc-match-title" icon="book">Find matching courses</SectionHeading>
+        <p className="tc-hint">
+          {isHkuToHome
+            ? 'Enter an HKU course to see which home courses it could count as.'
+            : 'Enter a home course to find HKU courses you could take instead.'}
+        </p>
+
+        <div className="tc-universities">
+          {isHkuToHome ? <HkuBadge title="From" /> : homeSide}
+          <button
+            type="button"
+            className="tc-flip"
+            onClick={flipDirection}
+            aria-label={
+              isHkuToHome
+                ? 'Flip: match a home course to HKU instead'
+                : 'Flip: match an HKU course to your home university instead'
+            }
+          >
+            <svg viewBox="0 0 48 24" aria-hidden="true">
+              <path d="M2 12h41m-9-9 9 9-9 9" />
+            </svg>
+            Flip
+          </button>
+          {isHkuToHome ? homeSide : <HkuBadge title="To" />}
+        </div>
+
+        <div className="tc-course">
+          <TextInput
+            id="tc-course-code"
+            label={isHkuToHome ? 'HKU course code' : 'Home course code'}
+            onChange={(value) => {
+              setCourseCode(value)
+              clearResults()
+            }}
+            placeholder={isHkuToHome ? 'e.g. COMP3322' : 'e.g. COMP6080'}
+            value={courseCode}
+          />
           <CourseUrlSection
-            id="exchange-course-url"
-            label="Course description URL"
-            onFetched={(value) => {
-              setExchangeCourseDetails(value)
-              clearCandidateResults()
+            id="tc-course-url"
+            label="Course page link"
+            onFetched={(text, url) => {
+              setCourseDetails(text)
+              setCourseUrl(url)
+              clearResults()
             }}
           />
           <CourseDetailsSection
-            id="exchange-course-details"
-            value={exchangeCourseDetails}
+            id="tc-course-details"
+            value={courseDetails}
             onChange={(value) => {
-              setExchangeCourseDetails(value)
-              clearCandidateResults()
+              setCourseDetails(value)
+              clearResults()
             }}
-            invalid={hasAttemptedTransfer && !exchangeCourseDetails.trim()}
+            invalid={hasAttempted && !courseDetails.trim()}
           />
-          <div className="university-secondary-space" />
-        </section>
-        <div className="comparison-middle">
-          <svg
-            aria-label="Credits transfer from exchange university to home university"
-            className="comparison-arrow"
-            viewBox="0 0 48 24"
-            role="img"
-          >
-            <path d="M2 12h41m-9-9 9 9-9 9" />
-          </svg>
-          <div className="comparison-action">
-            {isLoading ? (
-              <LoadingSpinner label="Finding potential matching courses" />
-            ) : transferFeedback ? (
-              <p
-                className={`status-message status-message--${transferFeedback.isSuccess ? 'success' : 'error'}`}
-                role="status"
-              >
-                {transferFeedback.message}
-              </p>
-            ) : (
-              <Button onClick={handleTransfer} size="large">
-                Transfer
-              </Button>
-            )}
-          </div>
         </div>
-        <section className="university-column university-column--home">
-          <div className="university-primary-row">
-            <UniversityDropdown
-              kind="home"
-              title="Home university"
-              value={homeUniversity}
-              onChange={(value) => {
-                setHomeUniversity(value)
-                clearCandidateResults()
-              }}
-              invalid={hasAttemptedTransfer && !homeUniversity}
-            />
-          </div>
-          <CourseCandidatesSection matchingData={matchingData} />
-          <div className="university-secondary-space" />
+
+        <div className="tc-actions">
+          <Button size="large" onClick={handleFindMatches} disabled={isLoading}>
+            Find matches
+          </Button>
+          {isLoading && <LoadingSpinner label="Finding matching courses" />}
+          {formError && (
+            <p className="status-message status-message--error" role="alert">
+              {formError}
+            </p>
+          )}
+        </div>
+      </section>
+
+      {matchingData && (
+        <section className="tc-card" aria-labelledby="tc-results-title">
+          <SectionHeading id="tc-results-title" icon="link">Suggested matches</SectionHeading>
+          <CourseCandidatesSection
+            matchingData={matchingData}
+            getPair={pairFor}
+            canSave={Boolean(user)}
+            isInPlan={isInPlan}
+            onSave={savePair}
+            saveError={plan.error}
+          />
         </section>
+      )}
+
+      <section className="tc-card" aria-labelledby="tc-plan-title">
+        <SectionHeading id="tc-plan-title" icon="check">My study plan</SectionHeading>
+        <StudyPlanTable plan={plan} isLoggedIn={Boolean(user)} />
       </section>
     </div>
   )

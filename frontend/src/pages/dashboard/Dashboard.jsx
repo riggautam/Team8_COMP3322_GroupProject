@@ -14,7 +14,7 @@ import './Dashboard.css'
 
 const QUICK_LINKS = [
   { icon: 'pen', href: '/blog', title: 'Blog', text: 'Read and share stories' },
-  { icon: 'map', href: '/map', title: 'Campus Map', text: 'Find classrooms and food' },
+  { icon: 'map', href: '/map', title: 'Campus Map', text: 'Walking directions to classrooms' },
   { icon: 'book', href: '/transfer-credits', title: 'Transfer Credits', text: 'Plan course equivalencies' },
 ]
 
@@ -25,6 +25,7 @@ function Dashboard() {
   const [eventCategory, setEventCategory] = useState('')
   const { data, error, isLoading } = useGet('/api/dashboard', { refreshInterval: 15000 })
   const { data: weather, error: weatherError } = useGet('/api/weather', { refreshInterval: 600000 })
+  // Today's and all upcoming events; the events card splits them into Today and Coming up.
   const eventQuery = eventCategory ? `?category=${encodeURIComponent(eventCategory)}` : ''
   const {
     data: eventsData,
@@ -40,6 +41,7 @@ function Dashboard() {
         <EventsSection
           events={eventsData?.events ?? []}
           categories={eventsData?.categories ?? []}
+          today={eventsData?.today}
           category={eventCategory}
           onCategoryChange={setEventCategory}
           isLoading={eventsLoading}

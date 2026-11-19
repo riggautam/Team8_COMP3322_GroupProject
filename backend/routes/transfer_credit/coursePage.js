@@ -1,4 +1,5 @@
 const express = require('express');
+const externalApiLimiter = require('../../middleware/externalApiLimiter');
 const dns = require('node:dns').promises;
 const http = require('node:http');
 const https = require('node:https');
@@ -232,7 +233,7 @@ async function fetchCoursePage(inputUrl) {
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', externalApiLimiter, async (req, res) => {
   const { url } = req.body || {};
 
   if (typeof url !== 'string' || !url.trim()) {

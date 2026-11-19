@@ -57,11 +57,13 @@
     padding-block: 0.75rem;
   }
 
+  /* On phones the links get their own row, and wrap onto a second line if they don't fit. */
   .navbar-links {
     grid-column: 1 / -1;
     grid-row: 2;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 1.25rem;
+    gap: 0.5rem 0.75rem;
   }
 }
 

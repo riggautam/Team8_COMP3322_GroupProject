@@ -3,6 +3,12 @@ import './LandingPage.css'
 
 const FEATURES = [
   {
+    title: "See what's on",
+    description: "Today's and upcoming events for exchange students, from hikes to study workshops.",
+    to: '/events',
+    link: 'Browse events',
+  },
+  {
     title: 'Plan your studies',
     description: 'Explore course-transfer resources and keep your exchange plans organised.',
     to: '/transfer-credits',
@@ -10,7 +16,7 @@ const FEATURES = [
   },
   {
     title: 'Find your way',
-    description: 'Discover campus places and food spots around HKU.',
+    description: 'Get live walking directions to any HKU building from where you are.',
     to: '/map',
     link: 'Open the campus map',
   },
@@ -29,8 +35,8 @@ function LandingPage() {
         <p className="landing-eyebrow">Your HKU exchange starts here</p>
         <h1>Make the most of your time in Hong Kong.</h1>
         <p className="landing-intro">
-          Find your way around campus, plan your studies, and get to know the
-          city with WEST — a hub made for HKU exchange students.
+          Find your way around campus, see what's on, plan your studies, and get
+          to know the city with WEST — a hub made for HKU exchange students.
         </p>
         <div className="landing-actions">
           <Link className="landing-primary-link" to="/login">Log in to your dashboard</Link>

@@ -6,9 +6,12 @@ function Navbar() {
   const { user, logout } = useAuth()
   const links = [
     { to: user ? '/dashboard' : '/', label: user ? 'Dashboard' : 'Home' },
+    { to: '/events', label: 'Events' },
     { to: '/blog', label: 'Blog' },
     { to: '/map', label: 'Map' },
     { to: '/transfer-credits', label: 'Transfer Credits' },
+    // Only admins get a link to the moderation page.
+    ...(user?.role === 'admin' ? [{ to: '/admin', label: 'Admin' }] : []),
   ]
 
   return (

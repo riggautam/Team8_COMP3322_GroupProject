@@ -1,20 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import hkuIcon from '../../assets/HKU.webp'
 import queensIcon from '../../assets/Queens.webp'
 import sfuIcon from '../../assets/SFU.webp'
 import unswIcon from '../../assets/UNSW.webp'
 import uqIcon from '../../assets/UQ.webp'
 import westernIcon from '../../assets/Western.webp'
 import './TransferCredit.css'
-
+// Home universities only. HKU isn't listed: it's always the exchange side.
 const universities = [
   { value: 'queens', label: "Queen's University", icon: queensIcon },
   { value: 'sfu', label: 'Simon Fraser University (SFU)', icon: sfuIcon },
-  {
-    value: 'hku',
-    label: 'The University of Hong Kong (HKU)',
-    icon: hkuIcon,
-  },
   {
     value: 'uq',
     label: 'The University of Queensland (UQ)',
@@ -107,9 +101,9 @@ function UniversityDropdown({
 
   return (
     <>
-      <h2 className="university-select-label" id={`${kind}-university-label`}>
+      <h3 className="university-select-label" id={`${kind}-university-label`}>
         {title}
-      </h2>
+      </h3>      
       <div className="university-picker" ref={pickerRef}>
         <button
           aria-expanded={isOpen}

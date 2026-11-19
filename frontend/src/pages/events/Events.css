@@ -1,0 +1,248 @@
+/* Start at the top of the page instead of centring a short list vertically. */
+.page-content:has(> .events-page) {
+  justify-content: flex-start;
+}
+
+.events-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.events-page .page-banner {
+  margin-bottom: 0.5rem;
+}
+
+/* White cards, the same look as the dashboard and admin page */
+.events-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.events-card h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.events-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.events-login-link {
+  color: var(--color-accent);
+  font-size: 0.875rem;
+}
+
+.events-notice {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+}
+
+.events-empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+/* One day: "Today", "Tomorrow", "Sat, 21 Nov" */
+.events-day {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 0.0625rem solid var(--color-border);
+}
+
+.events-day h2 {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.events-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The coloured bar on the left comes from --event-color, set per category in global.css. */
+.events-item {
+  display: flex;
+  gap: 1rem;
+  padding-left: 0.75rem;
+  border-left: 0.25rem solid var(--event-color, var(--color-accent));
+}
+
+.events-time {
+  flex: none;
+  min-width: 4.5rem;
+  color: var(--event-color, var(--color-accent));
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.events-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.events-body h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.events-title {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.events-title:hover,
+.events-title:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.events-meta {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.events-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.events-description {
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-line; /* keep the line breaks the creator typed */
+  overflow-wrap: anywhere;
+}
+
+.events-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* The report form opens on its own line under the buttons. */
+.events-actions .report-form {
+  flex-basis: 100%;
+}
+
+.events-text-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.events-text-button--danger {
+  color: var(--color-danger);
+}
+
+.events-text-button:disabled {
+  color: var(--color-muted);
+  cursor: default;
+}
+
+.events-form-error {
+  text-align: left;
+}
+
+/* Add / edit form: two columns on wide screens, one on phones */
+.events-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.events-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.events-field--wide,
+.events-form-error,
+.events-form-actions {
+  grid-column: 1 / -1;
+}
+
+.events-field input,
+.events-field select,
+.events-field textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.375rem;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: normal;
+}
+
+.events-field input:focus-visible,
+.events-field select:focus-visible,
+.events-field textarea:focus-visible {
+  outline: 0.125rem solid var(--color-accent);
+  outline-offset: 0.0625rem;
+}
+
+.events-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (max-width: 40rem) {
+  .events-card {
+    padding: 1rem;
+  }
+
+  .events-form {
+    grid-template-columns: 1fr;
+  }
+
+  .events-time {
+    min-width: 3.75rem;
+  }
+}

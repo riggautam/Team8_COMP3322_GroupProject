@@ -3,33 +3,74 @@ import Button from '../../components/forms/Button.jsx'
 import PageBanner from '../../components/layout/PageBanner.jsx'
 import SectionHeading from '../../components/ui/SectionHeading.jsx'
 import TextInput from '../../components/forms/TextInput.jsx'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
 import PostDetail from './PostDetail.jsx'
 import PostForm from './PostForm.jsx'
+import VoteControl from './VoteControl.jsx'
 import './Blog.css'
 
 const ALL = 'All'
 const EXCERPT_LENGTH = 120
+const REFRESH_INTERVAL_MS = 30000 // 30 seconds
+
+// Newest post first. Two posts from the same second fall back to the higher id (made later).
+function byNewest(a, b) {
+  return new Date(b.created_at) - new Date(a.created_at) || b.id - a.id
+}
+
+// The three ways to order posts. Each compare function returns a negative number when
+// post a should come first. "||" moves on to the next rule only when the first one ties (0).
+const SORTS = [
+  {
+    id: 'featured',
+    label: 'Featured',
+    compare: (a, b) => b.recent_score - a.recent_score || byNewest(a, b),
+  },
+  { id: 'newest', label: 'Newest', compare: byNewest },
+  { id: 'top', label: 'Top', compare: (a, b) => b.score - a.score || byNewest(a, b) },
+]
 
 function Blog() {
+  const { user } = useAuth()
   const [posts, setPosts] = useState([])
   const [loadError, setLoadError] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState(ALL)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sort, setSort] = useState('featured')
   const [view, setView] = useState('list') // 'list', 'read', 'create' or 'edit'
   const [selectedPost, setSelectedPost] = useState(null)
+  const [notice, setNotice] = useState(null) // e.g. "that post is now hidden"
 
   async function loadPosts() {
     const result = await requestJson('/api/blog-posts')
     setLoadError(result.error)
-    setPosts(result.error ? [] : result.data)
+    // On an error, keep the posts already on screen instead of blanking the list.
+    // A refresh that fails once (e.g. a network blip) then fixes itself on the next try.
+    if (!result.error) setPosts(result.data)
     setIsLoading(false)
   }
 
+  // Reload when someone logs in or out, because my_vote depends on who is looking.
   useEffect(() => {
     loadPosts()
-  }, [])
+  }, [user?.id])
+
+  // While the post list is showing, fetch the latest posts and votes every 30 seconds,
+  // so other people's votes and new posts appear without a page refresh.
+  // It stops while reading or writing a post, so the page never changes under the reader.
+  useEffect(() => {
+    if (view !== 'list') return
+
+    const timer = setInterval(() => {
+      // Skip while the browser tab is in the background. Nobody is looking at it.
+      if (!document.hidden) loadPosts()
+    }, REFRESH_INTERVAL_MS)
+
+    // Runs when the view changes or the page closes, so old timers never pile up.
+    return () => clearInterval(timer)
+  }, [view])
 
   // Unique category names, taken from the posts themselves.
   const categories = [...new Set(posts.map((post) => post.category))].sort()
@@ -41,6 +82,10 @@ function Blog() {
       post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query)
     return matchesCategory && matchesSearch
   })
+
+  // Copy first ([...]), because sort() changes the array it is called on.
+  const currentSort = SORTS.find((option) => option.id === sort)
+  const sortedPosts = [...filteredPosts].sort(currentSort.compare)
 
   function showList() {
     setSelectedPost(null)
@@ -63,6 +108,20 @@ function Blog() {
     showList()
   }
 
+  // A report hid the open post (it was the third one), so go back to the list without it.
+  function handleHidden() {
+    loadPosts()
+    showList()
+    setNotice('Thanks. That post is now hidden until an admin reviews it.')
+  }
+
+  // Puts the new score, recent_score and my_vote into our copies of the post, so the page
+  // updates straight away without reloading every post from the server.
+  function handleVoted(postId, votes) {
+    setPosts((current) => current.map((post) => (post.id === postId ? { ...post, ...votes } : post)))
+    setSelectedPost((current) => (current?.id === postId ? { ...current, ...votes } : current))
+  }
+
   return (
     <div className="blog-page">
       <PageBanner
@@ -78,6 +137,8 @@ function Blog() {
               onBack={showList}
               onEdit={() => setView('edit')}
               onDeleted={handleDeleted}
+              onHidden={handleHidden}
+              onVoted={handleVoted}
             />
           )}
 
@@ -97,6 +158,25 @@ function Blog() {
           {view === 'list' && (
             <>
               <section className="blog-card" aria-label="Filter blog posts">
+                <div className="blog-sort" aria-label="Sort posts">
+                  <span className="blog-post-meta">Sort by</span>
+                  {SORTS.map((option) => (
+                    <Button
+                      key={option.id}
+                      className={`blog-category-button${sort === option.id ? ' is-active' : ''}`}
+                      aria-pressed={sort === option.id}
+                      onClick={() => setSort(option.id)}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </div>
+                {sort === 'featured' && (
+                  <p className="blog-post-meta blog-sort-hint">
+                    Most upvoted in the last 72 hours
+                  </p>
+                )}
+
                 <div className="blog-filter-header">
                   <div className="blog-categories" aria-label="Post categories">
                     {[ALL, ...categories].map((name) => (
@@ -122,18 +202,23 @@ function Blog() {
               </section>
 
               <div className="blog-posts">
+                {notice && (
+                  <p className="report-message" role="status">
+                    {notice}
+                  </p>
+                )}
                 {isLoading && <p role="status">Loading posts…</p>}
                 {loadError && (
                   <p className="status-message status-message--error" role="alert">
                     Could not load posts: {loadError}
                   </p>
                 )}
-                {!isLoading && !loadError && filteredPosts.length === 0 && (
+                {!isLoading && !loadError && sortedPosts.length === 0 && (
                   <div className="blog-card blog-empty">
                     <p>No posts found matching your filter.</p>
                   </div>
                 )}
-                {filteredPosts.map((post) => (
+                {sortedPosts.map((post) => (
                   <article key={post.id} className="blog-card">
                     <div className="blog-post-header">
                       <span className="blog-category-badge">{post.category}</span>
@@ -150,15 +235,19 @@ function Blog() {
                       <span>
                         Written by <strong>{post.author}</strong>
                       </span>
-                      <Button
-                        className="blog-read-button"
-                        onClick={() => {
-                          setSelectedPost(post)
-                          setView('read')
-                        }}
-                      >
-                        Read post →
-                      </Button>
+                      <div className="blog-post-footer-actions">
+                        <VoteControl post={post} onVoted={handleVoted} />
+                        <Button
+                          className="blog-read-button"
+                          onClick={() => {
+                            setNotice(null)
+                            setSelectedPost(post)
+                            setView('read')
+                          }}
+                        >
+                          Read post →
+                        </Button>
+                      </div>
                     </div>
                   </article>
                 ))}

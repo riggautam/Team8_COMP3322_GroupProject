@@ -1,20 +1,32 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../contexts/AuthContext.jsx'
 import requestJson from './requestJson.js'
 
 function useCourseMappings() {
+  const { user } = useAuth()
   const [courses, setCourses] = useState([])
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Load the plan of whoever is logged in. Logged-out visitors have no plan, so there's
+  // nothing to ask for (the server would answer 401). Runs again on login and logout.
   useEffect(() => {
+    if (!user) {
+      setCourses([])
+      setError(null)
+      setIsLoading(false)
+      return
+    }
+
     async function loadCourses() {
+      setIsLoading(true)
       const result = await requestJson('/api/course-mappings')
       setError(result.error)
       setCourses(result.data?.data ?? [])
       setIsLoading(false)
     }
     loadCourses()
-  }, [])
+  }, [user?.id])
 
   async function addCourse(course) {
     const result = await requestJson('/api/course-mappings', {

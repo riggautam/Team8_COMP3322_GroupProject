@@ -64,6 +64,7 @@ function PostForm({ post, categories, onSaved, onCancel }) {
           <label htmlFor="post-content">Content</label>
           <textarea
             id="post-content"
+            maxLength={5000}
             onChange={(event) => setContent(event.target.value)}
             placeholder="Write your story here..."
             required

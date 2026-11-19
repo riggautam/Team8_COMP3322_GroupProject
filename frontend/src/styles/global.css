@@ -66,14 +66,14 @@ body {
   padding-block: 3rem;
 }
 
-.page-content:has(> .map-page) {
-  align-items: stretch;
-  justify-content: flex-start;
-  min-height: 0;
-  padding-block: 1rem;
-  overflow: hidden;
-}
-
 .page-content:has(> .university-comparison) {
   justify-content: flex-start;
 }
+
+/* Event category colours, used by the dashboard's events card and the events page.
+   An element with data-event-category gets --event-color for its bar and time. */
+[data-event-category='Academic'] { --event-color: var(--color-accent); }
+[data-event-category='Social'] { --event-color: #2b6cb0; }
+[data-event-category='Food'] { --event-color: var(--color-warning); }
+[data-event-category='Culture'] { --event-color: #7b3f98; }
+[data-event-category='Sports'] { --event-color: var(--color-danger); }
