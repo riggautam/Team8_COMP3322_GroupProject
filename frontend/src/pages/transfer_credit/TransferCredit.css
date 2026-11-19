@@ -1,67 +1,99 @@
 .transfer-credit-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   width: 100%;
 }
 
 .transfer-credit-page .page-banner {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.university-comparison {
+/* White cards, the same look as the dashboard and blog */
+.tc-card {
   display: flex;
-  width: 100%;
-  max-width: 100%;
-  min-height: 22rem;
-  align-items: stretch;
-}
-
-.university-column {
-  display: flex;
-  flex: 0 0 45%;
   flex-direction: column;
-  align-items: stretch;
+  gap: 1rem;
   padding: 1.5rem;
-}
-
-.university-primary-row {
-  display: flex;
-  flex-direction: column;
-}
-
-.exchange-course-picker {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-}
-
-.exchange-course-label {
-  color: var(--color-text);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.exchange-course-select {
-  width: 100%;
-  min-height: 2.75rem;
-  padding: 0.375rem 0.75rem;
   border: 0.0625rem solid var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   background: #fff;
-  color: var(--color-text);
-  font: inherit;
 }
 
-.exchange-course-select:focus-visible {
-  outline: 0.125rem solid var(--color-accent);
-  outline-offset: 0.125rem;
+.tc-card .section-heading {
+  font-size: 1.125rem;
+}
+
+.tc-hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+/* From | Flip | To */
+.tc-universities {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: 1rem;
 }
 
 .university-select-label {
   margin: 0 0 0.5rem;
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
+.hku-badge {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.tc-flip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.375rem 0.75rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.5rem;
+  background: #fff;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tc-flip:hover {
+  border-color: var(--color-accent);
+}
+
+.tc-flip:focus-visible {
+  outline: 0.125rem solid var(--color-accent);
+  outline-offset: 0.125rem;
+}
+
+.tc-flip svg {
+  width: 2.5rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+/* University dropdown */
 .university-picker {
   position: relative;
 }
@@ -69,7 +101,7 @@
 .university-picker-trigger {
   display: flex;
   width: 100%;
-  min-height: 2.75rem;
+  min-height: 3rem;
   align-items: center;
   gap: 0.75rem;
   padding: 0.375rem 0.75rem;
@@ -80,6 +112,10 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.university-picker-trigger[aria-invalid='true'] {
+  border-color: var(--color-error);
 }
 
 .university-picker-trigger:focus-visible,
@@ -146,55 +182,83 @@
   object-fit: contain;
 }
 
-.university-course-input {
-  margin-top: 1.25rem;
-  padding-left: 0.75rem;
-  border-left: 0.125rem solid var(--color-border);
+/* Course code, link and details */
+.tc-course {
+  display: grid;
+  gap: 1rem;
 }
 
-.university-secondary-space {
-  flex: 1;
+/* Boxed inputs, like the dashboard forms. Only on this page, so login keeps its own style. */
+.transfer-credit-page .text-input input,
+.transfer-credit-page .text-field textarea {
+  padding: 0.5rem 0.75rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  background: #fff;
+}
+
+.transfer-credit-page .text-input input:focus-visible,
+.transfer-credit-page .text-field textarea:focus-visible {
+  border-color: var(--color-accent);
+  outline: 0.0625rem solid var(--color-accent);
+}
+
+.transfer-credit-page .text-field textarea[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.transfer-credit-page .text-input label {
+  font-weight: 600;
+}
+
+/* Link box with the Fetch button beside it */
+.university-course-input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 0.75rem;
 }
 
 .university-course-input-action {
   display: flex;
-  justify-content: center;
+  min-height: 2.5rem;
   align-items: center;
-  min-height: 2.75rem;
-  margin-top: 0.75rem;
 }
 
-.university-course-details,
-.university-course-candidates {
-  margin-top: 1.25rem;
-  padding-left: 0.75rem;
-  border-left: 0.125rem solid var(--color-border);
-}
-
-.university-course-details h3,
-.university-course-candidates h3 {
-  margin: 0 0 0.75rem;
-  color: var(--color-text);
+.university-course-details h3 {
+  margin: 0 0 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.course-match-empty,
+.university-course-details .text-field label {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.tc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tc-actions .status-message {
+  text-align: left;
+}
+
+/* Suggested matches */
 .course-match-source,
+.course-match-empty,
 .course-match-disclaimer {
   margin: 0;
   color: var(--color-muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.5;
-}
-
-.course-match-source {
-  margin-bottom: 1rem;
 }
 
 .course-match-source strong {
   color: var(--color-text);
-  font-weight: 600;
 }
 
 .course-match-list {
@@ -206,7 +270,11 @@
 }
 
 .course-match-item {
-  min-width: 0;
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.5rem;
 }
 
 .course-match-heading {
@@ -214,22 +282,19 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 0.375rem;
 }
 
-.course-match-heading h4 {
+.course-match-heading h3 {
   min-width: 0;
   margin: 0;
-  color: var(--color-text);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 1rem;
   line-height: 1.4;
 }
 
 .course-match-percentage {
-  flex: 0 0 auto;
+  flex: none;
   color: var(--color-accent);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -248,104 +313,87 @@
   background: var(--color-accent);
 }
 
-.course-match-scale {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.125rem;
-  color: var(--color-muted);
-  font-size: 0.625rem;
-}
-
 .course-match-rationale {
-  margin: 0.375rem 0 0;
+  margin: 0;
   color: var(--color-muted);
-  font-size: 0.75rem;
-  line-height: 1.45;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .course-match-link {
-  display: inline-block;
-  margin-top: 0.25rem;
   color: var(--color-accent);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 
-.course-match-disclaimer {
-  margin-top: 1rem;
-  font-size: 0.75rem;
-}
-
-.comparison-middle {
-  position: relative;
+.course-match-save {
   display: flex;
-  flex: 0 0 10%;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 0.0625rem solid var(--color-border);
+}
+
+.course-match-credits {
+  display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
 }
 
-.comparison-arrow {
-  width: 2.5rem;
-  height: 1.5rem;
-  margin-top: 3.5rem;
-  overflow: visible;
-  fill: none;
-  stroke: var(--color-accent);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2;
+.course-match-credits input {
+  width: 5rem;
+  padding: 0.4rem 0.5rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  font: inherit;
+  font-size: 0.875rem;
 }
 
-.comparison-action {
-  position: absolute;
-  top: 50%;
-  display: flex;
-  min-height: 2.75rem;
-  width: max-content;
-  max-width: 10rem;
-  align-items: center;
-  justify-content: center;
-  transform: translateY(-50%);
+.course-match-note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
 }
 
-.comparison-action .status-message {
-  max-width: 10rem;
+.course-match-note a {
+  color: var(--color-accent);
 }
 
-.university-picker-trigger[aria-invalid='true'] {
-  border-color: var(--color-error);
+.course-match-note--saved {
+  color: var(--color-success);
+  font-weight: 600;
 }
 
+.course-match-error {
+  text-align: left;
+}
+
+/* Phones: stack everything, and the arrow points down */
 @media (max-width: 48rem) {
-  .university-comparison {
-    flex-direction: column;
+  .tc-card {
+    padding: 1rem;
   }
 
-  .university-column {
-    flex-basis: auto;
-    min-height: 15rem;
+  .tc-universities {
+    grid-template-columns: 1fr;
   }
 
-  .comparison-middle {
-    position: static;
-    flex: 0 0 auto;
-    min-height: 4rem;
+  .tc-flip {
     flex-direction: row;
-    justify-content: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    justify-self: center;
   }
 
-  .comparison-arrow {
-    width: 2rem;
-    height: 1rem;
-    margin-top: 0;
+  /* A square box, so the arrow still fits after turning to point down */
+  .tc-flip svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    transform: rotate(90deg);
   }
-
-  .comparison-action {
-    position: static;
-    transform: none;
-  }
-
-  .comparison-action .status-message {
-    max-width: 12rem;
+  
+  .university-course-input {
+    grid-template-columns: 1fr;
   }
 }
