@@ -16,6 +16,8 @@ const directionsRouter = require('./routes/directions/directions')
 const coursePageRouter = require('./routes/transfer_credit/coursePage')
 const matchingCoursesRouter = require('./routes/transfer_credit/matchingCourses')
 const blogPostsRouter = require('./routes/blog/blogPosts')
+const reportsRouter = require('./routes/reports/reports')
+const adminRouter = require('./routes/admin/admin')
 
 app.use(express.json())
 // Keeps each login in the MySQL sessions table. The browser only holds a signed id in a cookie.
@@ -44,6 +46,8 @@ app.use('/api/directions', directionsRouter)
 app.use('/api/course-page', coursePageRouter)
 app.use('/api/matching-courses', matchingCoursesRouter)
 app.use('/api/blog-posts', blogPostsRouter)
+app.use('/api/reports', reportsRouter)
+app.use('/api/admin', adminRouter)
 
 // Any /api path that no route above matched.
 app.use('/api', (req, res) => {
