@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import Button from '../../components/forms/Button.jsx'
 import './LandingPage.css'
 
 const FEATURES = [
@@ -39,8 +40,8 @@ function LandingPage() {
           to know the city with WEST — a hub made for HKU exchange students.
         </p>
         <div className="landing-actions">
-          <Link className="landing-primary-link" to="/login">Log in to your dashboard</Link>
-          <Link className="landing-secondary-link" to="/blog">Explore student stories</Link>
+          <Button as={Link} variant="custom" className="landing-primary-link" to="/login">Log in to your dashboard</Button>
+          <Button as={Link} variant="custom" className="landing-secondary-link" to="/blog">Explore student stories</Button>
         </div>
         <svg className="landing-skyline" viewBox="0 0 320 100" aria-hidden="true">
           <path d="M0 100V66h24V38h18v28h18V20h24v46h16V48h22v18h18V30h24v36h22V52h22v14h20V32h17v34h25v34z" />

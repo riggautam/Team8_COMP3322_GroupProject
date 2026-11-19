@@ -1,4 +1,4 @@
-.global-button {
+.global-button:not(.global-button--custom) {
   border: 0.0625rem solid var(--color-accent);
   border-radius: 0.25rem;
   background: var(--color-accent);
@@ -25,7 +25,7 @@
 }
 
 .global-button:hover:not(:disabled) {
-  filter: brightness(0.92);
+  background-image: linear-gradient(rgb(0 0 0 / 6%), rgb(0 0 0 / 6%));
 }
 
 .global-button:focus-visible {

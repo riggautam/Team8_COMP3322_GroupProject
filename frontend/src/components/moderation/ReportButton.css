@@ -9,10 +9,6 @@
   cursor: pointer;
 }
 
-.report-link:hover {
-  color: var(--color-danger);
-}
-
 .report-form {
   display: grid;
   gap: 0.5rem;

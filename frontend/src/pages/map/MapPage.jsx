@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Button from '../../components/forms/Button.jsx'
 import PageBanner from '../../components/layout/PageBanner.jsx'
 import Icon from '../../components/ui/Icon.jsx'
 import usePost from '../../hooks/usePost.js'
@@ -438,9 +439,9 @@ function MapPage() {
           <div className="map-field">
             <label htmlFor="map-start">From</label>
             <div className="map-start">
-              <button type="button" className="map-locate" aria-pressed={usesMyLocation} onClick={chooseMyLocation}>
+              <Button variant="custom" type="button" className="map-locate" aria-pressed={usesMyLocation} onClick={chooseMyLocation}>
                 <Icon name="pin" /> My location
-              </button>
+              </Button>
               <input
                 id="map-start"
                 list="hku-buildings"
@@ -465,9 +466,9 @@ function MapPage() {
               value={building}
             />
           </div>
-          <button type="submit" className="map-go" disabled={isRouting}>
+          <Button variant="custom" type="submit" className="map-go" disabled={isRouting}>
             Walk there
-          </button>
+          </Button>
           <datalist id="hku-buildings">
             {BUILDING_SUGGESTIONS.map((name) => (
               <option key={name} value={name} />
@@ -481,12 +482,12 @@ function MapPage() {
         <div className="map-frame">
           <div ref={mapDiv} className="map-canvas" />
           <div className="map-mode" role="group" aria-label="Map view">
-            <button type="button" aria-pressed={mode === '2d'} onClick={() => setView('2d')}>
+            <Button variant="custom" type="button" aria-pressed={mode === '2d'} onClick={() => setView('2d')}>
               2D
-            </button>
-            <button type="button" aria-pressed={mode === '3d'} onClick={() => setView('3d')}>
+            </Button>
+            <Button variant="custom" type="button" aria-pressed={mode === '3d'} onClick={() => setView('3d')}>
               3D
-            </button>
+            </Button>
           </div>
           {shownSteps.length > 0 && (
             <ol className="map-steps" aria-label="Directions">

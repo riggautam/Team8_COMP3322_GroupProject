@@ -92,14 +92,15 @@ function CourseProgress({
                       <option key={status} value={status}>{status}</option>
                     ))}
                   </select>
-                  <button
+                  <Button
+                    variant="custom"
                     type="button"
                     className="dash-remove"
                     aria-label={`Remove ${course.hkuCode}`}
                     onClick={() => onRemove(course.id)}
                   >
                     ×
-                  </button>
+                  </Button>
                 </span>
               </li>
             ))}

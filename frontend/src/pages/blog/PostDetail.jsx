@@ -176,13 +176,14 @@ function PostDetail({ post, onBack, onEdit, onDeleted, onHidden, onVoted }) {
                   <p>{comment.content}</p>
                   <div className="blog-comment-actions">
                     {canDelete ? (
-                      <button
+                      <Button
+                        variant="custom"
                         type="button"
                         className="report-link"
                         onClick={() => handleDeleteComment(comment)}
                       >
                         {isAdmin && user.id !== comment.author_id ? 'Delete (admin)' : 'Delete'}
-                      </button>
+                      </Button>
                     ) : (
                       <ReportButton
                         targetType="comment"

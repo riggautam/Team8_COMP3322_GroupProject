@@ -45,14 +45,15 @@ function Checklist({
               />{' '}
               {item.label}
             </label>
-            <button
+            <Button
+              variant="custom"
               type="button"
               className="dash-remove"
               aria-label={`Remove ${item.label}`}
               onClick={() => onRemove(item.id)}
             >
               ×
-            </button>
+            </Button>
           </li>
         ))}
       </ul>

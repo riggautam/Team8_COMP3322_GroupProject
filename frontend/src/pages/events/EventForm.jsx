@@ -110,9 +110,9 @@ function EventForm({ eventToEdit, categories, onSaved, onCancel }) {
           <Button type="submit" disabled={isSaving}>
             {isSaving ? 'Saving…' : eventToEdit ? 'Save changes' : 'Add event'}
           </Button>
-          <button type="button" className="events-text-button" onClick={onCancel}>
+          <Button variant="custom" type="button" className="events-text-button" onClick={onCancel}>
             Cancel
-          </button>
+          </Button>
         </div>
       </form>
     </section>

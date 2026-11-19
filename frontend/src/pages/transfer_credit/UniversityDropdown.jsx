@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Button from '../../components/forms/Button.jsx'
 import queensIcon from '../../assets/Queens.webp'
 import sfuIcon from '../../assets/SFU.webp'
 import unswIcon from '../../assets/UNSW.webp'
@@ -105,7 +106,8 @@ function UniversityDropdown({
         {title}
       </h3>      
       <div className="university-picker" ref={pickerRef}>
-        <button
+        <Button
+          variant="custom"
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-labelledby={`${kind}-university-label ${kind}-university-selected-label`}
@@ -123,7 +125,7 @@ function UniversityDropdown({
           <span className="university-picker-arrow" aria-hidden="true">
             ▾
           </span>
-        </button>
+        </Button>
         {isOpen && (
           <div
             aria-labelledby={`${kind}-university-label`}

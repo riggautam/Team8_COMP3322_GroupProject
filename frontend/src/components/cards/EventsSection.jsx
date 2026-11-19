@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import CategoryFilter from '../events/CategoryFilter.jsx'
 import { dayLabel, eventDay, formatTime } from '../events/eventDates.js'
 import SaveEventButton from '../events/SaveEventButton.jsx'
+import Button from '../forms/Button.jsx'
 import SectionHeading from '../ui/SectionHeading.jsx'
 import useSavedEvents from '../../hooks/useSavedEvents.js'
 
@@ -24,14 +25,15 @@ function EventList({ events, today, showDay, selectedId, onSelect, savedEvents }
             </time>
             <div className="dash-event-body">
               <h4>
-                <button
+                <Button
+                  variant="custom"
                   type="button"
                   className="dash-link-button"
                   aria-expanded={isOpen}
                   onClick={() => onSelect(isOpen ? null : event.id)}
                 >
                   {event.title}
-                </button>
+                </Button>
               </h4>
               <p className="dash-meta">{event.category}</p>
               {isOpen && (

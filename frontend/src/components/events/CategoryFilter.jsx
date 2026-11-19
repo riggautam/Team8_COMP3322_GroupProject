@@ -1,3 +1,4 @@
+import Button from '../forms/Button.jsx'
 import './CategoryFilter.css'
 
 // "All" plus one button per category. value is the chosen category, or '' for All.
@@ -7,14 +8,15 @@ function CategoryFilter({ categories, value, onChange, disabled = false }) {
     <ul className="category-filter" aria-label="Filter events by category">
       {['', ...categories].map((name) => (
         <li key={name || 'all'}>
-          <button
+          <Button
+            variant="custom"
             type="button"
             aria-pressed={value === name}
             disabled={disabled}
             onClick={() => onChange(name)}
           >
             {name || 'All'}
-          </button>
+          </Button>
         </li>
       ))}
     </ul>

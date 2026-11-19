@@ -19,7 +19,6 @@
   color: var(--color-warning);
 }
 
-.save-event:hover,
 .save-event:focus-visible {
   background: var(--color-accent-soft);
 }

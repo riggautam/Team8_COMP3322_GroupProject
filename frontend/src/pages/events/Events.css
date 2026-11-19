@@ -121,7 +121,6 @@
   cursor: pointer;
 }
 
-.events-title:hover,
 .events-title:focus-visible {
   color: var(--color-accent);
   text-decoration: underline;

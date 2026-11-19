@@ -74,10 +74,6 @@
   cursor: pointer;
 }
 
-.tc-flip:hover {
-  border-color: var(--color-accent);
-}
-
 .tc-flip:focus-visible {
   outline: 0.125rem solid var(--color-accent);
   outline-offset: 0.125rem;
@@ -486,11 +482,6 @@
   font-size: 1.125rem;
   line-height: 1;
   cursor: pointer;
-}
-
-.plan-remove:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
 }
 
 /* Read out by screen readers, hidden on screen */

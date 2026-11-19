@@ -285,7 +285,6 @@
   cursor: pointer;
 }
 
-.dash-remove:hover,
 .dash-remove:focus-visible {
   background: var(--color-accent-soft);
   color: var(--color-danger);

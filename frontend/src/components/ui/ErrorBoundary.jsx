@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import Button from '../forms/Button.jsx'
 import './ErrorBoundary.css'
 
 // If a page crashes while drawing (a bug, or a page file that failed to download after a new
@@ -25,9 +26,9 @@ class ErrorBoundary extends Component {
         <h1>Something went wrong</h1>
         <p>This page ran into a problem. Reloading usually fixes it.</p>
         <div className="error-boundary-actions">
-          <button type="button" onClick={() => window.location.reload()}>
+          <Button variant="custom" type="button" onClick={() => window.location.reload()}>
             Reload the page
-          </button>
+          </Button>
           {/* A plain link, so the whole site loads fresh. */}
           <a href="/">Go to the home page</a>
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { formatTime } from '../../components/events/eventDates.js'
 import SaveEventButton from '../../components/events/SaveEventButton.jsx'
+import Button from '../../components/forms/Button.jsx'
 import ReportButton from '../../components/moderation/ReportButton.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
@@ -39,14 +40,15 @@ function EventItem({ event, onEdit, onRemoved, isSaved, onToggleSave }) {
       </time>
       <div className="events-body">
         <h3>
-          <button
+          <Button
+            variant="custom"
             type="button"
             className="events-title"
             aria-expanded={isOpen}
             onClick={() => setIsOpen(!isOpen)}
           >
             {event.title}
-          </button>
+          </Button>
         </h3>
         <p className="events-meta">
           {event.category} · {event.location}
@@ -59,17 +61,18 @@ function EventItem({ event, onEdit, onRemoved, isSaved, onToggleSave }) {
             <div className="events-actions">
               {(isOwner || isAdmin) && (
                 <>
-                  <button type="button" className="events-text-button" onClick={() => onEdit(event)}>
+                  <Button variant="custom" type="button" className="events-text-button" onClick={() => onEdit(event)}>
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="custom"
                     type="button"
                     className="events-text-button events-text-button--danger"
                     disabled={isDeleting}
                     onClick={handleDelete}
                   >
                     {isOwner ? 'Delete' : 'Delete (admin)'}
-                  </button>
+                  </Button>
                 </>
               )}
               {!isOwner && (

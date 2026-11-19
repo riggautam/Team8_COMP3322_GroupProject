@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import Button from '../forms/Button.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './SaveEventButton.css'
 
@@ -11,9 +12,9 @@ function SaveEventButton({ event, isSaved, onToggle }) {
 
   if (!user) {
     return (
-      <Link className="save-event" to="/login" aria-label={`Log in to save ${event.title}`} title="Log in to save">
+      <Button as={Link} variant="custom" className="save-event" to="/login" aria-label={`Log in to save ${event.title}`} title="Log in to save">
         ☆
-      </Link>
+      </Button>
     )
   }
 
@@ -24,7 +25,8 @@ function SaveEventButton({ event, isSaved, onToggle }) {
   }
 
   return (
-    <button
+    <Button
+      variant="custom"
       type="button"
       className="save-event"
       aria-label={isSaved ? `Unsave ${event.title}` : `Save ${event.title}`}
@@ -34,7 +36,7 @@ function SaveEventButton({ event, isSaved, onToggle }) {
       title={isSaved ? 'Saved. Click to unsave.' : 'Save to your dashboard'}
     >
       {isSaved ? '★' : '☆'}
-    </button>
+    </Button>
   )
 }
 

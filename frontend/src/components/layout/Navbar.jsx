@@ -1,5 +1,6 @@
 import { NavLink, Link } from 'react-router'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import Button from '../forms/Button.jsx'
 import './Navbar.css'
 
 function Navbar() {
@@ -31,14 +32,14 @@ function Navbar() {
           {user ? (
             <>
               <span>Hi, {user.displayName}</span>
-              <button className="navbar-auth" type="button" onClick={logout}>
+              <Button variant="custom" className="navbar-auth" type="button" onClick={logout}>
                 Log out
-              </button>
+              </Button>
             </>
           ) : (
-            <NavLink className="navbar-auth" to="/login">
+            <Button as={NavLink} variant="custom" className="navbar-auth" to="/login">
               Log in
-            </NavLink>
+            </Button>
           )}
         </div>
       </div>

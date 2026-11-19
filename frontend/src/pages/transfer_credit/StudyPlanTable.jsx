@@ -167,14 +167,15 @@ function StudyPlanTable({ plan, isLoggedIn }) {
                       </select>
                     </td>
                     <td>
-                      <button
+                      <Button
+                        variant="custom"
                         type="button"
                         className="plan-remove"
                         aria-label={`Remove ${course.hkuCode} → ${course.homeCode}`}
                         onClick={() => handleRemove(course)}
                       >
                         ×
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}

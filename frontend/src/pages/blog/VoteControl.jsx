@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
+import Button from '../../components/forms/Button.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
 
@@ -39,7 +40,8 @@ function VoteControl({ post, onVoted }) {
 
   return (
     <div className="blog-vote" role="group" aria-label={`Votes for ${post.title}`}>
-      <button
+      <Button
+        variant="custom"
         type="button"
         className={`blog-vote-button${post.my_vote === 1 ? ' is-active' : ''}`}
         aria-label="Upvote"
@@ -48,9 +50,10 @@ function VoteControl({ post, onVoted }) {
         onClick={() => vote(1)}
       >
         ▲
-      </button>
+      </Button>
       <span className="blog-vote-score">{post.score}</span>
-      <button
+      <Button
+        variant="custom"
         type="button"
         className={`blog-vote-button blog-vote-button--down${post.my_vote === -1 ? ' is-active' : ''}`}
         aria-label="Downvote"
@@ -59,7 +62,7 @@ function VoteControl({ post, onVoted }) {
         onClick={() => vote(-1)}
       >
         ▼
-      </button>
+      </Button>
       {error && (
         <span className="status-message status-message--error" role="alert">
           {error}

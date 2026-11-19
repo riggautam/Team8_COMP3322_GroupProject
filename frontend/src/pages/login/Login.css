@@ -75,9 +75,6 @@
   text-decoration: none;
 }
 
-.login-google:hover {
-  border-color: var(--color-accent);
-}
 /* "I agree" checkbox: box and text side by side, not stacked like the other fields */
 .login-form .login-terms {
   flex-direction: row;

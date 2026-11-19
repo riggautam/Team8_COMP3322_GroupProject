@@ -110,21 +110,22 @@ function Login() {
 
       {/* A plain <a>, not <Link>: the whole page must go to the backend, which redirects to Google.
           <Link> would stay inside React and never reach the server. */}
-      <a className="login-google" href="/api/auth/google">
+      <Button as="a" variant="custom" className="login-google" href="/api/auth/google">
         Continue with Google
-      </a>
+      </Button>
       <p className="login-fine-print">
         By continuing with Google you agree to the <Link to="/terms">Terms</Link> and{' '}
         <Link to="/privacy">Privacy Policy</Link>.
       </p>
 
-      <button
+      <Button
+        variant="custom"
         className="login-switch"
         type="button"
         onClick={() => setMode(isRegister ? 'login' : 'register')}
       >
         {isRegister ? 'Already have an account? Log in' : 'New here? Create an account'}
-      </button>
+      </Button>
     </section>
   )
 }

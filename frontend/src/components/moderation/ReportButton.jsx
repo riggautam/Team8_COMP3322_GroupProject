@@ -46,9 +46,9 @@ function ReportButton({ targetType, targetId, onHidden }) {
   // Reporting needs an account, so logged-out visitors are sent to log in.
   if (!user) {
     return (
-      <Link className="report-link" to="/login">
+      <Button as={Link} variant="custom" className="report-link" to="/login">
         Report
-      </Link>
+      </Button>
     )
   }
 
@@ -62,9 +62,9 @@ function ReportButton({ targetType, targetId, onHidden }) {
 
   if (!isOpen) {
     return (
-      <button type="button" className="report-link" onClick={() => setIsOpen(true)}>
+      <Button variant="custom" type="button" className="report-link" onClick={() => setIsOpen(true)}>
         Report
-      </button>
+      </Button>
     )
   }
 
@@ -98,7 +98,8 @@ function ReportButton({ targetType, targetId, onHidden }) {
         <Button type="submit" size="small" disabled={isSending}>
           {isSending ? 'Sending…' : 'Send report'}
         </Button>
-        <button
+        <Button
+          variant="custom"
           type="button"
           className="report-link"
           onClick={() => {
@@ -107,7 +108,7 @@ function ReportButton({ targetType, targetId, onHidden }) {
           }}
         >
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   )

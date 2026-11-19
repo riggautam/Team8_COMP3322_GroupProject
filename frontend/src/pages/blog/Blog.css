@@ -56,11 +56,6 @@
   transition: all 0.15s ease-in-out;
 }
 
-.blog-page .blog-category-button:hover {
-  background: #e5e7eb;
-  color: #111827;
-}
-
 .blog-page .blog-category-button.is-active {
   background: var(--color-accent);
   color: #fff;
@@ -154,11 +149,6 @@
   transition: all 0.15s ease-in-out;
 }
 
-.blog-page .blog-read-button:hover {
-  background: var(--color-accent-soft, #f0f7f4);
-  transform: translateX(2px);
-}
-
 /* "Back to all posts" & "Cancel" Secondary Ghost Buttons */
 .blog-page .blog-secondary-button {
   display: inline-flex;
@@ -173,12 +163,6 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease-in-out;
-}
-
-.blog-page .blog-secondary-button:hover {
-  background: #f3f4f6;
-  color: #111827;
-  border-color: #9ca3af;
 }
 
 /* Sidebar & Form Primary Action Button */
@@ -199,11 +183,6 @@
 
 .blog-page .blog-create-button {
   width: 100%;
-}
-
-.blog-page .blog-create-button:hover,
-.blog-page .blog-submit-button:hover {
-  opacity: 0.92;
 }
 
 .blog-sidebar h2 {
@@ -240,9 +219,7 @@
   text-align: left;
 }
 
-.blog-topic-list .blog-topic-button:hover:not(:disabled),
 .blog-topic-list .blog-topic-button:focus-visible {
-  filter: none;
   text-decoration: underline;
 }
 
@@ -437,11 +414,6 @@
   font: inherit;
   font-size: 0.75rem;
   cursor: pointer;
-}
-
-.blog-vote-button:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
 }
 
 .blog-vote-button.is-active {

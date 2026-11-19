@@ -149,7 +149,8 @@ function TransferCredit() {
 
         <div className="tc-universities">
           {isHkuToHome ? <HkuBadge title="From" /> : homeSide}
-          <button
+          <Button
+            variant="custom"
             type="button"
             className="tc-flip"
             onClick={flipDirection}
@@ -163,7 +164,7 @@ function TransferCredit() {
               <path d="M2 12h41m-9-9 9 9-9 9" />
             </svg>
             Flip
-          </button>
+          </Button>
           {isHkuToHome ? homeSide : <HkuBadge title="To" />}
         </div>
 
