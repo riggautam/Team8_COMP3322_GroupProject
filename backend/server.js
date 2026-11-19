@@ -1,9 +1,9 @@
 const express = require('express')
-const cors = require('cors')
 const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session)
 const pool = require('./db')
 const app = express()
+app.set('trust proxy', 1)
 const PORT = process.env.PORT || 5000
 
 const dashboardRouter = require('./routes/dashboard/dashboard')
@@ -17,7 +17,6 @@ const coursePageRouter = require('./routes/transfer_credit/coursePage')
 const matchingCoursesRouter = require('./routes/transfer_credit/matchingCourses')
 const blogPostsRouter = require('./routes/blog/blogPosts')
 
-app.use(cors())
 app.use(express.json())
 // Keeps each login in the MySQL sessions table. The browser only holds a signed id in a cookie.
 app.use(
