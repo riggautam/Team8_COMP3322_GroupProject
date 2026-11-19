@@ -397,3 +397,108 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* My study plan */
+.plan-note,
+.plan-totals {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.plan-note a {
+  color: var(--color-accent);
+}
+
+.plan-totals strong {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.plan-error {
+  text-align: left;
+}
+
+.plan-table-wrap {
+  overflow-x: auto;
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.plan-table th,
+.plan-table td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.plan-table th {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.plan-table td:first-child {
+  font-weight: 600;
+}
+
+.plan-table a {
+  color: var(--color-accent);
+}
+
+/* Status pill: the colour follows the status */
+.plan-status {
+  padding: 0.25rem 0.5rem;
+  border: 0.0625rem solid currentColor;
+  border-radius: 1rem;
+  background: #fff;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.plan-status--pending {
+  color: var(--color-warning);
+}
+
+.plan-status--approved {
+  color: var(--color-success);
+}
+
+.plan-status--rejected {
+  color: var(--color-danger);
+}
+
+.plan-remove {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.375rem;
+  background: #fff;
+  color: var(--color-muted);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.plan-remove:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* Read out by screen readers, hidden on screen */
+.plan-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

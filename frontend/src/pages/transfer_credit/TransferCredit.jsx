@@ -11,6 +11,7 @@ import usePost from '../../hooks/usePost.js'
 import CourseCandidatesSection from './CourseCandidatesSection.jsx'
 import CourseDetailsSection from './CourseDetailsSection.jsx'
 import CourseUrlSection from './CourseUrlSection.jsx'
+import StudyPlanTable from './StudyPlanTable.jsx'
 import UniversityDropdown from './UniversityDropdown.jsx'
 import './TransferCredit.css'
 
@@ -179,7 +180,7 @@ function TransferCredit() {
           />
           <CourseUrlSection
             id="tc-course-url"
-            label="Course page link (optional)"
+            label="Course page link"
             onFetched={(text, url) => {
               setCourseDetails(text)
               setCourseUrl(url)
@@ -223,6 +224,11 @@ function TransferCredit() {
           />
         </section>
       )}
+
+      <section className="tc-card" aria-labelledby="tc-plan-title">
+        <SectionHeading id="tc-plan-title" icon="check">My study plan</SectionHeading>
+        <StudyPlanTable plan={plan} isLoggedIn={Boolean(user)} />
+      </section>
     </div>
   )
 }
