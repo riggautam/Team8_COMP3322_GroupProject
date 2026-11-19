@@ -78,3 +78,30 @@
 .login-google:hover {
   border-color: var(--color-accent);
 }
+/* "I agree" checkbox: box and text side by side, not stacked like the other fields */
+.login-form .login-terms {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-weight: 400;
+}
+
+/* Undo the underline style that .login-form input gives the text fields */
+.login-form .login-terms input {
+  margin-top: 0.125rem;
+  padding: 0;
+  border: 0;
+  accent-color: var(--color-accent);
+}
+
+.login-terms a,
+.login-fine-print a {
+  color: var(--color-accent);
+}
+
+.login-fine-print {
+  margin: 0.5rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}

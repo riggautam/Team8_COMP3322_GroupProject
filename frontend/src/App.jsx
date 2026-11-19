@@ -10,6 +10,9 @@ const TransferCredit = lazy(() => import('./pages/transfer_credit/TransferCredit
 const Blog = lazy(() => import('./pages/blog/Blog.jsx'))
 const Login = lazy(() => import('./pages/login/Login.jsx'))
 const AdminPage = lazy(() => import('./pages/admin/AdminPage.jsx'))
+const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage.jsx'))
+const TermsPage = lazy(() => import('./pages/legal/TermsPage.jsx'))
+const CreditsPage = lazy(() => import('./pages/legal/CreditsPage.jsx'))
 
 function App() {
   const { user, isLoading } = useAuth()
@@ -28,6 +31,9 @@ function App() {
             <Route path="/map" element={<MapPage />} />
             <Route path="/transfer-credits" element={<TransferCredit />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/credits" element={<CreditsPage />} />
             {/* Only admins see this page. The admin API checks the role again, so this is
                 just to keep everyone else away from an empty page of errors. */}
             <Route

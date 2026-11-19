@@ -104,7 +104,8 @@ async function findOrCreateGoogleUser(profile) {
   // 3. New user: no password, and the same starter checklist as a normal sign-up.
   const displayName = (profile.name || email.split('@')[0]).slice(0, 100)
   const [result] = await pool.query(
-    'INSERT INTO users (email, google_id, display_name) VALUES (?, ?, ?)',
+    // The login page says continuing with Google means agreeing to the Terms and Privacy Policy.
+    'INSERT INTO users (email, google_id, display_name, terms_accepted_at) VALUES (?, ?, ?, NOW())',
     [email, profile.sub, displayName],
   )
   await addStarterChecklist(result.insertId)
@@ -118,6 +119,10 @@ router.post('/register', registerLimiter, async (req, res, next) => {
 
   if (!email || !password || !displayName) {
     return res.status(400).json({ error: 'Name, email and password are required.' })
+  }
+  // The form has a required checkbox; this stops sign-ups that skip the form.
+  if (req.body?.acceptedTerms !== true) {
+    return res.status(400).json({ error: 'Please accept the Terms and Privacy Policy.' })
   }
   if (displayName.length > MAX_NAME_LENGTH) {
     return res.status(400).json({ error: `Name must be ${MAX_NAME_LENGTH} characters or fewer.` })
@@ -137,7 +142,7 @@ router.post('/register', registerLimiter, async (req, res, next) => {
 
     // ? placeholders stop SQL injection: mysql2 escapes the values.
     const [result] = await pool.query(
-      'INSERT INTO users (email, password, display_name) VALUES (?, ?, ?)',
+      'INSERT INTO users (email, password, display_name, terms_accepted_at) VALUES (?, ?, ?, NOW())',
       [email, passwordHash, displayName],
     )
     await addStarterChecklist(result.insertId)

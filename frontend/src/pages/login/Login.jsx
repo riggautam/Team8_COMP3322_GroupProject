@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useNavigate, useSearchParams } from 'react-router'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router'
 import Button from '../../components/forms/Button.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import usePost from '../../hooks/usePost.js'
@@ -10,6 +10,7 @@ function Login() {
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const { error, isLoading, post } = usePost(`/api/auth/${mode}`)
   const { login, user } = useAuth()
   const navigate = useNavigate()
@@ -20,7 +21,7 @@ function Login() {
 
   async function handleSubmit(event) {
     event.preventDefault() // stop the browser's own form submit (a page reload)
-    const result = await post({ displayName, email, password })
+    const result = await post({ displayName, email, password, acceptedTerms })
     if (result.data?.data) {
       login(result.data.data)
       navigate('/dashboard')
@@ -77,6 +78,23 @@ function Login() {
           />
         </label>
 
+        {isRegister && (
+          <label className="login-terms">
+            <input
+              checked={acceptedTerms}
+              onChange={(event) => setAcceptedTerms(event.target.checked)}
+              required
+              type="checkbox"
+            />
+            <span>
+              I agree to the{' '}
+              {/* New tab, so the half-filled form isn't lost. */}
+              <Link to="/terms" target="_blank">Terms</Link> and{' '}
+              <Link to="/privacy" target="_blank">Privacy Policy</Link>
+            </span>
+          </label>
+        )}
+
         {error && (
           <p className="status-message status-message--error" role="alert">
             {error}
@@ -95,6 +113,10 @@ function Login() {
       <a className="login-google" href="/api/auth/google">
         Continue with Google
       </a>
+      <p className="login-fine-print">
+        By continuing with Google you agree to the <Link to="/terms">Terms</Link> and{' '}
+        <Link to="/privacy">Privacy Policy</Link>.
+      </p>
 
       <button
         className="login-switch"

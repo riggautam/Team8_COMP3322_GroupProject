@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const db = require('../../db');
 const requireAuth = require('../../middleware/requireAuth');
 const { isAdmin } = require('../../middleware/requireAdmin');
@@ -13,6 +14,18 @@ const DEFAULT_CATEGORY = 'General';
 const VOTE_VALUES = [1, -1, 0]; // up, down, remove my vote
 
 const FEATURED_WINDOW_HOURS = 72;
+
+// Logged-out visitors can post and comment, which is the easiest way in for spam. They get
+// 5 posts and comments together per hour per IP address. Logged-in users skip this limit
+// (skip runs first), since reports and admins can deal with a named account.
+const anonymousPostLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  limit: 5,
+  skip: (req) => Boolean(req.session.userId),
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many posts from this network. Log in to keep posting, or try again in an hour.' },
+});
 
 // Every post comes back with three vote fields:
 // score: all votes added up (each upvote +1, each downvote -1). SUM gives a DECIMAL,
@@ -136,7 +149,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Anyone can post. Logged-out posts have no author and show as Anonymous.
-router.post('/', async (req, res) => {
+router.post('/', anonymousPostLimiter, async (req, res) => {
   const fields = readPostFields(req.body);
   if (fields.error) {
     return res.status(400).json({ error: fields.error });
@@ -237,7 +250,7 @@ router.get('/:id/comments', async (req, res) => {
   res.json(rows);
 });
 
-router.post('/:id/comments', async (req, res) => {
+router.post('/:id/comments', anonymousPostLimiter, async (req, res) => {
   const content = text(req.body?.content);
   if (!content) {
     return res.status(400).json({ error: 'Comment cannot be empty.' });
