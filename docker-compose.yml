@@ -2,6 +2,9 @@ services:
   db:
     image: mysql:8.4
     restart: unless-stopped
+    # Run MySQL on Hong Kong time, so NOW() and CURDATE() match the clock on campus.
+    # A fixed offset, because the image has no named time zones and Hong Kong has no daylight saving.
+    command: --default-time-zone=+08:00
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
