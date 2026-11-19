@@ -1,0 +1,122 @@
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.admin-page .page-banner {
+  margin-bottom: 0.5rem;
+}
+
+/* White cards, the same look as the dashboard and transfer page */
+.admin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.admin-card .section-heading {
+  font-size: 1.125rem;
+}
+
+.admin-empty {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.admin-error {
+  text-align: left;
+}
+
+.admin-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-item {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.admin-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.admin-badge--hidden {
+  margin-left: 0.5rem;
+  background: #fdecea;
+  color: var(--color-danger);
+}
+
+.admin-preview h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.admin-excerpt {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.admin-meta {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.admin-details {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 0.0625rem solid var(--color-border);
+}
+
+.admin-page .admin-button--secondary {
+  border-color: var(--color-border);
+  background: #fff;
+  color: var(--color-text);
+}
+
+.admin-page .admin-button--danger {
+  border-color: var(--color-danger);
+  background: #fff;
+  color: var(--color-danger);
+}
+
+@media (max-width: 48rem) {
+  .admin-card {
+    padding: 1rem;
+  }
+}

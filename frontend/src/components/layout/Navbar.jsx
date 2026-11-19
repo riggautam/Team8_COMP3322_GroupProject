@@ -9,6 +9,8 @@ function Navbar() {
     { to: '/blog', label: 'Blog' },
     { to: '/map', label: 'Map' },
     { to: '/transfer-credits', label: 'Transfer Credits' },
+    // Only admins get a link to the moderation page.
+    ...(user?.role === 'admin' ? [{ to: '/admin', label: 'Admin' }] : []),
   ]
 
   return (

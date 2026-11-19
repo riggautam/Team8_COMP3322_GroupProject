@@ -41,6 +41,7 @@ function Blog() {
   const [sort, setSort] = useState('featured')
   const [view, setView] = useState('list') // 'list', 'read', 'create' or 'edit'
   const [selectedPost, setSelectedPost] = useState(null)
+  const [notice, setNotice] = useState(null) // e.g. "that post is now hidden"
 
   async function loadPosts() {
     const result = await requestJson('/api/blog-posts')
@@ -107,6 +108,13 @@ function Blog() {
     showList()
   }
 
+  // A report hid the open post (it was the third one), so go back to the list without it.
+  function handleHidden() {
+    loadPosts()
+    showList()
+    setNotice('Thanks. That post is now hidden until an admin reviews it.')
+  }
+
   // Puts the new score, recent_score and my_vote into our copies of the post, so the page
   // updates straight away without reloading every post from the server.
   function handleVoted(postId, votes) {
@@ -129,6 +137,7 @@ function Blog() {
               onBack={showList}
               onEdit={() => setView('edit')}
               onDeleted={handleDeleted}
+              onHidden={handleHidden}
               onVoted={handleVoted}
             />
           )}
@@ -193,6 +202,11 @@ function Blog() {
               </section>
 
               <div className="blog-posts">
+                {notice && (
+                  <p className="report-message" role="status">
+                    {notice}
+                  </p>
+                )}
                 {isLoading && <p role="status">Loading posts…</p>}
                 {loadError && (
                   <p className="status-message status-message--error" role="alert">
@@ -226,6 +240,7 @@ function Blog() {
                         <Button
                           className="blog-read-button"
                           onClick={() => {
+                            setNotice(null)
                             setSelectedPost(post)
                             setView('read')
                           }}

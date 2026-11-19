@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import Button from '../../components/forms/Button.jsx'
+import ReportButton from '../../components/moderation/ReportButton.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
 import VoteControl from './VoteControl.jsx'
 
-function PostDetail({ post, onBack, onEdit, onDeleted, onVoted }) {
+function PostDetail({ post, onBack, onEdit, onDeleted, onHidden, onVoted }) {
   const { user } = useAuth()
   const isOwner = user?.id === post.author_id
+  // The server checks the role again on every request; this only decides which buttons to show.
+  const isAdmin = user?.role === 'admin'
   const [comments, setComments] = useState([])
   const [commentText, setCommentText] = useState('')
   const [commentError, setCommentError] = useState(null)
+  const [commentNotice, setCommentNotice] = useState(null)
   const [isPosting, setIsPosting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
 
@@ -57,19 +61,42 @@ function PostDetail({ post, onBack, onEdit, onDeleted, onVoted }) {
     setCommentText('')
   }
 
+  // The comment's author or an admin can delete it (the server checks this too).
+  async function handleDeleteComment(comment) {
+    if (!window.confirm('Delete this comment?')) return
+
+    setCommentError(null)
+    const result = await requestJson(`/api/blog-posts/${post.id}/comments/${comment.id}`, {
+      method: 'DELETE',
+    })
+    if (result.error) {
+      setCommentError(result.error)
+      return
+    }
+    setComments(comments.filter((item) => item.id !== comment.id))
+  }
+
+  // A report hid this comment (it was the third one), so take it off the screen.
+  function handleCommentHidden(comment) {
+    setComments(comments.filter((item) => item.id !== comment.id))
+    setCommentNotice('Thanks. That comment is now hidden until an admin reviews it.')
+  }
+
   return (
     <article className="blog-card">
       <div className="blog-post-toolbar">
         <Button className="blog-secondary-button" onClick={onBack}>
           ← Back to all posts
         </Button>
-        {isOwner && (
+        {(isOwner || isAdmin) && (
           <div className="blog-post-actions">
-            <Button className="blog-secondary-button" onClick={onEdit}>
-              Edit
-            </Button>
+            {isOwner && (
+              <Button className="blog-secondary-button" onClick={onEdit}>
+                Edit
+              </Button>
+            )}
             <Button className="blog-danger-button" onClick={handleDelete}>
-              Delete
+              {isOwner ? 'Delete' : 'Delete (admin)'}
             </Button>
           </div>
         )}
@@ -96,7 +123,10 @@ function PostDetail({ post, onBack, onEdit, onDeleted, onVoted }) {
       </p>
       <div className="blog-full-content">{post.content}</div>
 
-      <VoteControl post={post} onVoted={onVoted} />
+      <div className="blog-post-bottom">
+        <VoteControl post={post} onVoted={onVoted} />
+        {!isOwner && <ReportButton targetType="post" targetId={post.id} onHidden={onHidden} />}
+      </div>
 
       <hr className="blog-divider" />
 
@@ -124,19 +154,46 @@ function PostDetail({ post, onBack, onEdit, onDeleted, onVoted }) {
           </Button>
         </form>
 
+        {commentNotice && (
+          <p className="report-message blog-comment-notice" role="status">
+            {commentNotice}
+          </p>
+        )}
+
         <div className="blog-comments">
           {comments.length > 0 ? (
-            comments.map((comment) => (
-              <div key={comment.id} className="blog-comment">
-                <div className="blog-comment-header">
-                  <strong>{comment.author}</strong>
-                  <span className="blog-post-meta">
-                    {new Date(comment.created_at).toLocaleDateString()}
-                  </span>
+            comments.map((comment) => {
+              // Anonymous comments have no author, so only an admin can delete them.
+              const canDelete = isAdmin || (user && user.id === comment.author_id)
+              return (
+                <div key={comment.id} className="blog-comment">
+                  <div className="blog-comment-header">
+                    <strong>{comment.author}</strong>
+                    <span className="blog-post-meta">
+                      {new Date(comment.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p>{comment.content}</p>
+                  <div className="blog-comment-actions">
+                    {canDelete ? (
+                      <button
+                        type="button"
+                        className="report-link"
+                        onClick={() => handleDeleteComment(comment)}
+                      >
+                        {isAdmin && user.id !== comment.author_id ? 'Delete (admin)' : 'Delete'}
+                      </button>
+                    ) : (
+                      <ReportButton
+                        targetType="comment"
+                        targetId={comment.id}
+                        onHidden={() => handleCommentHidden(comment)}
+                      />
+                    )}
+                  </div>
                 </div>
-                <p>{comment.content}</p>
-              </div>
-            ))
+              )
+            })
           ) : (
             <p className="blog-post-meta">No comments yet. Be the first to join the conversation!</p>
           )}
