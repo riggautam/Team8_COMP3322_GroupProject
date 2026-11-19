@@ -8,6 +8,7 @@ const Dashboard = lazy(() => import('./pages/dashboard/Dashboard.jsx'))
 const MapPage = lazy(() => import('./pages/map/MapPage.jsx'))
 const TransferCredit = lazy(() => import('./pages/transfer_credit/TransferCredit.jsx'))
 const Blog = lazy(() => import('./pages/blog/Blog.jsx'))
+const EventsPage = lazy(() => import('./pages/events/EventsPage.jsx'))
 const Login = lazy(() => import('./pages/login/Login.jsx'))
 const AdminPage = lazy(() => import('./pages/admin/AdminPage.jsx'))
 const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage.jsx'))
@@ -27,6 +28,7 @@ function App() {
           <Routes>
             <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
             <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+            <Route path="/events" element={<EventsPage />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/transfer-credits" element={<TransferCredit />} />

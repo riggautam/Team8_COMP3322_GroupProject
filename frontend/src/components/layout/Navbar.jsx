@@ -6,6 +6,7 @@ function Navbar() {
   const { user, logout } = useAuth()
   const links = [
     { to: user ? '/dashboard' : '/', label: user ? 'Dashboard' : 'Home' },
+    { to: '/events', label: 'Events' },
     { to: '/blog', label: 'Blog' },
     { to: '/map', label: 'Map' },
     { to: '/transfer-credits', label: 'Transfer Credits' },

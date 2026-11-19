@@ -36,7 +36,8 @@
   font-size: 1.125rem;
 }
 
-.dash-card h3 {
+.dash-card h3,
+.dash-card h4 {
   margin: 0;
   font-size: 1rem;
 }
@@ -53,8 +54,7 @@
   grid-column: span 2;
 }
 
-.dash-list,
-.dash-filters {
+.dash-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -70,28 +70,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-}
-
-.dash-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.dash-filters button {
-  padding: 0.375rem 0.875rem;
-  border: 0.0625rem solid var(--color-border);
-  border-radius: 1rem;
-  background: #fff;
-  color: var(--color-text);
-  font-size: 0.875rem;
-  cursor: pointer;
-}
-
-.dash-filters button[aria-pressed='true'] {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-  color: #fff;
 }
 
 .dash-link-button {
@@ -145,11 +123,7 @@
   border-left: 0.25rem solid var(--event-color, var(--color-accent));
 }
 
-.dash-event[data-category='Academic'] { --event-color: var(--color-accent); }
-.dash-event[data-category='Social'] { --event-color: #2b6cb0; }
-.dash-event[data-category='Food'] { --event-color: var(--color-warning); }
-.dash-event[data-category='Culture'] { --event-color: #7b3f98; }
-.dash-event[data-category='Sports'] { --event-color: var(--color-danger); }
+/* --event-color comes from data-event-category (colours in global.css). */
 
 .dash-event-time {
   flex: none;
@@ -157,6 +131,30 @@
   color: var(--event-color);
   font-size: 0.875rem;
   font-weight: bold;
+}
+
+/* "Tomorrow" or "Sat, 21 Nov" above the time in the Coming up list */
+.dash-event-day {
+  display: block;
+  font-weight: normal;
+}
+
+/* The "Today" and "Coming up" headings inside the events card */
+.dash-card .dash-events-heading {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dash-events-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 0.0625rem solid var(--color-border);
+  font-size: 0.875rem;
 }
 
 .dash-tile {

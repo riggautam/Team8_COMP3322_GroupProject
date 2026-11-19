@@ -25,8 +25,8 @@ function Dashboard() {
   const [eventCategory, setEventCategory] = useState('')
   const { data, error, isLoading } = useGet('/api/dashboard', { refreshInterval: 15000 })
   const { data: weather, error: weatherError } = useGet('/api/weather', { refreshInterval: 600000 })
-  // days=1: today's events only.
-  const eventQuery = eventCategory ? `?days=1&category=${encodeURIComponent(eventCategory)}` : '?days=1'
+  // Today's and all upcoming events; the events card splits them into Today and Coming up.
+  const eventQuery = eventCategory ? `?category=${encodeURIComponent(eventCategory)}` : ''
   const {
     data: eventsData,
     error: eventsError,
@@ -41,6 +41,7 @@ function Dashboard() {
         <EventsSection
           events={eventsData?.events ?? []}
           categories={eventsData?.categories ?? []}
+          today={eventsData?.today}
           category={eventCategory}
           onCategoryChange={setEventCategory}
           isLoading={eventsLoading}
