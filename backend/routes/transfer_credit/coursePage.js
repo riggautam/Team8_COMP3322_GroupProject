@@ -6,7 +6,7 @@ const https = require('node:https');
 const net = require('node:net');
 
 const MAX_PAGE_BYTES = 1_000_000;
-const REQUEST_TIMEOUT_MS = 10_000;
+const REQUEST_TIMEOUT_MS = 30_000;
 
 function isPublicAddress(address) {
   const version = net.isIP(address);
@@ -123,7 +123,8 @@ function makeRequest(url, addresses) {
         method: 'GET',
         headers: {
           Accept: 'text/html,application/xhtml+xml,text/plain,application/json',
-          'User-Agent': 'WEST course information fetcher',
+          'User-Agent': 'Mozilla/5.0 (compatible; WESTCourseFetcher/1.0)',
+          'Accept-Language': 'en',
         },
         lookup: (_hostname, options, callback) => {
           const result = { address: address.address, family: address.family };
