@@ -110,23 +110,26 @@
 }
 
 .dash-badge {
-  padding: 0.125rem 0.5rem;
+  padding: 0.25rem 0.5rem;
   border: 0.0625rem solid currentColor;
   border-radius: 1rem;
-  font-size: 0.75rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
   text-transform: capitalize;
 }
 
+/* Same colours as the study plan table on the transfer page */
 .dash-badge-approved {
-  color: var(--color-accent);
+  color: var(--color-success);
 }
 
 .dash-badge-pending {
-  color: #8a6100;
+  color: var(--color-warning);
 }
 
 .dash-badge-rejected {
-  color: #b3261e;
+  color: var(--color-danger);
 }
 
 @media (max-width: 40rem) {
@@ -282,4 +285,13 @@
 .dash-remove:focus-visible {
   background: var(--color-accent-soft);
   color: var(--color-danger);
+}
+/* Course rows: if the card is narrow, the status and × move under the codes
+   instead of squeezing them onto two lines. */
+.dash-course-row {
+  flex-wrap: wrap;
+}
+
+.dash-course-pair {
+  white-space: nowrap;
 }

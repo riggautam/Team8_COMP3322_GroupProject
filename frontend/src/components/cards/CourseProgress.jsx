@@ -54,16 +54,19 @@ function CourseProgress({
           <div className="dash-ring-wrap">
             <svg viewBox="0 0 36 36" width="72" height="72" role="img" aria-label={`${approved.length} of ${courses.length} courses approved`}>
               <circle className="dash-ring-track" cx="18" cy="18" r="15.9" pathLength="100" />
-              <circle
-                className="dash-ring-value"
-                cx="18"
-                cy="18"
-                r="15.9"
-                pathLength="100"
-                strokeDasharray={`${(approved.length / courses.length) * 100} 100`}
-              />
-              <text x="18" y="21" textAnchor="middle">{approved.length}/{courses.length}</text>
-            </svg>
+              {/* Only draw the green part once something is approved: at 0% the rounded line end
+                  would still show as a dot. */}
+              {approved.length > 0 && (
+                <circle
+                  className="dash-ring-value"
+                  cx="18"
+                  cy="18"
+                  r="15.9"
+                  pathLength="100"
+                  strokeDasharray={`${(approved.length / courses.length) * 100} 100`}
+                />
+              )}
+              {totalCredits(pending)} pending · {rejected.length} rejected            </svg>
             <p>
               <strong>{totalCredits(approved)} credits approved</strong><br />
               {totalCredits(pending)} pending · {rejected.length} rejected
@@ -71,12 +74,14 @@ function CourseProgress({
           </div>
           <ul className="dash-list">
             {courses.map((course) => (
-              <li key={course.id} className="dash-row">
-                <span>
-                  <strong>{course.hkuCode}</strong> → {course.homeCode}
-                  <span className="dash-meta dash-credits">{course.credits} credits</span>
-                </span>
-                <span className="dash-row-actions">
+          <li key={course.id} className="dash-row dash-course-row">
+            <span>
+              <span className="dash-course-pair">
+                <strong>{course.hkuCode}</strong> → {course.homeCode}
+              </span>
+              <span className="dash-meta dash-credits">{course.credits} credits</span>
+            </span>
+          <span className="dash-row-actions">
                   <select
                     aria-label={`Status of ${course.hkuCode}`}
                     className={`dash-badge dash-badge-${course.status}`}
