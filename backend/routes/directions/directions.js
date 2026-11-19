@@ -1,9 +1,25 @@
 const express = require('express')
+const rateLimit = require('express-rate-limit')
 
 const router = express.Router()
 
+// Each "Walk there" asks Google's Routes API from HKU's network, and the server guide warns HKU
+// gets blocked for repeated requests. This limit is separate from the course lookups' one, so
+// using the map doesn't use up someone's matches. Like that one: per account when logged in,
+// per IP address when logged out, with a higher limit because a whole class can share one IP.
+const directionsLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  limit: (req) => (req.session.userId ? 30 : 60),
+  // ipKeyGenerator groups IPv6 addresses properly, so one device can't dodge the limit.
+  keyGenerator: (req) =>
+    req.session.userId ? `user-${req.session.userId}` : rateLimit.ipKeyGenerator(req.ip),
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many route requests. Please try again in an hour.' },
+})
+
 // The browser map key cannot request walking directions, so the server asks Google.
-router.post('/', async (req, res) => {
+router.post('/', directionsLimiter, async (req, res) => {
   const origin = req.body?.origin
   const destination =
     typeof req.body?.destination === 'string'
