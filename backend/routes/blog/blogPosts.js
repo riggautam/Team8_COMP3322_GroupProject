@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../../db');
 const requireAuth = require('../../middleware/requireAuth');
+const { isAdmin } = require('../../middleware/requireAdmin');
 
 const router = express.Router();
 
@@ -42,6 +43,7 @@ const POST_FIELDS = `
 const COMMENT_FIELDS = `
   SELECT
     blog_comments.id,
+    blog_comments.author_id,
     blog_comments.content,
     blog_comments.created_at,
     COALESCE(users.display_name, 'Anonymous') AS author
@@ -86,30 +88,44 @@ router.param('id', (req, res, next, id) => {
   }
   next();
 });
-// Allows only the post's author. Anonymous posts have no author, so nobody can change them.
-async function requirePostOwner(req, res, next) {
+// Allows the post's author or an admin. Anonymous posts have no author, so only an admin
+// can change them.
+async function requirePostOwnerOrAdmin(req, res, next) {
   const [rows] = await db.query('SELECT author_id FROM blog_posts WHERE id = ?', [req.params.id]);
   if (!rows[0]) {
     return res.status(404).json({ error: 'Post not found.' });
   }
-  if (rows[0].author_id !== req.session.userId) {
+  if (rows[0].author_id !== req.session.userId && !(await isAdmin(req.session.userId))) {
     return res.status(403).json({ error: 'You can only change your own posts.' });
   }
   next();
 }
 
+// Hidden posts (reported or hidden by an admin) act as if they don't exist for everyone else.
+async function findVisiblePost(postId) {
+  const [rows] = await db.query('SELECT id FROM blog_posts WHERE id = ? AND hidden = FALSE', [postId]);
+  return rows[0];
+}
+
+router.param('commentId', (req, res, next, id) => {
+  if (!/^[1-9]\d*$/.test(id)) {
+    return res.status(400).json({ error: 'Invalid comment id.' });
+  }
+  next();
+});
+
 // Express 5 sends errors from async routes to the error handler in server.js as a 500.
 
 router.get('/', async (req, res) => {
   const [rows] = await db.query(
-    `${POST_FIELDS} ORDER BY blog_posts.created_at DESC, blog_posts.id DESC`,
+    `${POST_FIELDS} WHERE blog_posts.hidden = FALSE ORDER BY blog_posts.created_at DESC, blog_posts.id DESC`,
     [viewerId(req)],
   );
   res.json(rows);
 });
 
 router.get('/:id', async (req, res) => {
-  const [rows] = await db.query(`${POST_FIELDS} WHERE blog_posts.id = ?`, [
+  const [rows] = await db.query(`${POST_FIELDS} WHERE blog_posts.id = ? AND blog_posts.hidden = FALSE`, [
     viewerId(req),
     req.params.id,
   ]);
@@ -138,8 +154,8 @@ router.post('/', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-// Only the author can edit a post.
-router.put('/:id', requireAuth, requirePostOwner, async (req, res) => {
+// Only the author (or an admin) can edit a post.
+router.put('/:id', requireAuth, requirePostOwnerOrAdmin, async (req, res) => {
   const fields = readPostFields(req.body);
   if (fields.error) {
     return res.status(400).json({ error: fields.error });
@@ -160,8 +176,8 @@ router.put('/:id', requireAuth, requirePostOwner, async (req, res) => {
   res.json(rows[0]);
 });
 
-// Only the author can delete a post. Its comments and votes go too (ON DELETE CASCADE).
-router.delete('/:id', requireAuth, requirePostOwner, async (req, res) => {
+// The author or an admin can delete a post. Its comments and votes go too (ON DELETE CASCADE).
+router.delete('/:id', requireAuth, requirePostOwnerOrAdmin, async (req, res) => {
   const [result] = await db.query('DELETE FROM blog_posts WHERE id = ?', [req.params.id]);
   if (result.affectedRows === 0) {
     return res.status(404).json({ error: 'Post not found.' });
@@ -178,8 +194,7 @@ router.put('/:id/vote', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'Vote must be 1, -1 or 0.' });
   }
 
-  const [posts] = await db.query('SELECT id FROM blog_posts WHERE id = ?', [req.params.id]);
-  if (!posts[0]) {
+  if (!(await findVisiblePost(req.params.id))) {
     return res.status(404).json({ error: 'Post not found.' });
   }
 
@@ -211,13 +226,12 @@ router.put('/:id/vote', requireAuth, async (req, res) => {
 });
 
 router.get('/:id/comments', async (req, res) => {
-  const [posts] = await db.query('SELECT id FROM blog_posts WHERE id = ?', [req.params.id]);
-  if (!posts[0]) {
+  if (!(await findVisiblePost(req.params.id))) {
     return res.status(404).json({ error: 'Post not found.' });
   }
 
   const [rows] = await db.query(
-    `${COMMENT_FIELDS} WHERE blog_comments.post_id = ? ORDER BY blog_comments.created_at ASC, blog_comments.id ASC`,
+    `${COMMENT_FIELDS} WHERE blog_comments.post_id = ? AND blog_comments.hidden = FALSE ORDER BY blog_comments.created_at ASC, blog_comments.id ASC`,
     [req.params.id],
   );
   res.json(rows);
@@ -230,6 +244,10 @@ router.post('/:id/comments', async (req, res) => {
   }
   if (content.length > MAX_COMMENT_LENGTH) {
     return res.status(400).json({ error: `Comment must be ${MAX_COMMENT_LENGTH} characters or fewer.` });
+  }
+
+  if (!(await findVisiblePost(req.params.id))) {
+    return res.status(404).json({ error: 'Post not found.' });
   }
 
   const authorId = req.session.userId ?? null;
@@ -247,6 +265,23 @@ router.post('/:id/comments', async (req, res) => {
     }
     throw err;
   }
+});
+
+// The comment's author or an admin can delete a comment. Anonymous comments: admin only.
+router.delete('/:id/comments/:commentId', requireAuth, async (req, res) => {
+  const [rows] = await db.query('SELECT author_id FROM blog_comments WHERE id = ? AND post_id = ?', [
+    req.params.commentId,
+    req.params.id,
+  ]);
+  if (!rows[0]) {
+    return res.status(404).json({ error: 'Comment not found.' });
+  }
+  if (rows[0].author_id !== req.session.userId && !(await isAdmin(req.session.userId))) {
+    return res.status(403).json({ error: 'You can only delete your own comments.' });
+  }
+
+  await db.query('DELETE FROM blog_comments WHERE id = ?', [req.params.commentId]);
+  res.status(204).end();
 });
 
 module.exports = router;

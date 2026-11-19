@@ -57,8 +57,9 @@ function field(body, name) {
 }
 
 // The only user fields sent back to the browser. Never the password.
+// role lets the page show admin buttons; the server still checks the role on every admin request.
 function publicUser(user) {
-  return { id: user.id, email: user.email, displayName: user.display_name }
+  return { id: user.id, email: user.email, displayName: user.display_name, role: user.role }
 }
 
 // Gives the browser a brand new session id on login, then stores who logged in.
@@ -142,7 +143,7 @@ router.post('/register', registerLimiter, async (req, res, next) => {
     await addStarterChecklist(result.insertId)
 
     await startSession(req, result.insertId)
-    res.status(201).json({ data: { id: result.insertId, email, displayName } })
+    res.status(201).json({ data: { id: result.insertId, email, displayName, role: 'user' } })
   } catch (err) {
     // The UNIQUE rule on users.email rejects a second account with the same email.
     if (err.code === 'ER_DUP_ENTRY') {
@@ -162,7 +163,7 @@ router.post('/login', authLimiter, async (req, res, next) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, email, password, display_name FROM users WHERE email = ?',
+      'SELECT id, email, password, display_name, role FROM users WHERE email = ?',
       [email],
     )
     const user = rows[0]
@@ -187,7 +188,7 @@ router.get('/me', async (req, res, next) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, email, display_name FROM users WHERE id = ?',
+      'SELECT id, email, display_name, role FROM users WHERE id = ?',
       [req.session.userId],
     )
     if (!rows[0]) {

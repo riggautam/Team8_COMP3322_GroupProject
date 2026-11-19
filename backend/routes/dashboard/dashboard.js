@@ -11,6 +11,7 @@ router.get('/', async (req, res, next) => {
          DATE_FORMAT(blog_posts.created_at, '%Y-%m-%dT%H:%i:%s+08:00') AS publishedAt
        FROM blog_posts
        LEFT JOIN users ON blog_posts.author_id = users.id
+       WHERE blog_posts.hidden = FALSE
        ORDER BY blog_posts.created_at DESC
        LIMIT 3`,
     )    
