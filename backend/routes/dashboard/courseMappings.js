@@ -5,6 +5,7 @@ const requireAuth = require('../../middleware/requireAuth')
 const router = express.Router()
 const MAX_CODE_LENGTH = 30
 const MAX_CREDITS = 30
+const MAX_URL_LENGTH = 2048
 const STATUSES = ['pending', 'approved', 'rejected']
 
 // Every course mapping route needs a logged-in user.
@@ -23,6 +24,7 @@ function toMapping(row) {
     id: row.id,
     hkuCode: row.hku_code,
     homeCode: row.home_code,
+    homeUrl: row.home_url,
     credits: Number(row.credits),
     status: row.status,
   }
@@ -32,9 +34,27 @@ function courseCode(value) {
   return typeof value === 'string' ? value.trim().toUpperCase() : ''
 }
 
+// The link to the home course page is optional. Only http and https links are kept:
+// a "javascript:" link would run code in the browser when someone clicks it.
+function readHomeUrl(value) {
+  if (value === undefined || value === null || value === '') return { url: null }
+
+  const text = typeof value === 'string' ? value.trim() : ''
+  let url
+  try {
+    url = new URL(text)
+  } catch {
+    return { error: 'Home course link must be a full web address.' }
+  }
+  if (!['http:', 'https:'].includes(url.protocol) || url.href.length > MAX_URL_LENGTH) {
+    return { error: 'Home course link must be an http or https address.' }
+  }
+  return { url: url.href }
+}
+
 router.get('/', async (req, res) => {
   const [rows] = await pool.query(
-    'SELECT id, hku_code, home_code, credits, status FROM course_mappings WHERE user_id = ? ORDER BY id',
+    'SELECT id, hku_code, home_code, home_url, credits, status FROM course_mappings WHERE user_id = ? ORDER BY id',
     [req.session.userId],
   )
   res.json({ data: rows.map(toMapping) })
@@ -44,6 +64,7 @@ router.post('/', async (req, res) => {
   const hkuCode = courseCode(req.body?.hkuCode)
   const homeCode = courseCode(req.body?.homeCode)
   const credits = Number(req.body?.credits)
+  const homeUrl = readHomeUrl(req.body?.homeUrl)
 
   if (!hkuCode || !homeCode) {
     return res.status(400).json({ error: 'Enter both the HKU and home course codes.' })
@@ -54,14 +75,25 @@ router.post('/', async (req, res) => {
   if (!Number.isFinite(credits) || credits <= 0 || credits > MAX_CREDITS) {
     return res.status(400).json({ error: `Credits must be more than 0 and at most ${MAX_CREDITS}.` })
   }
+  if (homeUrl.error) {
+    return res.status(400).json({ error: homeUrl.error })
+  }
 
-  const [result] = await pool.query(
-    'INSERT INTO course_mappings (user_id, hku_code, home_code, credits) VALUES (?, ?, ?, ?)',
-    [req.session.userId, hkuCode, homeCode, credits],
-  )
-  res.status(201).json({
-    data: { id: result.insertId, hkuCode, homeCode, credits, status: 'pending' },
-  })
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO course_mappings (user_id, hku_code, home_code, home_url, credits) VALUES (?, ?, ?, ?, ?)',
+      [req.session.userId, hkuCode, homeCode, homeUrl.url, credits],
+    )
+    res.status(201).json({
+      data: { id: result.insertId, hkuCode, homeCode, homeUrl: homeUrl.url, credits, status: 'pending' },
+    })
+  } catch (err) {
+    // The unique key on (user_id, hku_code, home_code) rejects a pair that's already saved.
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: `${hkuCode} → ${homeCode} is already in your plan.` })
+    }
+    throw err
+  }
 })
 
 // Checking user_id as well means nobody can change another student's mappings.

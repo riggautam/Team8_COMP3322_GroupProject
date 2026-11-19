@@ -84,9 +84,11 @@ CREATE TABLE IF NOT EXISTS course_mappings (
   user_id INT NOT NULL,
   hku_code VARCHAR(30) NOT NULL,
   home_code VARCHAR(30) NOT NULL,
+  home_url VARCHAR(2048) NULL, -- link to the home course page, when known
   credits DECIMAL(4,1) NOT NULL,
   status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_course_mappings_user (user_id),
+  UNIQUE KEY uq_course_mappings_pair (user_id, hku_code, home_code), -- the same pair can't be saved twice
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
