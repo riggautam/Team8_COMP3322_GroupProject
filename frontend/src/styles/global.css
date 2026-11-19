@@ -66,14 +66,6 @@ body {
   padding-block: 3rem;
 }
 
-.page-content:has(> .map-page) {
-  align-items: stretch;
-  justify-content: flex-start;
-  min-height: 0;
-  padding-block: 1rem;
-  overflow: hidden;
-}
-
 .page-content:has(> .university-comparison) {
   justify-content: flex-start;
 }
