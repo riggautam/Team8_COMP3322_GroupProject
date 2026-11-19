@@ -2,6 +2,7 @@ const express = require('express')
 const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session)
 const pool = require('./db')
+const ensureAdminAccount = require('./setupAdmin')
 const app = express()
 app.set('trust proxy', 1)
 const PORT = process.env.PORT || 5000
@@ -61,6 +62,15 @@ app.use((err, req, res, next) => {
   if (status >= 500) console.error(err)
   res.status(status).json({ error: status < 500 ? err.message : 'Internal server error' })
 })
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+// Check or create the admin account from .env before taking requests. Without a valid
+// ADMIN_EMAIL and ADMIN_PASSWORD the server stops here, so a deployment can't run with no admin.
+ensureAdminAccount()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`)
+    })
+  })
+  .catch((err) => {
+    console.error(`Could not start: ${err.message}`)
+    process.exit(1)
+  })
