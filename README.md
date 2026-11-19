@@ -1,75 +1,86 @@
-# Team8_COMP3322_GroupProject
+# WEST — Website for Exchange Students Today
 
-## Deploy on the COMP3322 server
+WEST helps HKU exchange students plan course transfers, browse events, read and
+moderate blog posts, and navigate campus.
 
-1. Connect to HKUVPN and SSH into your group's Ubuntu server, as described in the
-   COMP3322 Project Server Guide.
-2. Clone or upload this repository and enter its root directory.
-3. Create `.env` from `.env.example`. Set unique, strong database passwords and add
-   the required API keys. For production, set `BACKEND_TARGET=backend-prod`,
-   `FRONTEND_TARGET=frontend-prod`, and set both `FRONTEND_HOST_PORT` and
-   `FRONTEND_CONTAINER_PORT` to `80`. Do not commit `.env`. The Google Maps key is
-   included in browser code, so restrict it to the required APIs and your server's
-   HTTP referrer.
-4. Start the production services:
+## Deployment
 
-   ```sh
-   docker compose up -d --build
-   ```
+**Live URL:** https://c3322-pg08.cs.hku.hk/
 
-5. Visit `http://c3322-pg08.cs.hku.hk`.
+The deployment uses a self-signed certificate, so browsers show a warning.
 
-The production Compose setup builds the frontend as static files, serves them with
-Nginx on host port 80, and proxies `/api/` requests to the backend. The backend and
-MySQL are not published to host ports. MySQL data is kept in the `db-data` volume;
-`docker compose down` does not delete it. Back up this volume before server
-maintenance or data migrations.
+## Rebuild on the COMP3322 Server
 
-## Dashboard data
+Requirements: HKUVPN, Docker Compose, Git, and OpenSSL on the Ubuntu server.
 
-The shared dashboard data comes from the MySQL `events`, `blog_posts`, and
-`food_spots` tables defined in `db/init/01-schema.sql`, with sample data in
-`db/init/02-seed.sql`. Blog posts, food spots, and today's events are checked every 15 seconds; the page updates only when the returned data changes. Hong Kong weather comes from Open-Meteo and is
-refreshed every 10 minutes. Course mappings and checklist items are stored per signed-in user.
-
-On a new database, Compose runs both SQL files automatically. If the `db-data` volume already exists, apply any new tables without deleting the volume:
 ```sh
-docker compose exec -T db sh -c 'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' < db/init/01-schema.sql
+ssh -i ~/.ssh/id_rsa ubuntu@c3322-pg08.cs.hku.hk
+git clone https://github.com/riggautam/Team8_COMP3322_GroupProject.git
+cd Team8_COMP3322_GroupProject
+cp .env.example .env
 ```
 
-The read endpoints are ready to reflect database changes; authenticated content
-management endpoints are not part of this feature.
+Update `.env` with the group's real secrets and API keys:
 
-The public landing page is `/`. After signing in, the current user is sent to
-`/dashboard`, which is available only while the frontend has a signed-in user.
-Events, posts, and food spots remain shared content; course mappings and checklist items belong to each account.
+```env
+BACKEND_TARGET=backend-prod
+FRONTEND_TARGET=frontend-prod
+FRONTEND_HOST_PORT=443
+FRONTEND_CONTAINER_PORT=443
+CERTS_DIR=/home/ubuntu/certs
+GOOGLE_REDIRECT_URI=https://c3322-pg08.cs.hku.hk/api/auth/google/callback
+```
 
-To check service status and logs:
+Also replace all `change-me` values and example passwords, and set a random
+`SESSION_SECRET` of at least 32 characters. Never commit `.env` or private keys.
+
+Create the self-signed certificate:
 
 ```sh
+mkdir -p ~/certs
+openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+  -keyout ~/certs/server.key \
+  -out ~/certs/server.crt \
+  -subj "/CN=c3322-pg08.cs.hku.hk"
+```
+
+Build and start:
+
+```sh
+docker compose up -d --build
 docker compose ps
-docker compose logs -f
+docker compose logs --tail=50
 ```
 
-This deployment uses plain HTTP as permitted by the server guide. Passwords are hashed with bcrypt before storage, but HTTP does not encrypt them in transit, so do not use real or reused passwords.
+Open <https://c3322-pg08.cs.hku.hk/> and continue past the certificate warning.
+MySQL is initialized automatically from `db/init/`; existing data remains in
+the `db-data` Docker volume across container rebuilds.
 
-## Local development
-
-Use the development target and ports from `.env.example`, then run:
+To rebuild application containers without deleting database data:
 
 ```sh
+docker compose down
+docker compose up -d --build
+```
+
+## Local Development
+
+```sh
+cp .env.example .env
 docker compose up --build
 ```
 
-Open <http://localhost:8080>. After changing source code, run
-`docker compose up --build` to rebuild the development images. Stop the services
-with `Ctrl+C`, or run `docker compose down`.
+Open <http://localhost:8080>. The `.env.example` development targets use Vite
+with the backend and MySQL in Docker. Replace the example credentials and keys
+before running.
 
-The backend reads `OPENROUTER_API_KEY` from the root `.env`; keep it out of source
-control. Transfer requests send the selected universities and exchange course
-description to OpenRouter's `nvidia/nemotron-3-ultra-550b-a55b:free` model and ask
-it to return the exchange course code and name plus up to three ranked home-university
-course suggestions with rough match percentages in JSON, which the backend validates.
-Suggestions, percentages, and course links are not web-verified, so review them before
-relying on them. The request timeout is two minutes. Free model availability and
-rate limits are controlled by OpenRouter.
+## Configuration Notes
+
+- `MYSQL_*`: database and backend connection settings.
+- `SESSION_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`: required backend settings.
+- `GOOGLE_MAPS_API_KEY`, `VITE_GOOGLE_MAPS_API_KEY`: Google Maps.
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`: Google login.
+- `OPENROUTER_API_KEY`: AI-assisted course matching.
+
+The backend and MySQL are not exposed to the host. Production Nginx publishes
+only HTTPS on port 443 and proxies `/api/` requests to the backend.
