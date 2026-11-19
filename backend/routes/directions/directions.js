@@ -81,9 +81,11 @@ router.post('/', directionsLimiter, async (req, res) => {
 
     const data = await googleResponse.json()
     if (!googleResponse.ok) {
-      console.error('Routes API error:', googleResponse.status, data.error?.message)
-      // Google answers 400 when it can't find one of the places.
-      if (googleResponse.status === 400) {
+      const message = data.error?.message || ''
+      console.error('Routes API error:', googleResponse.status, message)
+      // Google answers 400 when it can't find one of the places, but also for a bad API key.
+      // A key problem is the server's fault, so it falls through to the 502 below.
+      if (googleResponse.status === 400 && !/api key/i.test(message)) {
         return res
           .status(404)
           .json({ error: 'Could not find one of those places. Try a fuller name, like "HKU Main Library".' })

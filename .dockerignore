@@ -2,5 +2,11 @@
 .github
 **/node_modules
 **/.env
+**/.env.*
+!.env.example
+certs
+**/*.key
+**/*.pem
+**/.DS_Store
 **/npm-debug.log*
 frontend/dist
