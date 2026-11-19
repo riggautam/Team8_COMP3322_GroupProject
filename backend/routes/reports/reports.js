@@ -21,7 +21,7 @@ const reportLimiter = rateLimit({
   message: { error: 'Too many reports. Please try again later.' },
 })
 
-// Report a post or comment: { targetType, targetId, reason, details? }.
+// Report a post, comment or event: { targetType, targetId, reason, details? }.
 // requireAuth runs first, so the limiter always has a user id to count by.
 router.post('/', requireAuth, reportLimiter, async (req, res) => {
   const targetType = req.body?.targetType

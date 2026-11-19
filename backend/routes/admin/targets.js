@@ -25,6 +25,15 @@ const TARGETS = {
       LEFT JOIN users ON users.id = blog_comments.author_id
       WHERE blog_comments.id IN (?)`,
   },
+  event: {
+    table: 'events',
+    preview: `
+      SELECT events.id, events.title, LEFT(events.description, ${EXCERPT_LENGTH}) AS excerpt,
+        events.hidden, events.created_at, COALESCE(users.display_name, 'WEST') AS author
+      FROM events
+      LEFT JOIN users ON users.id = events.created_by
+      WHERE events.id IN (?)`,
+  },
 }
 
 // Object.hasOwn, not "in": a request can't sneak in names like "constructor".

@@ -7,7 +7,7 @@ import requestJson from '../../hooks/requestJson.js'
 import './AdminPage.css'
 
 const REASON_LABELS = Object.fromEntries(REPORT_REASONS.map((reason) => [reason.value, reason.label]))
-const TYPE_LABELS = { post: 'Blog post', comment: 'Comment' }
+const TYPE_LABELS = { post: 'Blog post', comment: 'Comment', event: 'Event' }
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' })
 
 // What the admin sees of one reported or hidden item. item is null if it was deleted already.
@@ -77,7 +77,7 @@ function AdminPage() {
     <div className="admin-page">
       <PageBanner
         title="Moderation"
-        description="Review reported posts and comments, and anything that is hidden."
+        description="Review reported posts, comments and events, and anything that is hidden."
       />
 
       {error && (

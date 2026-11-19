@@ -56,13 +56,17 @@ CREATE TABLE IF NOT EXISTS events (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
   category VARCHAR(50) NOT NULL,
-  starts_at DATETIME NOT NULL,
+  starts_at DATETIME NOT NULL,          -- Hong Kong time
   location VARCHAR(255) NOT NULL,
-  description TEXT NOT NULL,
+  description TEXT NOT NULL,            -- '' when the creator left it empty
+  created_by INT NULL,                  -- NULL for the sample events, shown as "WEST"
+  hidden BOOLEAN NOT NULL DEFAULT FALSE, -- hidden by reports or an admin; left out of public lists
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_events_title_start (title, starts_at),
-  KEY idx_events_starts_at (starts_at)
+  KEY idx_events_starts_at (starts_at),
+  -- Deleting an account keeps its events. They then show as "WEST" and only an admin can change them.
+  CONSTRAINT fk_events_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS food_spots (

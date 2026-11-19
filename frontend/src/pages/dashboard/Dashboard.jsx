@@ -25,7 +25,8 @@ function Dashboard() {
   const [eventCategory, setEventCategory] = useState('')
   const { data, error, isLoading } = useGet('/api/dashboard', { refreshInterval: 15000 })
   const { data: weather, error: weatherError } = useGet('/api/weather', { refreshInterval: 600000 })
-  const eventQuery = eventCategory ? `?category=${encodeURIComponent(eventCategory)}` : ''
+  // days=1: today's events only.
+  const eventQuery = eventCategory ? `?days=1&category=${encodeURIComponent(eventCategory)}` : '?days=1'
   const {
     data: eventsData,
     error: eventsError,
