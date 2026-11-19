@@ -502,3 +502,58 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Manual add form under the study plan */
+.plan-form {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 0.0625rem solid var(--color-border);
+}
+
+.plan-form-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.plan-form-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.plan-field {
+  display: flex;
+  flex: 1 1 8rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.plan-field--wide {
+  flex: 2 1 14rem;
+}
+
+.plan-field--small {
+  flex: 0 0 5.5rem;
+}
+
+.plan-field input {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.plan-field input:focus-visible {
+  border-color: var(--color-accent);
+  outline: 0.0625rem solid var(--color-accent);
+}
