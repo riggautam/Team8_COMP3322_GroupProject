@@ -14,12 +14,9 @@ router.get('/', async (req, res, next) => {
        WHERE blog_posts.hidden = FALSE
        ORDER BY blog_posts.created_at DESC
        LIMIT 3`,
-    )    
-    const [foodSpots] = await pool.query(
-      'SELECT id, name, cuisine, walk_minutes AS walkMinutes FROM food_spots ORDER BY name',
     )
 
-    res.json({ latestPosts: posts, foodSpots })
+    res.json({ latestPosts: posts })
   } catch (error) {
     next(error)
   }

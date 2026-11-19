@@ -2,7 +2,6 @@ import { useState } from 'react'
 import Checklist from '../../components/cards/Checklist.jsx'
 import CourseProgress from '../../components/cards/CourseProgress.jsx'
 import EventsSection from '../../components/cards/EventsSection.jsx'
-import FoodSpots from '../../components/cards/FoodSpots.jsx'
 import LatestPosts from '../../components/cards/LatestPosts.jsx'
 import QuickLinks from '../../components/navigation/QuickLinks.jsx'
 import WelcomeHeader from '../../components/layout/WelcomeHeader.jsx'
@@ -51,12 +50,7 @@ function Dashboard() {
 
         {isLoading && <p role="status">Loading…</p>}
         {error && <p role="alert">Could not load data: {error}</p>}
-        {data && (
-          <>
-            <LatestPosts posts={data.latestPosts} />
-            <FoodSpots spots={data.foodSpots} />
-          </>
-        )}
+        {data && <LatestPosts posts={data.latestPosts} />}
         <CourseProgress
           courses={courseMappings.courses}
           error={courseMappings.error}

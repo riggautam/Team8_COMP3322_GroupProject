@@ -28,8 +28,3 @@ INSERT INTO blog_posts (title, content, category, created_at) VALUES
   ('Cheap eats in Kennedy Town and Sai Ying Pun', 'Budget-friendly dim sum, cart noodles, and cafes just a short MTR ride or walk away from Centennial Campus.', 'Food', DATE_SUB(NOW(), INTERVAL 6 DAY)),
   ('Best weekend hikes starting near campus', 'From Lugard Road at Victoria Peak to Mount Davis: quick nature escapes when you need a study break.', 'Hong Kong', DATE_SUB(NOW(), INTERVAL 10 DAY)),
   ('Surviving midterm season: Quiet library spots', 'Hidden study nooks in Chi Wah Learning Commons, Knowles Building, and Fung Ping Shan Library.', 'Academic', DATE_SUB(NOW(), INTERVAL 14 DAY));
-
-INSERT INTO food_spots (name, cuisine, walk_minutes) VALUES
-  ('Main Building Canteen', 'Local set meals', 3),
-  ('Sai Ying Pun Dim Sum House', 'Cantonese', 8),
-  ('Centennial Campus Cafe', 'Cafe and sandwiches', 5);

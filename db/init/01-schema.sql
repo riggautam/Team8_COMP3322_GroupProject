@@ -80,14 +80,6 @@ CREATE TABLE IF NOT EXISTS saved_events (
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS food_spots (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(150) NOT NULL UNIQUE,
-  cuisine VARCHAR(100) NOT NULL,
-  walk_minutes SMALLINT UNSIGNED NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
 -- Each student's own checklist. New accounts get a starter list (see backend/starterChecklist.js).
 CREATE TABLE IF NOT EXISTS checklist_items (
   id INT AUTO_INCREMENT PRIMARY KEY,
