@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const pool = require('./db')
+const addStarterChecklist = require('./starterChecklist')
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 8
@@ -7,7 +8,8 @@ const EXAMPLE_PASSWORD = 'change-me-to-a-long-password' // the placeholder in .e
 
 // Makes sure the admin account from .env exists, so a brand-new server has an admin straight
 // away, and nobody else can sign up with that email first (sign-up gives 409 for it).
-// - No account with ADMIN_EMAIL yet: create it, with ADMIN_PASSWORD hashed, as an admin.
+// - No account with ADMIN_EMAIL yet: create it, with ADMIN_PASSWORD hashed, as an admin,
+//   with the same starter checklist as any new student account.
 // - The account already exists: make sure it is an admin. Its password is left alone.
 // Throws if the settings are missing or still the example, and server.js then refuses to start.
 async function ensureAdminAccount() {
@@ -33,10 +35,11 @@ async function ensureAdminAccount() {
   }
 
   const passwordHash = await bcrypt.hash(password, 10)
-  await pool.query(
+  const [result] = await pool.query(
     "INSERT INTO users (email, password, display_name, role, terms_accepted_at) VALUES (?, ?, 'Admin', 'admin', NOW())",
     [email, passwordHash],
   )
+  await addStarterChecklist(result.insertId)
   console.log(`Created the admin account ${email}.`)
 }
 

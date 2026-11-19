@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS food_spots (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
--- Each student's own checklist. New accounts get a starter list (see routes/auth/auth.js).
+-- Each student's own checklist. New accounts get a starter list (see backend/starterChecklist.js).
 CREATE TABLE IF NOT EXISTS checklist_items (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,

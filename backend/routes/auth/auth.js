@@ -3,19 +3,10 @@ const bcrypt = require('bcryptjs')
 const rateLimit = require('express-rate-limit')
 const pool = require('../../db')
 const crypto = require('crypto')
+const addStarterChecklist = require('../../starterChecklist')
 
 const router = express.Router()
 
-
-// Every new account starts with these. Students can tick, remove or add to them.
-const STARTER_CHECKLIST = [
-  'Collect student visa / HKID',
-  'Get an Octopus card',
-  'Open a local bank account',
-  'Register for courses',
-  'Submit course mapping for approval',
-  'Take a campus tour',
-]
 
 // Google's OAuth 2.0 endpoints.
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -71,13 +62,6 @@ function startSession(req, userId) {
       req.session.save((saveError) => (saveError ? reject(saveError) : resolve()))
     })
   })
-}
-
-// Gives a new account the starter checklist. VALUES ? with nested arrays inserts one row per item.
-function addStarterChecklist(userId) {
-  return pool.query('INSERT INTO checklist_items (user_id, label) VALUES ?', [
-    STARTER_CHECKLIST.map((label) => [userId, label]),
-  ])
 }
 
 // Finds the account for this Google user, linking or creating one if needed. Returns the user id.
