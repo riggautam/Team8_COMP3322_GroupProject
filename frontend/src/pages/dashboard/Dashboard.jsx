@@ -14,7 +14,7 @@ import './Dashboard.css'
 
 const QUICK_LINKS = [
   { icon: 'pen', href: '/blog', title: 'Blog', text: 'Read and share stories' },
-  { icon: 'map', href: '/map', title: 'Campus Map', text: 'Find classrooms and food' },
+  { icon: 'map', href: '/map', title: 'Campus Map', text: 'Walking directions to classrooms' },
   { icon: 'book', href: '/transfer-credits', title: 'Transfer Credits', text: 'Plan course equivalencies' },
 ]
 
