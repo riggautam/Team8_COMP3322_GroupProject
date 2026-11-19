@@ -6,7 +6,13 @@
 }
 
 .transfer-credit-page .page-banner {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
+}
+
+.tc-limitations {
+  margin: -0.5rem 0 0.5rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
 }
 
 /* White cards, the same look as the dashboard and blog */

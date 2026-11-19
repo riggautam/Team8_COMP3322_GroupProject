@@ -138,6 +138,10 @@ function TransferCredit() {
         title="Course transfer planner"
         description="Find courses that could transfer between HKU and your home university, then save them to your study plan."
       />
+      <p className="tc-limitations" role="note">
+        Known limitation: URLs ending in hku.hk cannot currently be fetched from our
+        production server. Paste the course details manually instead.
+      </p>
 
       <section className="tc-card" aria-labelledby="tc-match-title">
         <SectionHeading id="tc-match-title" icon="book">Find matching courses</SectionHeading>
