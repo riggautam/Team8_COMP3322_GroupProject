@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { formatTime } from '../../components/events/eventDates.js'
+import SaveEventButton from '../../components/events/SaveEventButton.jsx'
 import ReportButton from '../../components/moderation/ReportButton.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
 
 // One event in the list. Clicking the title opens its details and buttons.
 // onRemoved(message) runs after the event was deleted, or hidden by this person's report.
-function EventItem({ event, onEdit, onRemoved }) {
+// isSaved and onToggleSave come from useSavedEvents, for the ☆ button.
+function EventItem({ event, onEdit, onRemoved, isSaved, onToggleSave }) {
   const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -86,6 +88,7 @@ function EventItem({ event, onEdit, onRemoved }) {
           </div>
         )}
       </div>
+      <SaveEventButton event={event} isSaved={isSaved} onToggle={onToggleSave} />
     </li>
   )
 }

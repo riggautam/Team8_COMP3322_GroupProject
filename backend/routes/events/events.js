@@ -29,14 +29,30 @@ const createEventLimiter = rateLimit({
 
 // Every route sends events in this shape. startsAt is Hong Kong time with its +08:00 offset.
 // Events with no creator are the sample ones, shown as added by "WEST".
+// saved: whether the visitor has saved this event. The ? is the visitor's user id, so every
+// query that uses EVENT_FIELDS passes viewerId(req) as its first value.
 const EVENT_FIELDS = `
   SELECT events.id, events.title, events.category,
     DATE_FORMAT(events.starts_at, '%Y-%m-%dT%H:%i:%s+08:00') AS startsAt,
     events.location, events.description,
     events.created_by AS createdById,
-    COALESCE(users.display_name, 'WEST') AS createdBy
+    COALESCE(users.display_name, 'WEST') AS createdBy,
+    EXISTS (
+      SELECT 1 FROM saved_events
+      WHERE saved_events.event_id = events.id AND saved_events.user_id = ?
+    ) AS saved
   FROM events
   LEFT JOIN users ON users.id = events.created_by`
+
+// MySQL sends EXISTS back as 1 or 0, so turn saved into true or false for the page.
+function toEvent(row) {
+  return { ...row, saved: Boolean(row.saved) }
+}
+
+// The logged-in user's id, or 0 when logged out. No user has id 0, so saved comes back false.
+function viewerId(req) {
+  return req.session.userId ?? 0
+}
 
 function text(value) {
   return typeof value === 'string' ? value.trim() : ''
@@ -142,7 +158,7 @@ router.get('/', async (req, res) => {
     'events.starts_at >= CURDATE()',
     'events.starts_at < CURDATE() + INTERVAL ? DAY',
   ]
-  const values = [Number(days)]
+  const values = [viewerId(req), Number(days)]
   if (category) {
     conditions.push('events.category = ?')
     values.push(category)
@@ -156,7 +172,7 @@ router.get('/', async (req, res) => {
   // visitor's own clock or time zone.
   const [[{ today }]] = await pool.query("SELECT DATE_FORMAT(CURDATE(), '%Y-%m-%d') AS today")
 
-  res.json({ categories: CATEGORIES, today, events })
+  res.json({ categories: CATEGORIES, today, events: events.map(toEvent) })
 })
 
 // Logged-in users can add events.
@@ -171,8 +187,8 @@ router.post('/', requireAuth, createEventLimiter, async (req, res) => {
       'INSERT INTO events (title, category, starts_at, location, description, created_by) VALUES (?, ?, ?, ?, ?, ?)',
       [fields.title, fields.category, fields.startsAt, fields.location, fields.description, req.session.userId],
     )
-    const [rows] = await pool.query(`${EVENT_FIELDS} WHERE events.id = ?`, [result.insertId])
-    res.status(201).json(rows[0])
+    const [rows] = await pool.query(`${EVENT_FIELDS} WHERE events.id = ?`, [viewerId(req), result.insertId])
+    res.status(201).json(toEvent(rows[0]))
   } catch (err) {
     // The unique key (title, starts_at) stops the same event being added twice.
     if (err.code === 'ER_DUP_ENTRY') {
@@ -204,8 +220,8 @@ router.put('/:id', requireAuth, requireEventOwnerOrAdmin, async (req, res) => {
     throw err
   }
 
-  const [rows] = await pool.query(`${EVENT_FIELDS} WHERE events.id = ?`, [req.params.id])
-  res.json(rows[0])
+  const [rows] = await pool.query(`${EVENT_FIELDS} WHERE events.id = ?`, [viewerId(req), req.params.id])
+  res.json(toEvent(rows[0]))
 })
 
 // The creator or an admin can delete an event.
@@ -214,6 +230,29 @@ router.delete('/:id', requireAuth, requireEventOwnerOrAdmin, async (req, res) =>
   if (result.affectedRows === 0) {
     return res.status(404).json({ error: 'Event not found.' })
   }
+  res.status(204).end()
+})
+
+// Save (bookmark) an event, so it shows under Saved on the dashboard. Hidden events can't be saved.
+router.put('/:id/save', requireAuth, async (req, res) => {
+  const [rows] = await pool.query('SELECT id FROM events WHERE id = ? AND hidden = FALSE', [req.params.id])
+  if (!rows[0]) {
+    return res.status(404).json({ error: 'Event not found.' })
+  }
+  // Saving an event that is already saved changes nothing, instead of failing on the primary key.
+  await pool.query(
+    'INSERT INTO saved_events (user_id, event_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE user_id = user_id',
+    [req.session.userId, req.params.id],
+  )
+  res.status(204).end()
+})
+
+// Unsave an event. Unsaving one that isn't saved changes nothing, so it is still a 204.
+router.delete('/:id/save', requireAuth, async (req, res) => {
+  await pool.query('DELETE FROM saved_events WHERE user_id = ? AND event_id = ?', [
+    req.session.userId,
+    req.params.id,
+  ])
   res.status(204).end()
 })
 

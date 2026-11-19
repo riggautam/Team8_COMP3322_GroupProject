@@ -125,6 +125,12 @@
 
 /* --event-color comes from data-event-category (colours in global.css). */
 
+/* The title and details take the space between the time and the ☆ button. */
+.dash-event-body {
+  flex: 1;
+  min-width: 0;
+}
+
 .dash-event-time {
   flex: none;
   min-width: 4.5rem;

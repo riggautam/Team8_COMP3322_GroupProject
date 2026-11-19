@@ -69,6 +69,17 @@ CREATE TABLE IF NOT EXISTS events (
   CONSTRAINT fk_events_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Events a student has saved (bookmarked) to see on their dashboard. One row per student per event.
+CREATE TABLE IF NOT EXISTS saved_events (
+  user_id INT NOT NULL,
+  event_id INT NOT NULL,
+  saved_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, event_id), -- saving the same event twice keeps one row
+  KEY idx_saved_events_event (event_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS food_spots (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL UNIQUE,

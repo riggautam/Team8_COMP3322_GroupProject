@@ -1,0 +1,30 @@
+.save-event {
+  flex: none;
+  align-self: flex-start;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  line-height: 2rem;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.save-event[aria-pressed='true'] {
+  color: var(--color-warning);
+}
+
+.save-event:hover,
+.save-event:focus-visible {
+  background: var(--color-accent-soft);
+}
+
+.save-event:disabled {
+  cursor: default;
+  opacity: 0.6;
+}

@@ -6,6 +6,7 @@ import CategoryFilter from '../../components/events/CategoryFilter.jsx'
 import { dayLabel, groupByDay } from '../../components/events/eventDates.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import requestJson from '../../hooks/requestJson.js'
+import useSavedEvents from '../../hooks/useSavedEvents.js'
 import EventForm from './EventForm.jsx'
 import EventItem from './EventItem.jsx'
 import './Events.css'
@@ -23,6 +24,7 @@ function EventsPage() {
   const [formEvent, setFormEvent] = useState(user && searchParams.has('add') ? 'new' : null)
   const [notice, setNotice] = useState(null) // e.g. "Deleted ..."
   const noticeRef = useRef(null)
+  const savedEvents = useSavedEvents()
 
   async function loadEvents() {
     const result = await requestJson('/api/events')
@@ -102,6 +104,11 @@ function EventsPage() {
             {notice}
           </p>
         )}
+        {savedEvents.error && (
+          <p className="status-message status-message--error events-form-error" role="alert">
+            Could not save that event: {savedEvents.error}
+          </p>
+        )}
         {loadError && (
           <p className="status-message status-message--error events-form-error" role="alert">
             Could not load events: {loadError}
@@ -120,7 +127,14 @@ function EventsPage() {
             <h2 id={`day-${group.day}`}>{dayLabel(group.day, data.today)}</h2>
             <ul className="events-list">
               {group.events.map((event) => (
-                <EventItem key={event.id} event={event} onEdit={openForm} onRemoved={handleRemoved} />
+                <EventItem
+                  key={event.id}
+                  event={event}
+                  onEdit={openForm}
+                  onRemoved={handleRemoved}
+                  isSaved={savedEvents.isSaved(event)}
+                  onToggleSave={savedEvents.toggleSaved}
+                />
               ))}
             </ul>
           </section>
