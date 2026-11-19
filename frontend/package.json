@@ -2,6 +2,8 @@
   "name": "west",
   "private": true,
   "version": "0.0.0",
+  "description": "React frontend for WEST (Website for Exchange Students Today), an HKU COMP3322 group project.",
+  "license": "UNLICENSED",
   "type": "module",
   "scripts": {
     "dev": "vite",
